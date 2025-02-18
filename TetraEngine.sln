@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "external", "external", "{8F
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLFW", "deps\glfw\GLFW.vcxproj", "{154B857C-0182-860D-AA6E-6C109684020F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glad", "deps\glad\glad.vcxproj", "{DD62977C-C999-980D-7286-7E105E9C140F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win64 = Debug|Win64
@@ -21,11 +23,16 @@ Global
 		{154B857C-0182-860D-AA6E-6C109684020F}.Debug|Win64.Build.0 = Debug Win64|x64
 		{154B857C-0182-860D-AA6E-6C109684020F}.Release|Win64.ActiveCfg = Release Win64|x64
 		{154B857C-0182-860D-AA6E-6C109684020F}.Release|Win64.Build.0 = Release Win64|x64
+		{DD62977C-C999-980D-7286-7E105E9C140F}.Debug|Win64.ActiveCfg = Debug Win64|x64
+		{DD62977C-C999-980D-7286-7E105E9C140F}.Debug|Win64.Build.0 = Debug Win64|x64
+		{DD62977C-C999-980D-7286-7E105E9C140F}.Release|Win64.ActiveCfg = Release Win64|x64
+		{DD62977C-C999-980D-7286-7E105E9C140F}.Release|Win64.Build.0 = Release Win64|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{154B857C-0182-860D-AA6E-6C109684020F} = {8FC084F2-7B8E-78F8-6422-E91E508F545D}
+		{DD62977C-C999-980D-7286-7E105E9C140F} = {8FC084F2-7B8E-78F8-6422-E91E508F545D}
 	EndGlobalSection
 EndGlobal

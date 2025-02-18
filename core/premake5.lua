@@ -8,18 +8,21 @@ project "TetraEngine"
 
     includedirs
     {
-        "%{includepaths.GLFW}"
+        "%{includepaths.GLFW}",
+        "%{includepaths.glad}",
     }
     files
     {
         "**.h",
         "**.hpp",
         "**.c",
-        "**.cpp"
+        "**.cpp",
     }
     links
     {
-        "GLFW"
+        "opengl32.lib",
+        "GLFW",
+        "glad",
     }
     
 	filter "system:windows"
