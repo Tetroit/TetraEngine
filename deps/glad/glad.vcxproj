@@ -41,13 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win64|x64'">
     <OutDir>..\..\lib\Debug\</OutDir>
-    <IntDir>..\..\obj\GLFW\Win64\Debug\glad\</IntDir>
+    <IntDir>..\..\obj\glad\Win64\Debug\</IntDir>
     <TargetName>glad</TargetName>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Win64|x64'">
     <OutDir>..\..\lib\Release\</OutDir>
-    <IntDir>..\..\obj\GLFW\Win64\Release\glad\</IntDir>
+    <IntDir>..\..\obj\glad\Win64\Release\</IntDir>
     <TargetName>glad</TargetName>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>

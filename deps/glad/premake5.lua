@@ -3,7 +3,7 @@ project "glad"
     language "C"
     
     targetdir(libpath)
-    objdir(objpath .. "/GLFW")
+    objdir(objpath .. "/glad")
 
     includedirs
     {

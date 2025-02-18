@@ -10,6 +10,8 @@ project "TetraEngine"
     {
         "%{includepaths.GLFW}",
         "%{includepaths.glad}",
+        "%{includepaths.ImGui}",
+        "%{includepaths.glm}",
     }
     files
     {
@@ -23,6 +25,7 @@ project "TetraEngine"
         "opengl32.lib",
         "GLFW",
         "glad",
+        "imgui",
     }
     
 	filter "system:windows"
