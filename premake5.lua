@@ -1,4 +1,7 @@
 workspace "TetraEngine"
+
+	startproject "TetraEngine"
+
 	configurations
 	{
 		"Debug",
@@ -14,13 +17,17 @@ workspace "TetraEngine"
 		architecture "x64"
 	filter ""
 
+	outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+	libpath = "%{wks.location}/lib"
+	objpath = "%{wks.location}/obj"
 
 	extern = {}
-	extern["GLFW"] = "glfw"
+	extern["GLFW"] = "%{wks.location}/deps/glfw"
+	includepaths = {}
+	includepaths["GLFW"] = "%{extern.GLFW}/include"
 
-	group "extern"
-		include "TetraEngine/extern/ImGui"
-		include "TetraEngine/extern/glad"
+	group "external"
+		include "deps/glfw"
 	group ""
-	
+
 	include "core"
