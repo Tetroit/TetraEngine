@@ -1,4 +1,4 @@
-#include <iostream>
+#include "tetrapc.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -8,6 +8,8 @@
 #include <backends/imgui_impl_opengl3.h>
 
 #include <glm/glm.hpp>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 void processInput(GLFWwindow* window)
 {
@@ -41,6 +43,12 @@ int main() {
 	}
 	std::cout << "Success\n";
 
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+	{
+		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return -1;
+	}
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();

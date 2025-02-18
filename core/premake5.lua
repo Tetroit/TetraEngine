@@ -6,12 +6,17 @@ project "TetraEngine"
     targetdir ("%{wks.location}/build/" .. outputdir .. "")
     objdir ("" .. objpath .. "/%{prj.name}/" .. outputdir .. "")
 
+	pchheader ("tetrapc.h")
+	pchsource ("tetrapc.cpp")
+
     includedirs
     {
         "%{includepaths.GLFW}",
         "%{includepaths.glad}",
         "%{includepaths.ImGui}",
         "%{includepaths.glm}",
+        "%{includepaths.freetype}",
+        "%{includepaths.stb_image}",
     }
     files
     {
@@ -19,10 +24,17 @@ project "TetraEngine"
         "**.hpp",
         "**.c",
         "**.cpp",
+        "%{extern.stb_image}.*cpp",
+        "%{extern.stb_image}.*h",
+    }
+    libdirs
+    {
+        libpath
     }
     links
     {
         "opengl32.lib",
+        "freetype.lib",
         "GLFW",
         "glad",
         "imgui",
@@ -40,3 +52,6 @@ project "TetraEngine"
 		defines "NDEBUG"
 		runtime "Release"
 		optimize "on"
+
+    filter "files:%{extern.stb_image}.*cpp"
+        flags {"NoPCH"}

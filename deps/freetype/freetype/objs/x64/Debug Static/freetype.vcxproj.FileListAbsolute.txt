@@ -1,0 +1,1 @@
+C:\Users\pchyo\Documents\GitHub\TetraEngine\deps\freetype\freetype\objs\x64\Debug Static\freetype.lib
