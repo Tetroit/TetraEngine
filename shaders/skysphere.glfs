@@ -1,0 +1,27 @@
+#version 460 core
+
+in vec3 pos;
+
+out vec4 FragColor;
+
+uniform vec3 color = vec3(1,1,1);
+uniform sampler2D tex;
+uniform vec3 viewPos;
+
+float PI = 3.1415926f;
+float atan2(float y, float x)
+{
+    bool s = (abs(x) > abs(y));
+    return mix(PI/2 - atan(x,y), atan(y,x), s);
+}
+vec2 GetSkyboxUV(vec3 dir)
+{
+	vec3 dirN = normalize(dir);
+	vec2 UV = vec2(0.5f - atan2(dirN.x, dirN.z) / (2.0f * PI), -asin(dirN.y)/PI + 0.5f);
+	return UV;
+}
+void main()
+{
+	vec3 skyColor = texture(tex, GetSkyboxUV(pos - viewPos)).xyz * color.xyz;
+	FragColor = vec4(skyColor,1);
+} 

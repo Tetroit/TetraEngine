@@ -1,0 +1,29 @@
+#version 460 core
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 UVs;
+layout (location = 2) in vec3 aNormal;
+
+out vec3 pos;
+out vec3 normal;
+out vec2 texCoord;
+
+uniform mat4 transform = mat4(1);
+uniform mat4 projection = mat4(1);
+uniform mat4 view = mat4(1);
+
+void main()
+{
+	mat4 cheatView = view * transform;
+	for (int i=0; i<3; i++)
+	{
+		for (int j=0; j<3; j++)
+		{
+			cheatView[i][j] = (i==j) ? 0.1 : 0;
+		}
+	}
+	pos = aPos;
+	normal = aNormal;
+	texCoord = UVs;
+    gl_Position = projection * cheatView * vec4(aPos, 1.0);
+}

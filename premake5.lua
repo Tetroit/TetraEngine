@@ -30,6 +30,7 @@ workspace "TetraEngine"
 	extern["glm"] = "%{wks.location}/deps/glm"
 	extern["freetype"] = "%{wks.location}/deps/freetype"
 	extern["stb_image"] = "%{wks.location}/deps/stb_image"
+	extern["assimp"] = "%{wks.location}/deps/assimp"
 
 	includepaths = {}
 	includepaths["GLFW"] = "%{extern.GLFW}/include"
@@ -38,6 +39,7 @@ workspace "TetraEngine"
 	includepaths["glm"] = "%{extern.glm}"
 	includepaths["freetype"] = "%{extern.freetype}/freetype/include"
 	includepaths["stb_image"] = "%{extern.stb_image}"
+	includepaths["assimp"] = "%{extern.assimp}/include"
 
 
 	group "external"

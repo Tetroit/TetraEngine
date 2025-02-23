@@ -58,8 +58,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>tetrapc.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\deps\glfw\include;..\deps\glad\include;..\deps\imgui;..\deps\glm;..\deps\freetype\freetype\include;..\deps\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>pch;..\deps\glfw\include;..\deps\glad\include;..\deps\imgui;..\deps\glm;..\deps\freetype\freetype\include;..\deps\stb_image;..\deps\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -69,7 +69,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;freetype.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -78,8 +78,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>tetrapc.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\deps\glfw\include;..\deps\glad\include;..\deps\imgui;..\deps\glm;..\deps\freetype\freetype\include;..\deps\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>pch;..\deps\glfw\include;..\deps\glad\include;..\deps\imgui;..\deps\glm;..\deps\freetype\freetype\include;..\deps\stb_image;..\deps\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -93,18 +93,89 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;freetype.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="tetrapc.h" />
+    <ClInclude Include="..\deps\stb_image\stb_image.h" />
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="Behaviour.h" />
+    <ClInclude Include="ConsoleManager.h" />
+    <ClInclude Include="Core.h" />
+    <ClInclude Include="DestroyManager.h" />
+    <ClInclude Include="FreeType.h" />
+    <ClInclude Include="GLFWManager.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="ImGuiManager.h" />
+    <ClInclude Include="InputManager.h" />
+    <ClInclude Include="MyApplication.h" />
+    <ClInclude Include="behaviours\Bullet.h" />
+    <ClInclude Include="behaviours\Enemy.h" />
+    <ClInclude Include="behaviours\TestBehaviour.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="pch\tetrapc.h" />
+    <ClInclude Include="rendering\Camera.h" />
+    <ClInclude Include="rendering\Cubemap.h" />
+    <ClInclude Include="rendering\Framebuffer.h" />
+    <ClInclude Include="rendering\Light.h" />
+    <ClInclude Include="rendering\LightManager.h" />
+    <ClInclude Include="rendering\LightRenderer.h" />
+    <ClInclude Include="rendering\Material.h" />
+    <ClInclude Include="rendering\MeshRenderer.h" />
+    <ClInclude Include="rendering\PointLight.h" />
+    <ClInclude Include="rendering\Renderbuffer.h" />
+    <ClInclude Include="rendering\Scene.h" />
+    <ClInclude Include="rendering\Shader.h" />
+    <ClInclude Include="rendering\Skybox.h" />
+    <ClInclude Include="rendering\Texture2D.h" />
+    <ClInclude Include="rendering\Texture360.h" />
+    <ClInclude Include="rendering\VertexData.h" />
+    <ClInclude Include="rendering\Viewport.h" />
+    <ClInclude Include="utils\Event.h" />
+    <ClInclude Include="utils\OBJParser.h" />
+    <ClInclude Include="utils\Time.h" />
+    <ClInclude Include="utils\Utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test.cpp" />
-    <ClCompile Include="tetrapc.cpp">
+    <ClCompile Include="..\deps\stb_image\stb_impl.cpp" />
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Behaviour.cpp" />
+    <ClCompile Include="ConsoleManager.cpp" />
+    <ClCompile Include="Core.cpp" />
+    <ClCompile Include="DestroyManager.cpp" />
+    <ClCompile Include="FreeType.cpp" />
+    <ClCompile Include="GLFWManager.cpp" />
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="ImGuiManager.cpp" />
+    <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="MyApplication.cpp" />
+    <ClCompile Include="TetraEngine.cpp" />
+    <ClCompile Include="behaviours\Bullet.cpp" />
+    <ClCompile Include="behaviours\Enemy.cpp" />
+    <ClCompile Include="pch\tetrapc.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="rendering\Camera.cpp" />
+    <ClCompile Include="rendering\Cubemap.cpp" />
+    <ClCompile Include="rendering\Framebuffer.cpp" />
+    <ClCompile Include="rendering\Light.cpp" />
+    <ClCompile Include="rendering\LightManager.cpp" />
+    <ClCompile Include="rendering\LightRenderer.cpp" />
+    <ClCompile Include="rendering\Material.cpp" />
+    <ClCompile Include="rendering\MeshRenderer.cpp" />
+    <ClCompile Include="rendering\PointLight.cpp" />
+    <ClCompile Include="rendering\Renderbuffer.cpp" />
+    <ClCompile Include="rendering\Scene.cpp" />
+    <ClCompile Include="rendering\Shader.cpp" />
+    <ClCompile Include="rendering\Skybox.cpp" />
+    <ClCompile Include="rendering\Texture2D.cpp" />
+    <ClCompile Include="rendering\Texture360.cpp" />
+    <ClCompile Include="rendering\VertexData.cpp" />
+    <ClCompile Include="rendering\Viewport.cpp" />
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="utils\OBJParser.cpp" />
+    <ClCompile Include="utils\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\deps\glfw\GLFW.vcxproj">

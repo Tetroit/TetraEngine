@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="behaviours">
+      <UniqueIdentifier>{DD294DF7-C9E1-8E44-32E9-67A01EC02935}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps">
+      <UniqueIdentifier>{F1A1957C-DDD8-960D-86C5-7C1072DB120F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps\stb_image">
+      <UniqueIdentifier>{CB33D451-B701-C857-A095-387E8C02A4BC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pch">
+      <UniqueIdentifier>{809C880B-ECA5-887C-7521-9F7CE129947C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rendering">
+      <UniqueIdentifier>{03CFAD0B-6F39-6282-B877-1328242140D7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{169C8510-82B0-ADC1-4B32-5121B705AAF2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\deps\stb_image\stb_image.h">
+      <Filter>deps\stb_image</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="Behaviour.h" />
+    <ClInclude Include="ConsoleManager.h" />
+    <ClInclude Include="Core.h" />
+    <ClInclude Include="DestroyManager.h" />
+    <ClInclude Include="FreeType.h" />
+    <ClInclude Include="GLFWManager.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="ImGuiManager.h" />
+    <ClInclude Include="InputManager.h" />
+    <ClInclude Include="MyApplication.h" />
+    <ClInclude Include="behaviours\Bullet.h">
+      <Filter>behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="behaviours\Enemy.h">
+      <Filter>behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="behaviours\TestBehaviour.h">
+      <Filter>behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h" />
+    <ClInclude Include="pch\tetrapc.h">
+      <Filter>pch</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Camera.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Cubemap.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Framebuffer.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Light.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\LightManager.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\LightRenderer.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Material.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\MeshRenderer.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\PointLight.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Renderbuffer.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Scene.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Shader.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Skybox.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Texture2D.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Texture360.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\VertexData.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Viewport.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\Event.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\OBJParser.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\Time.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\Utils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\deps\stb_image\stb_impl.cpp">
+      <Filter>deps\stb_image</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Behaviour.cpp" />
+    <ClCompile Include="ConsoleManager.cpp" />
+    <ClCompile Include="Core.cpp" />
+    <ClCompile Include="DestroyManager.cpp" />
+    <ClCompile Include="FreeType.cpp" />
+    <ClCompile Include="GLFWManager.cpp" />
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="ImGuiManager.cpp" />
+    <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="MyApplication.cpp" />
+    <ClCompile Include="TetraEngine.cpp" />
+    <ClCompile Include="behaviours\Bullet.cpp">
+      <Filter>behaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="behaviours\Enemy.cpp">
+      <Filter>behaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="pch\tetrapc.cpp">
+      <Filter>pch</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Camera.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Cubemap.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Framebuffer.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Light.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\LightManager.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\LightRenderer.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Material.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\MeshRenderer.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\PointLight.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Renderbuffer.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Scene.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Shader.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Skybox.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Texture2D.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Texture360.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\VertexData.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Viewport.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="utils\OBJParser.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\Time.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

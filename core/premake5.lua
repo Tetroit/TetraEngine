@@ -7,16 +7,18 @@ project "TetraEngine"
     objdir ("" .. objpath .. "/%{prj.name}/" .. outputdir .. "")
 
 	pchheader ("tetrapc.h")
-	pchsource ("tetrapc.cpp")
+	pchsource ("pch/tetrapc.cpp")
 
     includedirs
     {
+        "pch",
         "%{includepaths.GLFW}",
         "%{includepaths.glad}",
         "%{includepaths.ImGui}",
         "%{includepaths.glm}",
         "%{includepaths.freetype}",
         "%{includepaths.stb_image}",
+        "%{includepaths.assimp}",
     }
     files
     {
@@ -24,8 +26,8 @@ project "TetraEngine"
         "**.hpp",
         "**.c",
         "**.cpp",
-        "%{extern.stb_image}.*cpp",
-        "%{extern.stb_image}.*h",
+        "%{extern.stb_image}/*.cpp",
+        "%{extern.stb_image}/*.h",
     }
     libdirs
     {
@@ -40,6 +42,10 @@ project "TetraEngine"
         "imgui",
     }
     
+    defines
+    {
+        "GLM_ENABLE_EXPERIMENTAL"
+    }
 	filter "system:windows"
         staticruntime "On"
 
@@ -47,11 +53,19 @@ project "TetraEngine"
 		defines "DEBUG"
 		runtime "Debug"
 		symbols "on"
+        links
+        {
+            "assimp-vc143-mtd.lib"
+        }
 
 	filter "configurations:Release"
 		defines "NDEBUG"
 		runtime "Release"
 		optimize "on"
+        links
+        {
+            "assimp-vc143-mt.lib"
+        }
 
     filter "files:%{extern.stb_image}.*cpp"
         flags {"NoPCH"}

@@ -1,0 +1,13 @@
+#version 460 core
+
+in vec3 pos;
+
+out vec4 FragColor;
+
+uniform vec3 color = vec3(1,1,1);
+uniform samplerCube tex;
+
+void main()
+{
+	FragColor = texture(tex, pos);
+} 

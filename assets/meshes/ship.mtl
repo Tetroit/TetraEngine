@@ -1,0 +1,13 @@
+# Blender 4.2.3 LTS MTL File: 'None'
+# www.blender.org
+
+newmtl UV.001
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Users/pchyo/Downloads/xian-spaceship/textures/1001_Base_Color.png
+map_Ns C:/Users/pchyo/Downloads/xian-spaceship/textures/1001_Roughness.png
+map_refl C:/Users/pchyo/Downloads/xian-spaceship/textures/1001_Metallic.png
+map_Ke C:/Users/pchyo/Downloads/xian-spaceship/textures/1001_Emissive.png

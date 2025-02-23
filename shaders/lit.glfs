@@ -1,0 +1,123 @@
+#version 460 core
+
+struct Material{
+	vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float smoothness;
+};
+struct DirectionalLight{
+	vec3 dir;
+	vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct PointLight{
+	
+	vec3 pos;
+	vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+	vec3 attenuation;
+};
+
+
+in vec3 pos;
+in vec3 normal;
+in vec2 texCoord;
+
+out vec4 FragColor;
+
+uniform Material surface = Material(vec3(1,1,1),vec3(1,1,1),vec3(1,1,1),16);
+uniform DirectionalLight light = DirectionalLight(normalize(vec3(0,1,0)),vec3(0,0,0),vec3(0,0,0),vec3(0,0,0));
+
+uniform int pointlightsCount = 0;
+uniform PointLight pointLights[16];
+
+uniform int textureFlags = 0;
+
+uniform sampler2D textureD;
+uniform sampler2D textureS;
+uniform sampler2D textureA;
+uniform samplerCube skyTexture;
+
+uniform vec3 viewPos = vec3(0,0,0);
+
+
+vec3 SoftLight(vec3 a, vec3 b){
+	return (a - 2*b) * a*a + 2 * a * b;
+}
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+{
+    vec3 lightDir = normalize(light.pos - fragPos);
+    // diffuse shading
+    float diffuseFac = max(dot(normal, lightDir), 0.0);
+    // specular shading
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float specularFac = pow(max(dot(viewDir, reflectDir), 0.0), surface.smoothness);
+    // attenuation
+    float distance    = length(light.pos - fragPos);
+    float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * distance + 
+  			     light.attenuation.z * (distance * distance));    
+    // combine results
+    vec3 colorA = light.ambient;
+	vec3 colorD = diffuseFac * light.diffuse;
+	vec3 colorS = specularFac * light.specular;
+	
+	if ((textureFlags & 1) != 0) 
+	{
+		colorA *= texture(textureD, texCoord).xyz;
+		colorD *= texture(textureD, texCoord).xyz;
+	}
+	else {
+		colorA *= surface.ambient;
+		colorD *= surface.diffuse;
+	}
+	if ((textureFlags & 2) != 0) colorS = texture(textureS, texCoord).xyz * colorS;
+	else colorS *= surface.specular.x;
+	if ((textureFlags & 4) != 0) colorA += texture(textureA, texCoord).xyz;
+	
+    colorA  *= attenuation;
+    colorD  *= attenuation;
+    colorS  *= attenuation;
+    return (colorA + colorD + colorS);
+} 
+
+
+void main()
+{	
+	vec3 lightDir = normalize(light.dir);
+	vec3 reflectDir = reflect(-lightDir,normal);
+	vec3 viewDir = normalize(viewPos-pos);
+
+	float diffuseFac = max(dot(normal,lightDir),0.0);
+	float specularFac = pow(max(dot(viewDir, reflectDir),0.0),surface.smoothness);
+	
+	vec3 colorA = light.ambient;
+	vec3 colorD = diffuseFac * light.diffuse;
+	vec3 colorS = specularFac * light.specular;
+	
+	if ((textureFlags & 1) != 0) 
+	{
+		colorA += texture(textureD, texCoord).xyz * surface.ambient;
+		colorD *= texture(textureD, texCoord).xyz;
+	}
+	else {
+		colorA += surface.ambient;
+		colorD *= surface.diffuse;
+	}
+	if ((textureFlags & 2) != 0) colorS = texture(textureS, texCoord).xxx * colorS;
+	else colorS *= surface.specular.x;
+	if ((textureFlags & 4) != 0) colorA += texture(textureA, texCoord).xyz;
+	
+	
+	vec3 color = colorA + colorD + colorS;
+	for (int i=0; i<pointlightsCount; i++)
+		color += CalcPointLight(pointLights[i], normal, pos, viewDir);
+		
+	if ((textureFlags & 8) != 0)
+		color = SoftLight(color, texture(skyTexture, reflect(-viewDir,normal)).xyz);
+	
+	FragColor = vec4(color, 1);
+} 
