@@ -101,6 +101,8 @@
     <ClInclude Include="..\deps\stb_image\stb_image.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Behaviour.h" />
+    <ClInclude Include="ecs\ComponentManager.h" />
+    <ClInclude Include="ecs\Component.h" />
     <ClInclude Include="ConsoleManager.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="DestroyManager.h" />
@@ -141,6 +143,8 @@
     <ClCompile Include="..\deps\stb_image\stb_impl.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Behaviour.cpp" />
+    <ClCompile Include="ecs\ComponentManager.cpp" />
+    <ClCompile Include="ecs\Component.cpp" />
     <ClCompile Include="ConsoleManager.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="DestroyManager.cpp" />

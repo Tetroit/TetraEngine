@@ -111,6 +111,8 @@
     <ClInclude Include="utils\Utils.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="ecs\Component.h" />
+    <ClInclude Include="ecs\ComponentManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\deps\stb_image\stb_impl.cpp">
@@ -195,5 +197,7 @@
     <ClCompile Include="utils\Time.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="ecs\Component.cpp" />
+    <ClCompile Include="ecs\ComponentManager.cpp" />
   </ItemGroup>
 </Project>
