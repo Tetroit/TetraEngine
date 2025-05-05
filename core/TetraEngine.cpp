@@ -1,4 +1,10 @@
 ﻿#include "tetrapc.h"
+
+//uncomment this to launch testing script
+//#define TETRA_TEST
+
+#ifndef TETRA_TEST
+
 #include "../Core.h"
 #include "../MyApplication.h"
 
@@ -26,3 +32,12 @@ int main()
 
 	return 0;
 }
+#else
+
+#include "../Test.h"
+
+int main()
+{
+	return TetraTest::test_main();
+}
+#endif

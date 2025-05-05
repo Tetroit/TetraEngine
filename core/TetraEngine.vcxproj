@@ -109,6 +109,7 @@
     <ClInclude Include="FreeType.h" />
     <ClInclude Include="GLFWManager.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Test.h" />
     <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="MyApplication.h" />
@@ -177,7 +178,7 @@
     <ClCompile Include="rendering\Texture360.cpp" />
     <ClCompile Include="rendering\VertexData.cpp" />
     <ClCompile Include="rendering\Viewport.cpp" />
-    <ClCompile Include="test.cpp" />
+    <ClCompile Include="Test.cpp" />
     <ClCompile Include="utils\OBJParser.cpp" />
     <ClCompile Include="utils\Time.cpp" />
   </ItemGroup>

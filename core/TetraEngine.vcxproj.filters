@@ -113,6 +113,7 @@
     </ClInclude>
     <ClInclude Include="ecs\Component.h" />
     <ClInclude Include="ecs\ComponentManager.h" />
+    <ClInclude Include="Test.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\deps\stb_image\stb_impl.cpp">
@@ -190,7 +191,7 @@
     <ClCompile Include="rendering\Viewport.cpp">
       <Filter>rendering</Filter>
     </ClCompile>
-    <ClCompile Include="test.cpp" />
+    <ClCompile Include="Test.cpp" />
     <ClCompile Include="utils\OBJParser.cpp">
       <Filter>utils</Filter>
     </ClCompile>

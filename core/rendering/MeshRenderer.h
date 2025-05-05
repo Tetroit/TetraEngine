@@ -17,6 +17,7 @@ namespace TetraEngine
 
 	class MeshRenderer
 	{
+		int textureFlags;
 
 	public:
 		static MeshRenderer* defaultRenderer;
@@ -26,9 +27,8 @@ namespace TetraEngine
 		Texture2D* diffuseTexture;
 		Texture2D* specularTexture;
 		Texture2D* emissionTexture;
-		int textureFlags;
 		Shader* shader;
-		TetraEngine::Camera* camera;
+		Camera* camera;
 		Material* material;
 		virtual void Render(glm::mat4 transform = glm::mat4(1));
 		MeshRenderer(std::shared_ptr<VertexData> vd, Shader* sh);

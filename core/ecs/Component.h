@@ -3,35 +3,77 @@
 
 namespace TetraEngine
 {
-	class Component
+	class ComponentManager;
+
+	template<typename T>
+	class Component;
+
+	class ComponentBase
 	{
+		friend class ComponentManager;
+
 		void AssignID();
-	public:
-
-		Component(uint typeID, GUID objectID) : typeID(typeID), objectID(objectID) {};
-		template<typename T>
-		Component(uint objectID) : objectID(objectID), typeID(typeid(T).hash_code()) {};
-		template<typename T>
-		Component() : objectID(AssignID()), typeID(typeid(T).hash_code()) {};
-
+		GUID GenerateID();
+		GUID id;
 		uint typeID;
-		GUID objectID;
-		
-		template<typename T>
-		T&& as()
+		uint owner;
+		ComponentManager* manager;
+
+	protected:
+		ComponentBase(ComponentManager* manager, uint typeID, std::string name = "New Component");
+		void AssignOwner(uint id)
 		{
-			if (typeid(T).hash_code() != typeID)
-			{
-				throw std::exception("Invalid component cast");
-			}
-			return static_cast<T&&>(*this);
+			owner = id;
 		}
 
-		bool operator==(const Component& other)
+	public:
+
+		virtual ~ComponentBase() = default;
+		std::string name = "New Component";
+
+		void Rename(std::string newName);
+
+		template<typename T>
+		Component<T>&& as()
 		{
-			return objectID == other.objectID;
+			int inID = typeid(T).hash_code();
+
+			if (inID != typeID)
+			{
+				throw std::runtime_error("Invalid component cast");
+			}
+
+			return static_cast<Component<T>&&>(*this);
+		}
+
+		template<typename T>
+		Component<T>* asptr()
+		{
+			return static_cast<Component<T>*>(this);
+		}
+
+		bool operator==(const ComponentBase& other)
+		{
+			return (id == other.id);
+		}
+
+		constexpr uint GetType() const
+		{
+			return typeID;
+		}
+		constexpr uint GetOwner() const
+		{
+			return owner;
 		}
 	};
 
+	template <typename T>
+	class Component : public ComponentBase
+	{
+	public:
+		std::unique_ptr<T> data;
+		template <typename... Args>
+		Component(ComponentManager* manager, Args&&... args) : 
+			ComponentBase(manager, typeid(T).hash_code()), data(std::make_unique<T>(std::forward<Args>(args)...)) {};
+	};
 }
-
