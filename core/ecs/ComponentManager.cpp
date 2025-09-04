@@ -6,7 +6,7 @@ using namespace TetraEngine;
 ComponentManager* ComponentManager::current = nullptr;
 
 ComponentManager::ComponentManager() {
-	if (current == NULL)
+	if (current == nullptr)
 	{
 		current = this;
 	}
@@ -15,7 +15,7 @@ ComponentManager::ComponentManager() {
 
 uint ComponentManager::CreateEntity()
 {
-	auto [it, generated] = entities.emplace(latest++, std::vector<ComponentBase*>());
+	auto [it, generated] = entities.emplace(latestEntity++, std::vector<ComponentBase*>());
 	return it->first;
 }
 
@@ -55,7 +55,7 @@ void ComponentManager::RemoveEntity(uint entity)
 ComponentBase* ComponentManager::GetComponent(uint typeID, uint entity)
 {
 	auto loc = &entities[typeID];
-	auto it = std::find_if(loc->begin(), loc->end(), [entity, typeID](const ComponentBase* item) { return item->typeID == typeID;});
+	auto it = std::find_if(loc->begin(), loc->end(), [typeID](const ComponentBase* item) { return item->typeID == typeID;});
 	if (it != loc->end())
 	{
 		return *it;

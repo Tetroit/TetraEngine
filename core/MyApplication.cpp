@@ -11,7 +11,7 @@ using namespace TetraEngine;
 
 MyApplication::MyApplication()
 {
-	myScene.skybox = new Skybox(Skybox::BOX, "../assets/skybox");
+	myScene.skybox = new Skybox(Skybox::BOX, assetPath + "/skybox");
 	Skybox::current = myScene.skybox;
 	litShader = new Shader(shaderPath + "/lit.glvs", shaderPath + "/lit.glfs");
 	litShader->Use();
@@ -32,9 +32,9 @@ MyApplication::MyApplication()
 	//MeshRenderer enemyRenderer = MeshRenderer(VertexData::GetPrefab(ship), &shader);
 	//MeshRenderer bullet = MeshRenderer(VertexData::GetPrefab(VD_CUBE), &shader);
 
-	ambientTex.Load(texturePath + "/ship/ambient.png", true);
-	diffuseTex.Load(texturePath + "/ship/diffuse.png", true);
-	specularTex.Load(texturePath + "/ship/specular.png", true);
+	ambientTex.Load(assetPath + "/ship/ambient.png", true);
+	diffuseTex.Load(assetPath + "/ship/diffuse.png", true);
+	specularTex.Load(assetPath + "/ship/specular.png", true);
 
 	player = GameObject::Create(glm::vec3(0, 0, 0), "ship", shipRenderer);
 

@@ -101,23 +101,24 @@
     <ClInclude Include="..\deps\stb_image\stb_image.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Behaviour.h" />
-    <ClInclude Include="ecs\ComponentManager.h" />
-    <ClInclude Include="ecs\Component.h" />
     <ClInclude Include="ConsoleManager.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="DestroyManager.h" />
     <ClInclude Include="FreeType.h" />
     <ClInclude Include="GLFWManager.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="Test.h" />
     <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="MyApplication.h" />
+    <ClInclude Include="Test.h" />
     <ClInclude Include="behaviours\Bullet.h" />
     <ClInclude Include="behaviours\Enemy.h" />
     <ClInclude Include="behaviours\TestBehaviour.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="ecs\Component.h" />
+    <ClInclude Include="ecs\ComponentManager.h" />
     <ClInclude Include="pch\tetrapc.h" />
+    <ClInclude Include="registry\SharedContentRegistry.h" />
     <ClInclude Include="rendering\Camera.h" />
     <ClInclude Include="rendering\Cubemap.h" />
     <ClInclude Include="rendering\Framebuffer.h" />
@@ -138,14 +139,13 @@
     <ClInclude Include="utils\Event.h" />
     <ClInclude Include="utils\OBJParser.h" />
     <ClInclude Include="utils\Time.h" />
+    <ClInclude Include="utils\Types.h" />
     <ClInclude Include="utils\Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\deps\stb_image\stb_impl.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Behaviour.cpp" />
-    <ClCompile Include="ecs\ComponentManager.cpp" />
-    <ClCompile Include="ecs\Component.cpp" />
     <ClCompile Include="ConsoleManager.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="DestroyManager.cpp" />
@@ -155,12 +155,16 @@
     <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="MyApplication.cpp" />
+    <ClCompile Include="Test.cpp" />
     <ClCompile Include="TetraEngine.cpp" />
     <ClCompile Include="behaviours\Bullet.cpp" />
     <ClCompile Include="behaviours\Enemy.cpp" />
+    <ClCompile Include="ecs\Component.cpp" />
+    <ClCompile Include="ecs\ComponentManager.cpp" />
     <ClCompile Include="pch\tetrapc.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="registry\SharedContentRegistry.cpp" />
     <ClCompile Include="rendering\Camera.cpp" />
     <ClCompile Include="rendering\Cubemap.cpp" />
     <ClCompile Include="rendering\Framebuffer.cpp" />
@@ -178,7 +182,6 @@
     <ClCompile Include="rendering\Texture360.cpp" />
     <ClCompile Include="rendering\VertexData.cpp" />
     <ClCompile Include="rendering\Viewport.cpp" />
-    <ClCompile Include="Test.cpp" />
     <ClCompile Include="utils\OBJParser.cpp" />
     <ClCompile Include="utils\Time.cpp" />
   </ItemGroup>

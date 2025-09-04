@@ -5,7 +5,9 @@
 #include <glm/glm.hpp>
 
 namespace TetraEngine {
-    static class Utils {
+    class Utils {
+    private:
+        Utils() = default;
     public:
 
         static glm::vec3 Lerp(glm::vec3 a, glm::vec3 b, float fac)

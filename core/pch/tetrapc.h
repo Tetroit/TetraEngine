@@ -7,6 +7,7 @@
 #include <iostream>
 #include <algorithm>
 #include <memory>
+#include <ctime>
 #include <thread>
 #include <queue>
 
@@ -24,6 +25,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "../config.h"
+#include "../utils/Types.h"
 
 #define LOG(x) std::cout << "SYSTEM::" << x << '\n'
 #define LOG_ERR(x) std::cout << "ERROR::" << x << '\n'

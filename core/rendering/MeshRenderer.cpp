@@ -93,7 +93,7 @@ void MeshRenderer::setTexture(const std::string& path)
 
 void MeshRenderer::InitialiseRenderer() {
     defaultRenderer = new MeshRenderer(VertexData::GetPrefab(VD_RECTANGLE), Shader::billboardShader);
-    defaultRenderer->setTexture(texturePath + "/default.png");
+    defaultRenderer->setTexture(assetPath + "/default.png");
     skyboxRenderer = new MeshRenderer(VertexData::GetPrefab(VD_RECTANGLE), Shader::skysphereShader);
-    skyboxRenderer->setTexture(texturePath + "/skybox.jpg");
+    skyboxRenderer->setTexture(assetPath + "/skybox.jpg");
 }

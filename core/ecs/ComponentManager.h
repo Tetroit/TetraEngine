@@ -20,7 +20,7 @@ namespace TetraEngine
 		void GetComponents(uint typeID, comp_iter& begin, comp_iter& end);
 		std::pair<entity_iter,bool> EraseFromEntities(ComponentBase* component);
 		std::pair<comp_iter,bool> EraseFromComponents(ComponentBase* component);
-		uint latest = 0;
+		uint latestEntity = 0;
 	public:
 
 		static ComponentManager* current;
@@ -45,7 +45,7 @@ namespace TetraEngine
 		void RemoveEntity(uint entity);
 
 		template <typename T>
-		inline ComponentBase* GetComponent(GUID objectID)
+		inline ComponentBase* GetComponent(uint objectID)
 		{
 			return GetComponent(typeid(T).hash_code(), objectID);
 		}
@@ -56,11 +56,11 @@ namespace TetraEngine
 			return GetComponents(typeid(T).hash_code(), begin, end);
 		}
 
-		template <typename T>
-		inline std::vector<ComponentBase*> GetComponents() 
-		{
-			return GetComponents(typeid(T).hash_code());
-		}
+		// template <typename T>
+		// inline std::vector<ComponentBase*> GetComponents()
+		// {
+		// 	return GetComponents(typeid(T).hash_code());
+		// }
 	};
 }
 

@@ -2,7 +2,7 @@
 #include "ConsoleManager.h"
 
 #include <glm/glm.hpp>
-#include <glm/gtx/string_cast.hpp>
+// #include <glm/gtx/string_cast.hpp>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -16,7 +16,7 @@
 
 using namespace TetraEngine;
 
-::GLFWwindow* ConsoleManager::window = nullptr;
+GLFWwindow* ConsoleManager::window = nullptr;
 HANDLE ConsoleManager::console = GetStdHandle(STD_OUTPUT_HANDLE);
 void* ConsoleManager::context = nullptr;
 ConsoleManager::Type ConsoleManager::contextType = T_Null;

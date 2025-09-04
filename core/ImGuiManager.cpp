@@ -41,7 +41,7 @@ ImGuiManager::ImGuiManager()
 	ImGui_ImplOpenGL3_Init("#version 460");
 	
 	testTex = new Texture2D();
-	testTex->Load(texturePath + "/ship/diffuse.png", true);
+	testTex->Load(assetPath + "/ship/diffuse.png", true);
 }
 void ImGuiManager::ShowDockSpace()
 {

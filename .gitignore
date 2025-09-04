@@ -94,3 +94,7 @@ ipch/
 *.vsp
 *.vspx
 *.sap
+
+# JetBrains
+.idea
+*.iml

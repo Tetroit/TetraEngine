@@ -4,14 +4,13 @@
 
 namespace TetraEngine {
 	class GameObject;
-	struct ::GLFWwindow;
 
-	static class ConsoleManager {
+	class ConsoleManager {
 
 
 	private:
-
-		static enum Command
+		ConsoleManager() = default;
+		enum Command
 		{
 			UNKNOWN,
 			G_Quit,
@@ -22,7 +21,7 @@ namespace TetraEngine {
 			GO_Parent,
 			GO_Destroy
 		};
-		static enum Type
+		enum Type
 		{
 			T_Null,
 			T_GameObject
@@ -37,7 +36,7 @@ namespace TetraEngine {
 	public:
 
 		static HANDLE console;
-		static ::GLFWwindow* window;
+		static GLFWwindow* window;
 
 		static void Initialize(GLFWwindow* window);
 		template <typename mat>

@@ -16,6 +16,8 @@
 #include FT_FREETYPE_H
 
 #include "ecs/ComponentManager.h"
+#include "registry/SharedContentRegistry.h"
+#include "rendering/Material.h"
 
 using namespace TetraEngine;
 
@@ -47,27 +49,13 @@ public:
 	};
 };
 
-ComponentManager componentManager;
+//SharedContentRegistry registry;
 
 void TetraTest::test_setup()
 {
-	auto en = componentManager.CreateEntity();
-	auto en2 = componentManager.CreateEntity();
-	auto c1 = componentManager.CreateComponent<ComponentClass1, int>(en, 10.2f);
-	auto c2 = componentManager.CreateComponent<ComponentClass2, float>(en, 10);
-	auto c3 = componentManager.CreateComponent<ComponentClass2, float>(en2, 74);
-
-	comp_iter begin, end;
-	componentManager.GetComponents<ComponentClass2>(begin, end);
-
-	for (begin; begin != end; begin++)
-	{
-		static_cast<Component<ComponentClass2>*>(begin->get())->data->Increase();
-	}
-
-	componentManager.RemoveEntity(en);
-	componentManager.RemoveComponent(c3);
-	componentManager.RemoveEntity(en2);
+	Material* mat = new Material("e");
+	//registry.CreateItem<Material, std::string>("ea");
+	//registry.AddItem<Material>(mat);
 }
 void TetraTest::test_update()
 {

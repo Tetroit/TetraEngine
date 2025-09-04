@@ -34,7 +34,7 @@ public:
 	/// to give more data to listeners
 	/// </summary>
 	/// <typeparam name="EventType"> Other event type </typeparam>
-	/// <returns> casted event </returns>
+	/// <returns> cast event </returns>
 	template <typename EventType>
 	inline EventType ToType() const {
 		if (std::is_base_of<Event<T>, EventType>::value)
@@ -55,7 +55,7 @@ struct EventListenerTemplate
 	/// Virtual constructor
 	/// </summary>
 	/// <param name="isStatic"> Switch to tell if the function is static </param>
-	EventListenerTemplate<T>(bool isStatic) : isStatic(isStatic) {};
+	EventListenerTemplate(bool isStatic) : isStatic(isStatic) {};
 	/// <summary>
 	/// Gets std::function object for attached function
 	/// </summary>
@@ -222,7 +222,7 @@ public:
 		{
 			if ((*loc)->IsStatic())
 			{
-				EventListener<T> ptr = (*loc)->ToType<EventListener<T>>();
+				EventListener<T> ptr = (*loc)->template ToType<EventListener<T>>();
 				if (target == ptr)
 					return loc;
 			}
@@ -246,7 +246,7 @@ public:
 		{
 			if (!(*loc)->IsStatic())
 			{
-				EventListenerNonStatic<T,Sender> ptr = (*loc)->ToType<EventListenerNonStatic<T,Sender>>();
+				EventListenerNonStatic<T,Sender> ptr = (*loc)->template ToType<EventListenerNonStatic<T,Sender>>();
 				if (target == ptr)
 					return loc;
 			}

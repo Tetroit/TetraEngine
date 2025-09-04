@@ -21,8 +21,10 @@
 
 namespace TetraEngine {
 
-	static class Core
+	class Core
 	{
+	private:
+		Core() = default;
 	public:
 
 	static uint appWidth, appHeight;

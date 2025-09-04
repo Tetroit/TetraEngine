@@ -1,6 +1,6 @@
 #include "tetrapc.h"
 #include "DestroyManager.h"
-#include "rendering/Scene.h";
+#include "rendering/Scene.h"
 
 using namespace TetraEngine;
 

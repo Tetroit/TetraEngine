@@ -16,7 +16,7 @@ namespace TetraEngine {
 		};
 
 		static Skybox* current;
-		Skybox(Mode mode = SPHERE, const std::string& path = texturePath + "/skybox.jpg");
+		Skybox(Mode mode = SPHERE, const std::string& path = assetPath + "/skybox.jpg");
 		~Skybox();
 		void Render();
 		Cubemap* cubemap;

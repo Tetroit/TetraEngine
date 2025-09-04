@@ -10,8 +10,14 @@
     <Filter Include="deps\stb_image">
       <UniqueIdentifier>{CB33D451-B701-C857-A095-387E8C02A4BC}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ecs">
+      <UniqueIdentifier>{C06D880B-2C77-887C-B5F2-9E7C21FB937C}</UniqueIdentifier>
+    </Filter>
     <Filter Include="pch">
       <UniqueIdentifier>{809C880B-ECA5-887C-7521-9F7CE129947C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="registry">
+      <UniqueIdentifier>{3E80AE07-2A4D-0913-5366-F7BA3F923EA1}</UniqueIdentifier>
     </Filter>
     <Filter Include="rendering">
       <UniqueIdentifier>{03CFAD0B-6F39-6282-B877-1328242140D7}</UniqueIdentifier>
@@ -35,6 +41,7 @@
     <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="MyApplication.h" />
+    <ClInclude Include="Test.h" />
     <ClInclude Include="behaviours\Bullet.h">
       <Filter>behaviours</Filter>
     </ClInclude>
@@ -45,8 +52,17 @@
       <Filter>behaviours</Filter>
     </ClInclude>
     <ClInclude Include="config.h" />
+    <ClInclude Include="ecs\Component.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs\ComponentManager.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
     <ClInclude Include="pch\tetrapc.h">
       <Filter>pch</Filter>
+    </ClInclude>
+    <ClInclude Include="registry\SharedContentRegistry.h">
+      <Filter>registry</Filter>
     </ClInclude>
     <ClInclude Include="rendering\Camera.h">
       <Filter>rendering</Filter>
@@ -108,12 +124,12 @@
     <ClInclude Include="utils\Time.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="utils\Types.h">
+      <Filter>utils</Filter>
+    </ClInclude>
     <ClInclude Include="utils\Utils.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="ecs\Component.h" />
-    <ClInclude Include="ecs\ComponentManager.h" />
-    <ClInclude Include="Test.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\deps\stb_image\stb_impl.cpp">
@@ -130,6 +146,7 @@
     <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="MyApplication.cpp" />
+    <ClCompile Include="Test.cpp" />
     <ClCompile Include="TetraEngine.cpp" />
     <ClCompile Include="behaviours\Bullet.cpp">
       <Filter>behaviours</Filter>
@@ -137,8 +154,17 @@
     <ClCompile Include="behaviours\Enemy.cpp">
       <Filter>behaviours</Filter>
     </ClCompile>
+    <ClCompile Include="ecs\Component.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs\ComponentManager.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
     <ClCompile Include="pch\tetrapc.cpp">
       <Filter>pch</Filter>
+    </ClCompile>
+    <ClCompile Include="registry\SharedContentRegistry.cpp">
+      <Filter>registry</Filter>
     </ClCompile>
     <ClCompile Include="rendering\Camera.cpp">
       <Filter>rendering</Filter>
@@ -191,14 +217,11 @@
     <ClCompile Include="rendering\Viewport.cpp">
       <Filter>rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Test.cpp" />
     <ClCompile Include="utils\OBJParser.cpp">
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="utils\Time.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="ecs\Component.cpp" />
-    <ClCompile Include="ecs\ComponentManager.cpp" />
   </ItemGroup>
 </Project>

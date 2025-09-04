@@ -3,9 +3,16 @@
 #include <iostream>
 
 #define ASSIMP_TEST true
-#define GLM_TEST false
-#define FREETYPE_TEST false
-#define GLFW_TEST false
+#define GLM_TEST true
+#define FREETYPE_TEST true
+#define GLFW_TEST true
+#define IMGUI_TEST true
+#define GLAD_TEST true
+#define STB_IMAGE_TEST true
+
+#if GLAD_TEST
+#include <glad/glad.h>
+#endif
 
 #if ASSIMP_TEST
 #include <assimp/Importer.hpp>
@@ -22,6 +29,14 @@
 #if FREETYPE_TEST
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#endif
+
+#if IMGUI_TEST
+#include <imgui.h>
+#endif
+
+#if STB_IMAGE_TEST
+#include <stb_image.h>
 #endif
 
 int main() {
@@ -46,6 +61,24 @@ int main() {
     std::cout<<error<<std::endl;
 #endif
 
+#if IMGUI_TEST
+    std::cout << ImGui::GetVersion() << std::endl;
+#endif
+
+#if GLAD_TEST
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        std::cout << "Failed to initialize GLAD\n jk all good for this test" << std::endl;
+    else
+        std::cout << "GLAD initialized" << std::endl;
+#endif
+
+#if STB_IMAGE_TEST
+    std::cout << STBI_VERSION << std::endl;
+#endif
+
     std::cout << "Hello World!\n";
+    std::cin.get();
     return 0;
 }
+
+

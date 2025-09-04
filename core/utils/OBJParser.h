@@ -4,9 +4,10 @@
 #include <string>
 
 namespace TetraEngine {
-	static class OBJParser
+	class OBJParser
 	{
 	private:
+		OBJParser() = default;
 		static std::ifstream stream;
 
 	public:
