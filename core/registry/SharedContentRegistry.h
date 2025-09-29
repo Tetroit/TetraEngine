@@ -1,9 +1,10 @@
 #pragma once
 #include <tetrapc.h>
-
+// work in progress :(
 using namespace TetraEngine;
 
 namespace TetraEngine {
+
 	class SharedContentRegistry
 	{
 		std::map<type_id, std::vector<std::shared_ptr<void>>> registry;
@@ -23,4 +24,3 @@ namespace TetraEngine {
 		};*/
 	};
 }
-

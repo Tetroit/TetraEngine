@@ -5,5 +5,4 @@ using namespace TetraEngine;
 
 void Application::Update()
 {
-
 }

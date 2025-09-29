@@ -1,7 +1,8 @@
 #pragma once
-#include <tetrapc.h>
-#include <combaseapi.h>
+
+#include "tetrapc.h"
 #include "Component.h"
+#include "ComponentHandle.h"
 
 
 namespace TetraEngine
@@ -11,8 +12,9 @@ namespace TetraEngine
 
 	class ComponentManager
 	{
+		template<class T>
+		friend class ComponentHandle;
 	private:
-
 		std::map<uint, std::vector<std::unique_ptr<ComponentBase>>> components;
 		std::unordered_map<uint, std::vector<ComponentBase*>> entities;
 
@@ -25,42 +27,64 @@ namespace TetraEngine
 
 		static ComponentManager* current;
 		ComponentManager();
+		uint CreateEntity();
+		bool RemoveComponent(ComponentBase* component);
+		void RemoveEntity(uint entity);
+
+		[[nodiscard]]
+		int GetEntityCount() const;
+		[[nodiscard]]
+		int GetComponentCount() const;
+
+		template<class T>
+		[[nodiscard]]
+		static uint GetTypeId() {
+			return typeid(T).hash_code();
+		}
+
+		template<class T>
+		[[nodiscard]]
+		int GetComponentCountOfType() const{
+
+			const uint typeID = GetTypeId<T>();
+			if (!components.contains(typeID)) return 0;
+			return components.at(typeID).size();
+		}
 
 		template <typename T, typename... Args>
-		Component<T>* CreateComponent(uint entity, Args&&... args)
+		ComponentHandle<T> CreateComponent(uint entity, Args&&... args)
 		{
-			uint typeID = typeid(T).hash_code();
+			const uint typeID = GetTypeId<T>();
 			auto& loc = components[typeID];
-			std::unique_ptr<Component<T>> component = std::make_unique<Component<T>>(this, std::forward<Args>(args)...);
+			auto component = std::make_unique<Component<T>>(this, std::forward<Args>(args)...);
 			loc.push_back(std::move(component));
 			auto it = std::prev(loc.end());
 
 			entities[entity].push_back(it->get());
-			it->get()->AssignOwner(entity);
-			return it->get()->template asptr<T>();
+			(*it)->AssignOwner(entity);
+			return ComponentHandle<T>(component.get());
 		}
-		uint CreateEntity();
 
-		bool RemoveComponent(ComponentBase* component);
-		void RemoveEntity(uint entity);
-
-		template <typename T>
-		inline ComponentBase* GetComponent(uint objectID)
+		template <class T>
+		ComponentHandle<T> GetComponent(uint objectID)
 		{
-			return GetComponent(typeid(T).hash_code(), objectID);
+			auto raw = GetComponent(GetTypeId<T>(), objectID);
+			if (raw == nullptr) return ComponentHandle<T>(nullptr);
+			return ComponentHandle<T>(&raw->template as<T>());
 		}
 
-		template <typename T>
-		inline void GetComponents(comp_iter& begin, comp_iter& end)
+		template <class T>
+		void GetComponents(comp_iter& begin, comp_iter& end)
 		{
-			return GetComponents(typeid(T).hash_code(), begin, end);
+			return GetComponents(GetTypeId<T>(), begin, end);
 		}
 
-		// template <typename T>
-		// inline std::vector<ComponentBase*> GetComponents()
-		// {
-		// 	return GetComponents(typeid(T).hash_code());
-		// }
+		template <class T>
+		bool RemoveComponent(const uint entity) {
+			auto comp =  GetComponent(GetTypeId<T>(), entity);
+			auto[ptrE, resE] = EraseFromEntities(comp);
+			auto[ptrC, resC] = EraseFromComponents(comp);
+			return resE && resC;
+		}
 	};
 }
-

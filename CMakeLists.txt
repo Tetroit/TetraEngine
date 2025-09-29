@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(TetraEngineLibTest
-        core/tests/HelloWorld.cpp
-)
-
 find_package(OpenGL)
 
 add_subdirectory(deps/glfw)
@@ -149,21 +145,49 @@ target_include_directories(glad PUBLIC
 
 
 
-project(TetraEngineLibTest)
+project(UnitTest)
 
-project(TetraEngine)
+add_executable(UnitTest
+        core/tests/Test.cpp
+        core/tests/LibConfigTest.h
+        core/tests/ECSTest.h
+        core/ecs/Component.cpp
+        core/ecs/Component.h
+        core/ecs/ComponentManager.cpp
+        core/ecs/ComponentManager.h
+        core/ecs/ComponentHandle.h
+        core/ecs/ComponentHandle.inl
+        core/ecs/Entity.cpp
+        core/ecs/Entity.h
+        core/ecs/Handle.cpp
+        core/ecs/Handle.h
+        core/ecs/ECS.cpp
+        core/ecs/ECS.h
+)
+target_link_libraries(UnitTest PRIVATE glfw glm assimp freetype imgui stb glad)
 
-target_link_libraries(TetraEngineLibTest PRIVATE glfw glm assimp freetype imgui stb glad)
-
-target_include_directories(TetraEngineLibTest PRIVATE
+target_include_directories(UnitTest PRIVATE
         ${CMAKE_SOURCE_DIR}/deps/assimp/include
+        ${CMAKE_SOURCE_DIR}/core/pch
 )
 
 
 
 
 
-add_executable(TetraEngine ${TETRA_ENGINE_GLOB})
+project(TetraEngine)
+
+add_executable(TetraEngine ${TETRA_ENGINE_GLOB}
+        core/ecs/ComponentHandle.h
+        core/ecs/ComponentHandle.inl
+        core/ecs/Entity.cpp
+        core/ecs/Entity.h
+        core/ecs/Storage.cpp
+        core/ecs/Storage.h
+        core/ecs/Handle.cpp
+        core/ecs/Handle.h
+        core/ecs/ECS.cpp
+        core/ecs/ECS.h)
 
 target_link_libraries(TetraEngine PRIVATE glfw glm assimp freetype imgui stb glad)
 

@@ -34,10 +34,10 @@ void ComponentManager::RemoveEntity(uint entity)
 		LOG_ERR("Entity not found");
 		return;
 	}
-	auto* compArray = &it->second;
+	auto compArray = &it->second;
 	if (compArray->empty())
 	{
-		LOG("This entity has no components");
+		LOG_FROM("ECS", "This entity has no components");
 		entities.erase(it);
 		return;
 	}
@@ -49,23 +49,46 @@ void ComponentManager::RemoveEntity(uint entity)
 			comps++;
 	}
 	entities.erase(it);
-	LOG(comps << " elements were removed");
+	LOG_FROM("ECS", comps << " elements were removed");
+}
+
+int ComponentManager::GetEntityCount() const {
+	return entities.size();
+}
+
+int ComponentManager::GetComponentCount() const {
+	int total = 0;
+	for (auto loc = entities.begin(); loc != entities.end(); loc++)
+		total += loc->second.size();
+	return total;
 }
 
 ComponentBase* ComponentManager::GetComponent(uint typeID, uint entity)
 {
-	auto loc = &entities[typeID];
-	auto it = std::find_if(loc->begin(), loc->end(), [typeID](const ComponentBase* item) { return item->typeID == typeID;});
+	auto loc = &entities[entity];
+	auto it = std::ranges::find_if(*loc, [typeID](const ComponentBase* item) { return item->typeID == typeID; });
 	if (it != loc->end())
 	{
 		return *it;
 	}
-	else
-	{
-		LOG_ERR("Component not found while accessing");
-		return nullptr;
-	}
+
+	LOG_ERR("Component not found while accessing");
+	return nullptr;
 }
+
+// ComponentBase* ComponentManager::GetComponent(uint typeID, uint entity)
+// {
+// 	auto loc = &components[typeID];
+// 	auto it = std::ranges::find_if(*loc, [entity](const std::unique_ptr<ComponentBase>& item) { return item->owner == entity; });
+// 	if (it != loc->end())
+// 	{
+// 		return it->get();
+// 	}
+//
+// 	LOG_ERR("Component not found while accessing");
+// 	return nullptr;
+// }
+
 void ComponentManager::GetComponents(uint typeID, comp_iter& begin, comp_iter& end)
 {
 	auto loc = &components[typeID];
@@ -76,10 +99,14 @@ void ComponentManager::GetComponents(uint typeID, comp_iter& begin, comp_iter& e
 std::pair<comp_iter,bool> ComponentManager::EraseFromComponents(ComponentBase* component)
 {
 	auto& loc = components[component->GetType()];
-	auto it = std::find_if(loc.begin(), loc.end(), [component](const std::unique_ptr<ComponentBase>& comp) {return comp.get() == component;});
+
+	auto it = std::find_if(loc.begin(), loc.end(),
+		[component](const std::unique_ptr<ComponentBase>& comp)
+		{return (*comp) == *component;});
+
 	if (it == loc.end())
 	{
-		LOG_ERR("Component not found in component array while removing");
+		LOG_ERR("ECS::Component not found in component array while removing");
 		return std::make_pair(it,false);
 	}
 	return std::make_pair(loc.erase(it), true);
@@ -87,10 +114,10 @@ std::pair<comp_iter,bool> ComponentManager::EraseFromComponents(ComponentBase* c
 std::pair<entity_iter, bool> ComponentManager::EraseFromEntities(ComponentBase* component)
 {
 	auto& loc = entities[component->GetOwner()];
-	auto it = std::find(loc.begin(), loc.end(), component);
+	auto it = std::ranges::find(loc, component);
 	if (it == loc.end())
 	{
-		LOG_ERR("Component not found in entity array while removing");
+		LOG_ERR("ECS::Component not found in entity array while removing");
 		return std::make_pair(it, false);
 	}
 	return std::make_pair(loc.erase(it), true);

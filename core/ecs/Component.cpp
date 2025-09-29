@@ -1,4 +1,6 @@
 #include <tetrapc.h>
+
+#include <utility>
 #include "Component.h"
 #include "ComponentManager.h"
 
@@ -10,14 +12,15 @@ GUID ComponentBase::GenerateID()
 	CoCreateGuid(&guid);
 	return guid;
 }
-ComponentBase::ComponentBase(ComponentManager* manager, uint typeID, std::string name) : manager(manager), typeID(typeID), id(GenerateID())
-{
-}
-void ComponentBase::AssignID()
-{
+ComponentBase::ComponentBase(ComponentManager* manager, uint typeID, const std::string& name) : manager(manager),
+	typeID(typeID), owner(0), id(GenerateID()) {
 }
 
 void ComponentBase::Rename(std::string newName)
 {
-	name = newName;
+	name = std::move(newName);
+}
+
+GUID ComponentBase::GetGUID() const {
+	return id;
 }

@@ -5,6 +5,6 @@
 #include "Handle.h"
 
 namespace TetraEngine {
-namespace ECS {
-} // ECS
+    namespace ECS {
+    } // ECS
 } // TetraEngine
