@@ -44,6 +44,7 @@ void MeshRenderer::Render(glm::mat4 transform) {
         shader->SetVec3("surface.diffuse", material->diffuse);
         shader->SetVec3("surface.specular", material->specular);
         shader->SetFloat("surface.shininess", material->shininess);
+        shader->SetVec3("color", material->ambient);
     }
     shader->SetInt("textureFlags", textureFlags);
 
@@ -74,9 +75,9 @@ void MeshRenderer::Render(glm::mat4 transform) {
     }
     mesh->Draw();
 
-    if (emissionTexture) specularTexture->Unbind(2);
-    if (specularTexture) specularTexture->Unbind(1);
-    if (diffuseTexture) diffuseTexture->Unbind(0);
+    if (emissionTexture) Texture2D::Unbind(2);
+    if (specularTexture) Texture2D::Unbind(1);
+    if (diffuseTexture) Texture2D::Unbind(0);
 }
 
 void MeshRenderer::setTexture(Texture2D* tex, int texBit)

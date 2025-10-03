@@ -1,6 +1,6 @@
 #include "tetrapc.h"
 
-#include "GameObject_new.h"
+#include "GameObject.h"
 
 #include "Core.h"
 #include "rendering/Scene.h"

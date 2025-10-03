@@ -30,6 +30,9 @@ namespace TetraEngine
 		Shader* shader;
 		Camera* camera;
 		Material* material;
+
+		bool isRegistered = false;
+
 		virtual void Render(glm::mat4 transform = glm::mat4(1));
 		MeshRenderer(std::shared_ptr<VertexData> vd, Shader* sh);
 		void setTexture(Texture2D* texture, int texBit = 1);

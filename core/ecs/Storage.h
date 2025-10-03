@@ -47,6 +47,8 @@ namespace TetraEngine {
             const T* GetConstByEntity(entityID entity) const;
             const T& GetConstByEntityRef(entityID entity) const;
 
+            entityID GetOwner(Handle<T>& handle) const;
+
             void RemoveAt(uint slot);
             bool TryRemoveAt(uint slot);
             void RemoveFromEntity(const entityID& entity) override;
@@ -175,6 +177,13 @@ namespace TetraEngine {
         template<class T>
         const T & Storage<T>::GetConstByEntityRef(entityID entity) const {
             return data[entityToComponent.at(entity)];
+        }
+
+        template<class T>
+        entityID Storage<T>::GetOwner(Handle<T> &handle) const {
+            ValidateHandle(handle);
+            if (!handle.Valid()) return INVALID_ENTITY;
+            return entities[handle.slot];
         }
 
         template<class T>

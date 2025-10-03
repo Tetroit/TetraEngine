@@ -89,7 +89,7 @@ file (GLOB TETRA_ENGINE_GLOB
         core/Test.h
         core/rendering/Scene.cpp
         core/behaviours/TestBehaviour.h
-        core/GameObject.cpp
+        core/GameObject_old.cpp
         core/rendering/Skybox.h
         core/utils/Event.h
         core/rendering/Texture360.h
@@ -103,7 +103,7 @@ file (GLOB TETRA_ENGINE_GLOB
         core/Application.h
         core/MyApplication.cpp
         core/utils/OBJParser.h
-        core/GameObject.h
+        core/GameObject_old.h
         core/ConsoleManager.cpp
         core/behaviours/Bullet.cpp
         core/Behaviour.h
@@ -117,6 +117,20 @@ file (GLOB TETRA_ENGINE_GLOB
         core/rendering/LightRenderer.cpp
         core/rendering/VertexData.h
         core/rendering/Framebuffer.cpp
+        core/ecs/ComponentHandle.h
+        core/ecs/ComponentHandle.inl
+        core/ecs/Entity.cpp
+        core/ecs/Entity.h
+        core/ecs/Storage.cpp
+        core/ecs/Storage.h
+        core/ecs/Handle.cpp
+        core/ecs/Handle.h
+        core/ecs/ECS.cpp
+        core/ecs/ECS.h
+        core/Transform.cpp
+        core/Transform.h
+        core/GameObject.cpp
+        core/GameObject.h
 )
 
 add_library(imgui STATIC ${IMGUI_GLOB})
@@ -177,17 +191,7 @@ target_include_directories(UnitTest PRIVATE
 
 project(TetraEngine)
 
-add_executable(TetraEngine ${TETRA_ENGINE_GLOB}
-        core/ecs/ComponentHandle.h
-        core/ecs/ComponentHandle.inl
-        core/ecs/Entity.cpp
-        core/ecs/Entity.h
-        core/ecs/Storage.cpp
-        core/ecs/Storage.h
-        core/ecs/Handle.cpp
-        core/ecs/Handle.h
-        core/ecs/ECS.cpp
-        core/ecs/ECS.h)
+add_executable(TetraEngine ${TETRA_ENGINE_GLOB})
 
 target_link_libraries(TetraEngine PRIVATE glfw glm assimp freetype imgui stb glad)
 

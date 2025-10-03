@@ -42,13 +42,18 @@ ImGuiManager* Core::imguiManager = nullptr;
 InputManager* Core::inputManager = nullptr;
 Viewport* Core::mainViewport = nullptr;
 
+ECS::ECS & Core::GetMainECS() {
+	static ECS::ECS mainEcs;
+	return mainEcs;
+}
+
 void Core::processConsole() {
 
 	std::string command;
 	while (!glfwWindowShouldClose(glfwManager->window))
 	{
 		std::getline(std::cin, command);
-		ConsoleManager::ParseCommand(command);
+		//ConsoleManager::ParseCommand(command);
 	}
 }
 
@@ -92,7 +97,7 @@ int Core::Initialize()
 
 	//window
 
-	ConsoleManager::Initialize(glfwManager->window);
+	//ConsoleManager::Initialize(glfwManager->window);
 
 	//opengl
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -133,7 +138,7 @@ void Core::InitializePresets()
 	VertexData::InitialisePrefabs();
 	std::cout << "models initialized\n";
 	MeshRenderer::InitialiseRenderer();
-	LightRenderer::InitialiseRenderer();
+	//LightRenderer::InitialiseRenderer();
 	std::cout << "renderers initialized\n";
 	Material::Initialize();
 	std::cout << "materials initialized\n";

@@ -4,14 +4,14 @@
 #include <string>
 
 namespace TetraEngine {
-	class GameObject;
+	//class GameObject_new;
 	class Behaviour
 	{
-		friend class GameObject;
+		//friend class GameObject;
 
 	public:
 
-		GameObject* gameObject;
+		//GameObject* gameObject;
 		bool destroyWithObject = true;
 		std::string tag = "script";
 

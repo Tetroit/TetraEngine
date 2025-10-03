@@ -12,20 +12,20 @@ DestroyManager* DestroyManager::get()
 
 void DestroyManager::clear()
 {
-	while (toDelete.size() > 0)
+	while (!toDelete.empty())
 		toDelete.pop();
 }
 
 void DestroyManager::deleteAll()
 {
-	while (toDelete.size() > 0)
+	while (!toDelete.empty())
 	{
-		Scene::currentScene->RemoveObject(toDelete.front());
+		//Scene::currentScene->RemoveObject(toDelete.front());
 		toDelete.pop();
 	}
 }
 
-void DestroyManager::push(GameObject* go)
+void DestroyManager::push(ECS::Handle<GameObject> go)
 {
 	toDelete.push(go);
 }

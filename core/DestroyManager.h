@@ -1,6 +1,7 @@
 #pragma once
 
 #include <queue>
+#include "../ecs/ECS.h"
 
 namespace TetraEngine {
 	class GameObject;
@@ -9,10 +10,10 @@ namespace TetraEngine {
 	{
 	public:
 		static DestroyManager* get();
-		std::queue<GameObject*> toDelete;
+		std::queue<ECS::Handle<GameObject>> toDelete;
 		void clear();
 		void deleteAll();
-		void push(GameObject* go);
+		void push(ECS::Handle<GameObject> go);
 
 	};
 

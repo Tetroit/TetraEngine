@@ -9,11 +9,9 @@ namespace TetraEngine {
 	class PointLight : public Light
 	{
 	public:
-		int lightId = 0;
-		PointLight(glm::vec3 pos, const std::string name = "object", LightRenderer* meshRenderer = LightRenderer::defaultRenderer);
+
 		glm::vec3 attenuation;
-		void OnSceneAdded(Scene* scene) override;
-		void OnSceneRemoved() override;
+		PointLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 attenuation = glm::vec3(1,0.5,0.2));
 	};
 }
 

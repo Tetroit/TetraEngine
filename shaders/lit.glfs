@@ -30,10 +30,13 @@ in vec2 texCoord;
 out vec4 FragColor;
 
 uniform Material surface = Material(vec3(1,1,1),vec3(1,1,1),vec3(1,1,1),16);
-uniform DirectionalLight light = DirectionalLight(normalize(vec3(0,1,0)),vec3(0,0,0),vec3(0,0,0),vec3(0,0,0));
+uniform DirectionalLight light = DirectionalLight(normalize(vec3(1,0,0)),vec3(0,0,0),vec3(0,0,0),vec3(0,0,0));
 
-uniform int pointlightsCount = 0;
-uniform PointLight pointLights[16];
+uniform int pointLightsCount = 0;
+
+layout(std430, binding = 0) buffer PointLights {
+	PointLight pointLights[];
+};
 
 uniform int textureFlags = 0;
 
@@ -113,11 +116,11 @@ void main()
 	
 	
 	vec3 color = colorA + colorD + colorS;
-	for (int i=0; i<pointlightsCount; i++)
+	for (int i=0; i<pointLightsCount; i++)
 		color += CalcPointLight(pointLights[i], normal, pos, viewDir);
 		
 	if ((textureFlags & 8) != 0)
 		color = SoftLight(color, texture(skyTexture, reflect(-viewDir,normal)).xyz);
-	
+
 	FragColor = vec4(color, 1);
 } 

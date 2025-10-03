@@ -32,6 +32,8 @@ namespace TetraEngine::ECS {
 
         template<class T, typename... Args>
         Handle<T> CreateComponent(Entity entity, Args&&... args);
+        template<class T>
+        void OnComponentCreated(Entity entity, Handle<T>& component);
 
         template<class T>
         T* GetComponent(Entity& entity);
@@ -51,9 +53,14 @@ namespace TetraEngine::ECS {
         void RemoveComponent(Entity& entity);
         template<class T>
         bool TryRemoveComponent(Entity& entity);
+
         template<class T, typename FN>
         void Foreach(FN&& fn);
         template<class T1, class T2, typename FN>
+        void Foreach(FN&& fn);
+        template<class T1, class T2, class T3, typename FN>
+        void Foreach(FN&& fn);
+        template<class T1, class T2, class T3, class T4, typename FN>
         void Foreach(FN&& fn);
     };
 
@@ -101,12 +108,22 @@ namespace TetraEngine::ECS {
         if (!ValidateEntity(entity)) {
             return nullptr;
         }
-        return GetOrCreateStorage<T>()->GetByEntity(entity.ID);
+        auto storage = GetStorage<T>();
+        if (storage == nullptr) {
+            LOG_ERR("Storage not found");
+            return nullptr;
+        }
+        return storage->GetByEntity(entity.ID);
     }
 
     template<class T>
     T* ECS::GetComponent(Handle<T> handle) {
-        return GetStorage<T>()->Get(handle);
+        auto storage = GetStorage<T>();
+        if (storage == nullptr) {
+            LOG_ERR("Storage not found");
+            return nullptr;
+        }
+        return storage->Get(handle);
     }
 
     template<class T>
@@ -160,7 +177,6 @@ namespace TetraEngine::ECS {
     void ECS::Foreach(FN &&fn) {
         auto storage = GetStorage<T>();
         if (storage == nullptr) {
-            LOG_ERR("Storage not found");
             return;
         }
         storage->Foreach(std::forward<FN>(fn));
@@ -170,12 +186,10 @@ namespace TetraEngine::ECS {
     void ECS::Foreach(FN &&fn) {
         auto storage1 = GetStorage<T1>();
         if (storage1 == nullptr) {
-            LOG_ERR("Storage 1 not found");
             return;
         }
         auto storage2 = GetStorage<T2>();
         if (storage2 == nullptr) {
-            LOG_ERR("Storage 2 not found");
             return;
         }
 
@@ -187,6 +201,71 @@ namespace TetraEngine::ECS {
             auto comp2 = st2.GetByEntity(ent);
             if (!comp2) continue;
             fn(comp1, *comp2);
+        }
+    }
+
+    template<class T1, class T2, class T3, typename FN>
+    void ECS::Foreach(FN &&fn) {
+        auto storage1 = GetStorage<T1>();
+        if (storage1 == nullptr) {
+            return;
+        }
+        auto storage2 = GetStorage<T2>();
+        if (storage2 == nullptr) {
+            return;
+        }
+        auto storage3 = GetStorage<T3>();
+        if (storage3 == nullptr) {
+            return;
+        }
+
+        auto& st1 = *storage1;
+        auto& st2 = *storage2;
+        auto& st3 = *storage3;
+        auto entList = st1.GetEntities();
+        for (auto ent : entList ) {
+            auto comp1 = st1.GetByEntityRef(ent);
+            auto comp2 = st2.GetByEntity(ent);
+            if (!comp2) continue;
+            auto comp3 = st3.GetByEntity(ent);
+            if (!comp3) continue;
+            fn(comp1, *comp2, *comp3);
+        }
+    }
+
+    template<class T1, class T2, class T3, class T4, typename FN>
+    void ECS::Foreach(FN &&fn) {
+        auto storage1 = GetStorage<T1>();
+        if (storage1 == nullptr) {
+            return;
+        }
+        auto storage2 = GetStorage<T2>();
+        if (storage2 == nullptr) {
+            return;
+        }
+        auto storage3 = GetStorage<T3>();
+        if (storage3 == nullptr) {
+            return;
+        }
+        auto storage4 = GetStorage<T4>();
+        if (storage4 == nullptr) {
+            return;
+        }
+
+        auto& st1 = *storage1;
+        auto& st2 = *storage2;
+        auto& st3 = *storage3;
+        auto& st4 = *storage4;
+        auto entList = st1.GetEntities();
+        for (auto ent : entList ) {
+            auto comp1 = st1.GetByEntityRef(ent);
+            auto comp2 = st2.GetByEntity(ent);
+            if (!comp2) continue;
+            auto comp3 = st3.GetByEntity(ent);
+            if (!comp3) continue;
+            auto comp4 = st4.GetByEntity(ent);
+            if (!comp4) continue;
+            fn(comp1, *comp2, *comp3, *comp4);
         }
     }
 }

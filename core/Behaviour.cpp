@@ -4,7 +4,7 @@
 
 using namespace TetraEngine;
 
-extern GameObject* gameObject;
+//extern GameObject* gameObject;
 
 Behaviour::Behaviour(std::string tag) : tag(tag) {
 
