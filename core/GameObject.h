@@ -1,65 +1,80 @@
 #pragma once
+#include <utility>
 
-#include <vector>
-#include <string>
-
+#include "Transform.h"
+#include "ecs/ECS.h"
 #include "rendering/MeshRenderer.h"
 
+
 namespace TetraEngine {
-	class Scene;
-	class Behaviour;
+    class Scene;
 
-	class GameObject
-	{
-	private:
-		static glm::mat4 currentTransform;
-	public:
-		std::string name;
-		glm::mat4 transform;
-		glm::mat4 localToGlobal;
-		Scene* scene;
-		GameObject* parent;
-		MeshRenderer* renderer;
-		std::vector<GameObject*> children;
-		std::vector<Behaviour*> scripts;
+    class GameObject {
 
-		GameObject(glm::vec3 pos, const std::string name = "object", MeshRenderer* meshRenderer = MeshRenderer::defaultRenderer);
-		~GameObject();
+    public:
 
-		static GameObject* Create(glm::vec3 pos, const std::string name = "object", MeshRenderer* meshRenderer = MeshRenderer::defaultRenderer);
-		void Delete();
-		void Rename(const std::string);
-		void UpdateMatrix();
-		void AddChild(GameObject* child);
-		void AddBehaviour(Behaviour* script);
-		virtual void OnSceneAdded(Scene* scene);
-		virtual void OnSceneRemoved();
-		virtual void Render();
-		void Update();
+        class Info {
+        public:
+            explicit Info(std::string name) : name(std::move(name)), scene(nullptr), isEnabled(true) {};
+            std::string name;
+            Scene* scene;
+            bool isEnabled;
+        };
 
-		void LocalTranslate(glm::vec3 pos);
-		void LocalRotate(glm::quat rot);
-		void LocalScale(glm::vec3 pos);
+    private:
 
-		void GlobalTranslate(glm::vec3 pos);
-		void GlobalRotate(glm::quat rot);
-		void GlobalScale(glm::vec3 pos);
+        ECS::Entity entity;
+        ECS::Handle<Transform> transform;
+        ECS::Handle<Info> info;
 
-		void SetPosition(glm::vec3 pos);
-		void SetRotation(glm::quat rot);
-		void SetScale(glm::vec3 scale);
+    public:
 
-		glm::vec3 GetPos();
-		glm::quat GetRotation();
-		glm::vec3 GetScale();
+        GameObject();
+        explicit GameObject(const std::string &);
+        ~GameObject();
 
-		glm::vec3 GetGlobalPos();
-		glm::quat GetGlobalRotation();
-		glm::vec3 GetGlobalScale();
+        template<class T>
+        T* GetComponent();
+        template<class T, typename... Args>
+        ECS::Handle<T> AddComponent(Args&&... args);
 
-		glm::vec3 TransformPoint(glm::vec3 point);
-		glm::vec3 TransformDirection(glm::vec3 point);
+        Transform* GetTransform();
+        ECS::Handle<Transform> GetTransformHandle();
+        Info* GetInfo();
+        std::string GetName();
+        ECS::Entity GetEntity();
+        void SetName(const std::string& name);
+        void SetScene(Scene* scene);
+        void SetEnabled(bool isEnabled);
+        bool IsEnabled();
 
-		bool HasScript(std::string tag);
-	};
+        template <class T>
+        void OnComponentAdded(ECS::Handle<T> handle);
+
+    };
+
+    template<>
+    void GameObject::OnComponentAdded<MeshRenderer>(ECS::Handle<MeshRenderer> handle);
+
 }
+
+#include "Core.h"
+
+namespace TetraEngine
+{
+    template<class T>
+    T* GameObject::GetComponent() {
+        return Core::GetMainECS().GetComponent<T>(entity);
+    }
+
+    template<class T, typename... Args>
+    ECS::Handle<T> GameObject::AddComponent(Args&&... args) {
+        auto handle = Core::GetMainECS().CreateComponent<T>(entity, std::forward<Args>(args)...);
+        OnComponentAdded<T>(handle);
+        return handle;
+    }
+
+    template<class T>
+    void GameObject::OnComponentAdded(ECS::Handle<T> handle) {
+    }
+} // TetraEngine
