@@ -5,27 +5,29 @@
 #include "ecs/ECS.h"
 #include "rendering/MeshRenderer.h"
 
-
 namespace TetraEngine {
+
     class Scene;
+    class RigidBody;
+
+    class GameObjectInfo {
+    public:
+        explicit GameObjectInfo(std::string name, ECS::Entity entity);
+        std::string name;
+        Scene* scene;
+        bool isEnabled;
+        ECS::Entity entity;
+    };
 
     class GameObject {
 
     public:
 
-        class Info {
-        public:
-            explicit Info(std::string name) : name(std::move(name)), scene(nullptr), isEnabled(true) {};
-            std::string name;
-            Scene* scene;
-            bool isEnabled;
-        };
-
     private:
 
         ECS::Entity entity;
         ECS::Handle<Transform> transform;
-        ECS::Handle<Info> info;
+        ECS::Handle<GameObjectInfo> info;
 
     public:
 
@@ -34,19 +36,22 @@ namespace TetraEngine {
         ~GameObject();
 
         template<class T>
-        T* GetComponent();
+        T* GetComponent() const;
         template<class T, typename... Args>
         ECS::Handle<T> AddComponent(Args&&... args);
 
-        Transform* GetTransform();
-        ECS::Handle<Transform> GetTransformHandle();
-        Info* GetInfo();
-        std::string GetName();
-        ECS::Entity GetEntity();
-        void SetName(const std::string& name);
-        void SetScene(Scene* scene);
-        void SetEnabled(bool isEnabled);
-        bool IsEnabled();
+        Transform* GetTransform() const;
+        ECS::Handle<Transform> GetTransformHandle() const;
+        GameObjectInfo* GetInfo() const;
+        ECS::Handle<GameObjectInfo> GetInfoHandle() const;
+
+        std::string GetName() const;
+        ECS::Entity GetEntity() const;
+        void SetName(const std::string& name) const;
+        void SetScene(Scene* scene) const;
+        void SetEnabled(bool isEnabled) const;
+        bool IsEnabled() const;
+        void Destroy();
 
         template <class T>
         void OnComponentAdded(ECS::Handle<T> handle);
@@ -56,14 +61,18 @@ namespace TetraEngine {
     template<>
     void GameObject::OnComponentAdded<MeshRenderer>(ECS::Handle<MeshRenderer> handle);
 
+    template<>
+    void GameObject::OnComponentAdded<RigidBody>(ECS::Handle<RigidBody> handle);
+
 }
 
 #include "Core.h"
+#include "physics/RigidBody.h"
 
 namespace TetraEngine
 {
     template<class T>
-    T* GameObject::GetComponent() {
+    T* GameObject::GetComponent() const {
         return Core::GetMainECS().GetComponent<T>(entity);
     }
 

@@ -66,8 +66,8 @@ namespace TetraEngine
 		bool sendKeyboardEvents = true;
 		bool sendMouseClickEvents = true;
 	
-		::GLFWwindow* window = nullptr;
-		TetraEngine::InputManager* inputManager = nullptr;
+		GLFWwindow* window = nullptr;
+		InputManager* inputManager = nullptr;
 
 		bool cursorEnabled = true;
 		unsigned int width = 1920, height = 1080;
@@ -76,12 +76,15 @@ namespace TetraEngine
 		GLFWManager(int width, int height);
 		~GLFWManager();
 		static GLFWManager* get();
+		static void DisplayModes();
 
 		static void mouse_callback(::GLFWwindow* window, double xposIn, double yposIn);
 
 		static void mouse_button_callback(::GLFWwindow* window, int button, int action, int mods);
 
 		static void key_callback(::GLFWwindow* window, int key, int scancode, int action, int mods);
+
+		static void framebuffer_size_callback(::GLFWwindow* window, int width, int height);
 
 		void ToggleCursor(bool toOn);
 		void ToggleKeyboardEvents(bool toOn);

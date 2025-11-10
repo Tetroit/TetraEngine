@@ -4,28 +4,22 @@
 
 using namespace TetraEngine;
 
-DestroyManager* DestroyManager::get()
-{
-	static DestroyManager instance;
-	return &instance;
-}
-
 void DestroyManager::clear()
 {
-	while (!toDelete.empty())
-		toDelete.pop();
+	toDelete.clear();
 }
 
 void DestroyManager::deleteAll()
 {
 	while (!toDelete.empty())
 	{
-		//Scene::currentScene->RemoveObject(toDelete.front());
-		toDelete.pop();
+		Scene::currentScene->RemoveObject(*toDelete.back());
+	    toDelete.pop_back();
 	}
 }
 
-void DestroyManager::push(ECS::Handle<GameObject> go)
+void DestroyManager::Push(GameObject* go)
 {
-	toDelete.push(go);
+    if (go != nullptr)
+	toDelete.push_back(go);
 }

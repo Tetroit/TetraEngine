@@ -36,13 +36,16 @@ void LightManager::dispatchPointLights(Shader* shader)
 
 void LightManager::CollectLightData() {
 	pointLights.clear();
-	Core::GetMainECS().Foreach<PointLight, Transform, GameObject::Info>([&](PointLight& pl, Transform& t, GameObject::Info& info) {
+	Core::GetMainECS().Foreach<PointLight, Transform, GameObjectInfo>(
+	    [&](PointLight& pl, Transform& t, GameObjectInfo& info) {
 		AddPointLight(pl, t, info);
 	});
 }
 
 
-void LightManager::AddPointLight(PointLight& pl, Transform& transform, GameObject::Info& gameObject) {
+void LightManager::AddPointLight(PointLight& pl, Transform& transform, GameObjectInfo& gameObject) {
+	if (!gameObject.isEnabled)
+		return;
 	pointLights.push_back(PointLightInfo{
 		transform.GetPosition(), 0.0f,
 		pl.ambient, 0.0,

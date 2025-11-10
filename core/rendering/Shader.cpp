@@ -15,7 +15,7 @@ Shader* Shader::skysphereShader = nullptr;
 Shader* Shader::textShader = nullptr;
 Shader* Shader::currentShader = nullptr;
 
-Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
+Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) : vertexPath(vertexPath), fragmentPath(fragmentPath)
 {
 	std::string vertexCode;
 	std::ifstream vShaderFile;
@@ -134,6 +134,36 @@ void Shader::SetVec4(const std::string& name, float x, float y, float z, float w
 
     unsigned int loc = glGetUniformLocation(ID, name.c_str());
     glUniform4f(loc, x, y, z, w);
+}
+
+uint Shader::GetID() const {
+    return ID;
+}
+
+std::string Shader::GetVertexPath() const {
+    return vertexPath;
+}
+
+std::string Shader::GetFragmentPath() const {
+    return fragmentPath;
+}
+
+std::string Shader::VertexAsString() const {
+    std::ifstream file(vertexPath);
+    if (!file.is_open())
+        return "Error: could not open " + vertexPath;
+
+    return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+}
+
+std::string Shader::FragmentAsString() const {
+
+    std::ifstream file(fragmentPath);
+    if (!file.is_open())
+        return "Error: could not open " + fragmentPath;
+
+    return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
 }
 
 void Shader::InitialiseShaders() {

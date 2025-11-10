@@ -19,14 +19,14 @@ namespace TetraEngine::ECS {
         return {id, entityGenerations.at(id)};
     }
 
-    bool ECS::ValidateEntity(Entity &entity) const {
+    bool ECS::ValidateEntity(const Entity &entity) const {
         if (!entity.isValid()) {
             LOG_ERR("Invalid entity");
             return false;
         }
         if (entityGenerations[entity.ID] != entity.gen ) {
             LOG_ERR("Invalid entity");
-            entity.ID = INVALID_ENTITY; return false;
+            return false;
         }
         return true;
     }
@@ -63,5 +63,15 @@ namespace TetraEngine::ECS {
         for (auto &storage: storages | std::views::values) {
             storage->RemoveFromEntity(entity.ID);
         }
+        return true;
+    }
+
+    std::vector<std::pair<uint, TypeErasedHandle>> ECS::GetAllEntityComponents(const Entity &entity) {
+        std::vector<std::pair<uint, TypeErasedHandle>> components;
+        for (auto& [type, storage] : storages ) {
+            if (storage->HasEntity(entity.ID))
+                components.emplace_back(std::pair(type, storage->GetTypeErasedHandle(entity.ID)));
+        }
+        return components;
     }
 }

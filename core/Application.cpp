@@ -3,6 +3,8 @@
 
 using namespace TetraEngine;
 
-void Application::Update()
-{
+void Application::Update() {
+}
+
+void Application::UIUpdate() {
 }

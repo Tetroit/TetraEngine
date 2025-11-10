@@ -46,7 +46,7 @@ void Viewport::SetSize(uint width, uint height)
 {
 	cam->SetProjection((float)glm::radians(45.0), (float)width / (float)height, 0.1f, 100.0f);
 	framebuffer->Resize(width, height);
-	//glViewport(0, 0, width, height);
+	glViewport(0, 0, width, height);
 }
 
 Texture2D* Viewport::GetTexture()

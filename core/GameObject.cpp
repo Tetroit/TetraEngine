@@ -3,59 +3,76 @@
 #include "GameObject.h"
 
 #include "Core.h"
+#include "physics/PhysicsScene.h"
 #include "rendering/Scene.h"
+#include "physics/RigidBody.h"
 
 namespace TetraEngine {
+    GameObjectInfo::GameObjectInfo(std::string name, ECS::Entity entity): name(std::move(name)), scene(nullptr), isEnabled(true), entity(entity) {}
+
     GameObject::GameObject() {
         entity = Core::GetMainECS().CreateEntity();
         transform = Core::GetMainECS().CreateComponent<Transform>(entity);
-        info = Core::GetMainECS().CreateComponent<Info>(entity, "New Object");
+
+        info = Core::GetMainECS().CreateComponent<GameObjectInfo>(entity, "New Object", entity);
     }
 
     GameObject::GameObject(const std::string& name) {
         entity = Core::GetMainECS().CreateEntity();
         transform = Core::GetMainECS().CreateComponent<Transform>(entity);
-        info = Core::GetMainECS().CreateComponent<Info>(entity, name);
+        info = Core::GetMainECS().CreateComponent<GameObjectInfo>(entity, name, entity);
     }
 
     GameObject::~GameObject() {
         Core::GetMainECS().RemoveEntity(entity);
     }
 
-    Transform* GameObject::GetTransform() {
+    Transform* GameObject::GetTransform() const {
         return Core::GetMainECS().GetComponent<Transform>(transform);
     }
 
-    ECS::Handle<Transform> GameObject::GetTransformHandle() {
+    ECS::Handle<Transform> GameObject::GetTransformHandle() const {
         return transform;
     }
 
-    GameObject::Info* GameObject::GetInfo() {
+    GameObjectInfo* GameObject::GetInfo() const {
         return Core::GetMainECS().GetComponent(info);
     }
 
-    std::string GameObject::GetName() {
-        return GetComponent<Info>()->name;
+    ECS::Handle<GameObjectInfo> GameObject::GetInfoHandle() const {
+        return info;
     }
 
-    ECS::Entity GameObject::GetEntity() {
+    std::string GameObject::GetName() const {
+        return GetComponent<GameObjectInfo>()->name;
+    }
+
+    ECS::Entity GameObject::GetEntity() const {
         return entity;
     }
 
-    void GameObject::SetName(const std::string &name) {
+    void GameObject::SetName(const std::string &name) const {
         GetInfo()->name = name;
     }
 
-    void GameObject::SetScene(Scene *sc) {
-        GetInfo()->scene = sc;
+    void GameObject::SetScene(Scene *scene) const {
+        GetInfo()->scene = scene;
     }
 
-    void GameObject::SetEnabled(bool isEnabled) {
+    void GameObject::SetEnabled(bool isEnabled) const {
         GetInfo()->isEnabled = isEnabled;
     }
 
-    bool GameObject::IsEnabled() {
+    bool GameObject::IsEnabled() const {
         return GetInfo()->isEnabled;
+    }
+
+    void GameObject::Destroy() {
+        auto* scene = GetInfo()->scene;
+        if (scene != nullptr) {
+            scene->RemoveObject(*this);
+        }
+        Core::destroyManager->Push(this);
     }
 
     template<>
@@ -68,6 +85,19 @@ namespace TetraEngine {
         }
         if (scene == Scene::currentScene) {
             scene->RegisterShader(Core::GetMainECS().GetComponent(handle)->shader);
+        }
+    }
+
+    template<>
+    void GameObject::OnComponentAdded<RigidBody>(ECS::Handle<RigidBody> handle) {
+        auto infoRef = GetInfo();
+        auto scene = infoRef->scene;
+        if (!handle.Valid()) {
+            LOG_ERR("Handle is invalid");
+            return;
+        }
+        if (scene == Scene::currentScene) {
+            scene->GetPhysicsScene()->AddObject(*Core::GetMainECS().GetComponent(handle));
         }
     }
 } // TetraEngine

@@ -178,9 +178,9 @@ void VertexData::InitialisePrefabs() {
         1, 2, 3,
     };
 
-    rect.get()->LoadVerts(&vertices[0],4);
-    rect.get()->LoadFaces(&index[0], 6);
-    rect.get()->Setup();
+    rect->LoadVerts(&vertices[0],4);
+    rect->LoadFaces(&index[0], 6);
+    rect->Setup();
 
     vertices.clear();
     index.clear();
@@ -234,9 +234,9 @@ void VertexData::InitialisePrefabs() {
         21,22,23,
     });
 
-    cube.get()->LoadVerts(&vertices[0], 6 * 4);
-    cube.get()->LoadFaces(&index[0], 6 * 6);
-    cube.get()->Setup();
+    cube->LoadVerts(&vertices[0], 6 * 4);
+    cube->LoadFaces(&index[0], 6 * 6);
+    cube->Setup();
 
     vertices.clear();
     index.clear();

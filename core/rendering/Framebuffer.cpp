@@ -17,8 +17,7 @@ Framebuffer::Framebuffer(uint width, uint height, bool generateNewTexture) : wid
 	}
 	else
 		texture = nullptr;
-	Renderbuffer* rb = new Renderbuffer(width, height);
-	BindRenderbuffer(rb);
+	BindRenderbuffer(new Renderbuffer(width, height));
 }
 Framebuffer::~Framebuffer() {
 	delete renderbuffer;
@@ -47,6 +46,7 @@ void Framebuffer::BindRenderbuffer(Renderbuffer* rb)
 		Bind();
 	if (rb != nullptr)
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rb->ID());
+	Unbind();
 }
 
 Texture2D* Framebuffer::GetTexture()

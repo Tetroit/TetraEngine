@@ -4,6 +4,7 @@ namespace TetraEngine {
 	{
 		uint texture;
 		static uint attached;
+		std::string path;
 	public:
 		int width;
 		int height;
@@ -19,6 +20,8 @@ namespace TetraEngine {
 		void Bind(int id = 0);
 		bool IsAttached() const;
 		void Resize(uint width, uint height);
+		[[nodiscard]]
+		std::string GetPath() const;
 		uint ID() const;
 	};
 }

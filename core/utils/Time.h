@@ -9,7 +9,7 @@ namespace TetraEngine
 		static float time;
 		static float prevTime;
 		static float deltaTime;
-		static float sdeltaTime;
+		static float sDeltaTime;
 		static float GetFPS();
 		static void Update();
 	};

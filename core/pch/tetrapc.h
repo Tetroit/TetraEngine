@@ -31,7 +31,7 @@
 #include "../utils/Types.h"
 
 #define LOG(x) std::cout << "SYSTEM::" << x << '\n'
-#define LOG_ERR(x) std::cout << "ERROR::" << x << '\n'
+#define LOG_ERR(x) std::cerr << "ERROR::" << x << '\n'
 #define LOG_FROM(x,y) std::cout << x << "::" << y << '\n'
 
 constexpr void log_assert(const bool expr, const std::string& success, const std::string& error) {
@@ -49,4 +49,4 @@ constexpr void log_test(const bool expr, const std::string& testName) {
     else LOG("\033[33m[(x)]\033[0m " + testName);
 }
 
-using uint = unsigned int;
+using uint = uint32_t;

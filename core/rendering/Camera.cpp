@@ -1,5 +1,7 @@
 #include "tetrapc.h"
 #include "Camera.h"
+
+#include "../Core.h"
 #include "../utils/Time.h"
 
 using namespace TetraEngine;
@@ -50,14 +52,15 @@ void Camera::ProcessMovement(const Event<InputInfo>& ev)
 }
 void Camera::SetMain(Camera* cam)
 {
-    if (Camera::main != nullptr)
+    TETRA_USE_MAIN_INPUT
+    if (main != nullptr)
     {
-		InputManager::GetMain()->keyDispatcher.RemoveListener<Camera>(InputInfo(GLFW_REPEAT, TETRA_INPUT_KEY_MODE), &Camera::ProcessMovement, (*Camera::main));
-		InputManager::GetMain()->keyDispatcher.RemoveListener<Camera>(InputInfo(TETRA_INPUT_MOUSE_MOVE_MODE), &Camera::ProcessMouseMovement, (*Camera::main));
+		input->RemoveListener<Camera>(InputInfo(GLFW_REPEAT, TETRA_INPUT_KEY_MODE), &Camera::ProcessMovement, (*Camera::main));
+		input->RemoveListener<Camera>(InputInfo(TETRA_INPUT_MOUSE_MOVE_MODE), &Camera::ProcessMouseMovement, (*Camera::main));
     }
-	Camera::main = cam;
-    InputManager::GetMain()->keyDispatcher.AddListener<Camera>(InputInfo(GLFW_REPEAT, TETRA_INPUT_KEY_MODE), &Camera::ProcessMovement, (*cam));
-    InputManager::GetMain()->keyDispatcher.AddListener<Camera>(InputInfo(TETRA_INPUT_MOUSE_MOVE_MODE), &Camera::ProcessMouseMovement, (*cam));
+	main = cam;
+    input->AddListener<Camera>(InputInfo(GLFW_REPEAT, TETRA_INPUT_KEY_MODE), &Camera::ProcessMovement, (*cam));
+    input->AddListener<Camera>(InputInfo(TETRA_INPUT_MOUSE_MOVE_MODE), &Camera::ProcessMouseMovement, (*cam));
 }
 
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix

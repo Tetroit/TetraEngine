@@ -1,7 +1,9 @@
 #pragma once
+
 #include "tetrapc.h"
 #include "Entity.h"
 #include "Handle.h"
+#include "../utils/Action.h"
 
 namespace TetraEngine {
     namespace ECS {
@@ -11,17 +13,26 @@ namespace TetraEngine {
                 virtual ~IStorage() = default;
                 virtual void RemoveFromEntity(const entityID& entity) = 0;
                 virtual bool TryRemoveFromEntity(const entityID& entity) = 0;
-                virtual bool HasEntity(entityID entity) const = 0;
-                virtual int Count() const = 0;
+                [[nodiscard]] virtual bool HasEntity(entityID entity) const = 0;
+                virtual void SetEntityResolutionMethod(std::function<Entity(uint)>&& fn) = 0;
+                [[nodiscard]] virtual TypeErasedHandle GetTypeErasedHandle(const entityID& entity) const = 0;
+                [[nodiscard]] virtual int Count() const = 0;
         };
 
         template<class T>
         class Storage : public IStorage {
 
+            using ComponentAddedAction = Action<T&, Entity, Handle<T>>;
+            using ComponentRemovedAction = Action<T&, Entity, Handle<T>>;
+
             std::vector<T> data;
             std::vector<uint> gen;
-            std::vector<bool> occupied;
+            std::vector<uint8_t> occupied;
             std::queue<uint> freeSlots;
+
+            ComponentAddedAction OnComponentAdded;
+            ComponentRemovedAction OnComponentRemoved;
+            std::function <Entity(uint)> ResolveEntity;
 
             std::unordered_map<entityID, uint> entityToComponent;
             std::vector<entityID> entities;
@@ -31,12 +42,17 @@ namespace TetraEngine {
             Handle<T> Create(entityID entity, Args&&... args);
             Handle<T> Add(entityID entity, T comp);
 
+            void SetEntityResolutionMethod(std::function<Entity(uint)>&& fn) override;
+
             std::vector<T>& GetData () const;
             bool IsOccupied(uint id) const;
             const std::vector<entityID>& GetEntities() const;
 
             void ValidateHandle(Handle<T>& handle) const;
             Handle<T> GetHandle(entityID entity) const;
+
+            ComponentAddedAction& GetComponentAddedAction();
+            ComponentRemovedAction& GetComponentRemovedAction();
 
             T* Get(Handle<T>& handle);
             T* GetByEntity(entityID entity);
@@ -58,6 +74,8 @@ namespace TetraEngine {
 
             [[nodiscard]]
             bool HasEntity(entityID entity) const override;
+            [[nodiscard]]
+            TypeErasedHandle GetTypeErasedHandle(const entityID& entity) const override;
             int Count() const override;
             template<typename FN>
             void Foreach(FN&& fn);
@@ -90,7 +108,7 @@ namespace TetraEngine {
 
             uint slot;
             if (freeSlots.empty()) {
-                slot = data.size();
+                slot = static_cast<uint>(data.size());
                 data.push_back(std::move(comp));
                 gen.push_back(0);
                 occupied.push_back(true);
@@ -108,14 +126,21 @@ namespace TetraEngine {
         }
 
         template<class T>
+        void Storage<T>::SetEntityResolutionMethod(std::function<Entity(uint)> &&fn) {
+            ResolveEntity = std::move(fn);
+        }
+
+        template<class T>
         void Storage<T>::ValidateHandle(Handle<T> &handle) const {
             if (!handle.Valid())
                 return;
             if (!occupied[handle.slot]) {
-                handle.Invalidate(); return;
+                handle.Invalidate();
+                return;
             }
             if (handle.compGeneration != gen[handle.slot]) {
-                handle.Invalidate(); return;
+                handle.Invalidate();
+                return;
             }
         }
 
@@ -128,6 +153,16 @@ namespace TetraEngine {
             }
             auto slot = entityToComponent.at(*loc);
             return Handle<T>(slot, gen[slot]);
+        }
+
+        template<class T>
+        Storage<T>::ComponentAddedAction& Storage<T>::GetComponentAddedAction() {
+            return OnComponentAdded;
+        }
+
+        template<class T>
+        Storage<T>::ComponentRemovedAction& Storage<T>::GetComponentRemovedAction() {
+            return OnComponentRemoved;
         }
 
         template<class T>
@@ -188,22 +223,18 @@ namespace TetraEngine {
 
         template<class T>
         void Storage<T>::RemoveAt(uint slot) {
-            if (data.size() <= slot) {
-                LOG_ERR("slot out of range");
-                return;
-            }
-            occupied[slot] = false;
-            freeSlots.push(slot);
-            gen[slot]++;
-            auto entity = entities[slot];
-            entityToComponent.erase(entity);
-            entities[slot] = INVALID_ENTITY;
+            if (!TryRemoveAt(slot))
+                LOG_ERR("Attempting to remove an entity that doesn't exist at slot " << slot);
         }
 
         template<class T>
         bool Storage<T>::TryRemoveAt(uint slot) {
             if (data.size() <= slot) {
                 return false;
+            }
+            if (ResolveEntity && !OnComponentRemoved.IsEmpty()) {
+                LOG_FROM("ECS::STORAGE", "Called \"OnDestroy\" event");
+                OnComponentRemoved.Call(data[slot], ResolveEntity(entities[slot]), Handle<T>(slot, gen[slot]));
             }
             occupied[slot] = false;
             freeSlots.push(slot);
@@ -256,8 +287,13 @@ namespace TetraEngine {
         }
 
         template<class T>
+        TypeErasedHandle Storage<T>::GetTypeErasedHandle(const entityID &entity) const {
+            return GetHandle(entity);
+        }
+
+        template<class T>
         int Storage<T>::Count() const {
-            return entities.size();
+            return static_cast<int>(entities.size());
         }
 
         template<class T>

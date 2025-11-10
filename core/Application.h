@@ -8,6 +8,7 @@ namespace TetraEngine {
 		Application() = default;
 		virtual ~Application() = default;
 		virtual void Update();
+	    virtual void UIUpdate();
 	};
 }
 

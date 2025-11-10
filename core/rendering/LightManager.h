@@ -25,7 +25,7 @@ namespace TetraEngine {
 
 		std::vector<PointLightInfo> pointLights;
 		GLuint SSBO = -1;
-		void AddPointLight(PointLight& pl, Transform& transform, GameObject::Info& gameObject);
+		void AddPointLight(PointLight& pl, Transform& transform, GameObjectInfo& gameObject);
 
 	public:
 		LightManager();

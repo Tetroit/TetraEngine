@@ -37,100 +37,58 @@ file (GLOB STB_GLOB
         deps/stb_image/stb_image.h)
 
 file (GLOB TETRA_ENGINE_GLOB
-        core/TetraEngine.cpp
+        "core/applications/*.h"
+        "core/applications/*.cpp"
+
+        "core/rendering/*.h"
+        "core/rendering/*.cpp"
+
+        "core/utils/*.h"
+        "core/utils/*.cpp"
+
+        "core/behaviours/*.h"
+        "core/behaviours/*.cpp"
+
+        "core/ecs/*.h"
+        "core/ecs/*.cpp"
+
+        "core/UI/*.h"
+        "core/UI/*.cpp"
+
+        "core/physics/*.h"
+        "core/physics/*.cpp"
+
         core/pch/tetrapc.h
         core/pch/tetrapc.cpp
-        core/rendering/Texture2D.h
-        core/rendering/Cubemap.cpp
-        core/utils/Time.h
-        core/ImGuiManager.cpp
-        core/rendering/MeshRenderer.cpp
+
+        core/TetraEngine.cpp
+
         core/FreeType.cpp
         core/FreeType.h
-        core/registry/SharedContentRegistry.h
+
         core/Application.cpp
-        core/rendering/PointLight.h
-        core/utils/OBJParser.cpp
-        core/rendering/LightManager.h
-        core/rendering/Texture2D.cpp
-        core/behaviours/Bullet.h
-        core/rendering/Camera.cpp
-        core/rendering/Light.h
-        core/ConsoleManager.h
-        core/utils/Utils.h
-        core/rendering/Camera.h
-        core/ecs/Component.h
-        core/rendering/Viewport.h
-        core/rendering/Shader.cpp
-        core/rendering/Viewport.cpp
-        core/MyApplication.h
-        core/rendering/Framebuffer.h
-        core/rendering/Skybox.cpp
-        core/Core.h
-        core/ImGuiManager.h
-        core/DestroyManager.cpp
-        core/rendering/MeshRenderer.h
-        core/ecs/ComponentManager.cpp
-        core/DestroyManager.h
-        core/rendering/Shader.h
-        core/rendering/LightRenderer.h
-        core/behaviours/Enemy.h
-        core/rendering/Material.h
-        core/Behaviour.cpp
-        core/InputManager.cpp
-        core/rendering/Renderbuffer.cpp
-        core/Test.cpp
-        core/behaviours/Enemy.cpp
-        core/ecs/ComponentManager.h
-        core/rendering/PointLight.cpp
-        core/registry/SharedContentRegistry.cpp
-        core/rendering/Material.cpp
-        core/rendering/Renderbuffer.h
-        core/Test.h
-        core/rendering/Scene.cpp
-        core/behaviours/TestBehaviour.h
-        core/GameObject_old.cpp
-        core/rendering/Skybox.h
-        core/utils/Event.h
-        core/rendering/Texture360.h
-        core/rendering/LightManager.cpp
-        core/GLFWManager.h
-        core/utils/Time.cpp
-        core/rendering/Scene.h
-        core/rendering/Cubemap.h
-        core/InputManager.h
-        core/rendering/Texture360.cpp
         core/Application.h
-        core/MyApplication.cpp
-        core/utils/OBJParser.h
-        core/GameObject_old.h
-        core/ConsoleManager.cpp
-        core/behaviours/Bullet.cpp
-        core/Behaviour.h
-        core/rendering/VertexData.cpp
-        core/Core.cpp
-        core/config.h
-        core/utils/Types.h
-        core/rendering/Light.cpp
-        core/ecs/Component.cpp
-        core/GLFWManager.cpp
-        core/rendering/LightRenderer.cpp
-        core/rendering/VertexData.h
-        core/rendering/Framebuffer.cpp
-        core/ecs/ComponentHandle.h
-        core/ecs/ComponentHandle.inl
-        core/ecs/Entity.cpp
-        core/ecs/Entity.h
-        core/ecs/Storage.cpp
-        core/ecs/Storage.h
-        core/ecs/Handle.cpp
-        core/ecs/Handle.h
-        core/ecs/ECS.cpp
-        core/ecs/ECS.h
         core/Transform.cpp
         core/Transform.h
         core/GameObject.cpp
         core/GameObject.h
+        core/DestroyManager.cpp
+        core/DestroyManager.h
+        core/ConsoleManager.cpp
+        core/ConsoleManager.h
+        core/Core.cpp
+        core/Core.h
+        core/Behaviour.cpp
+        core/Behaviour.h
+        core/InputManager.cpp
+        core/InputManager.h
+        core/GameObject_old.cpp
+        core/GameObject_old.h
+        core/GLFWManager.cpp
+        core/GLFWManager.h
+        core/config.h
+        core/Test.cpp
+        core/Test.h
 )
 
 add_library(imgui STATIC ${IMGUI_GLOB})
@@ -157,8 +115,6 @@ target_include_directories(glad PUBLIC
 
 
 
-
-
 project(UnitTest)
 
 add_executable(UnitTest
@@ -173,16 +129,21 @@ add_executable(UnitTest
         core/ecs/ComponentHandle.inl
         core/ecs/Entity.cpp
         core/ecs/Entity.h
-        core/ecs/Handle.cpp
         core/ecs/Handle.h
         core/ecs/ECS.cpp
         core/ecs/ECS.h
+        core/ecs/Storage.h
 )
-target_link_libraries(UnitTest PRIVATE glfw glm assimp freetype imgui stb glad)
+target_link_libraries(UnitTest PRIVATE glfw glm assimp freetype imgui stb glad
+        "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysX_static_64.lib"
+        "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysXFoundation_static_64.lib"
+        "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysXExtensions_static_64.lib"
+)
 
 target_include_directories(UnitTest PRIVATE
         ${CMAKE_SOURCE_DIR}/deps/assimp/include
         ${CMAKE_SOURCE_DIR}/core/pch
+        ${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/include
 )
 
 
@@ -191,12 +152,26 @@ target_include_directories(UnitTest PRIVATE
 
 project(TetraEngine)
 
-add_executable(TetraEngine ${TETRA_ENGINE_GLOB})
+add_executable(TetraEngine ${TETRA_ENGINE_GLOB}
+        core/physics/PhysicsCallback.cpp
+        core/physics/PhysicsCallback.h
+        core/applications/Demo2.cpp
+        core/applications/Demo2.h)
 
-target_link_libraries(TetraEngine PRIVATE glfw glm assimp freetype imgui stb glad)
+target_link_libraries(TetraEngine PRIVATE glfw glm assimp freetype imgui stb glad
+        "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysX_static_64.lib"
+        "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysXFoundation_static_64.lib"
+        "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysXCommon_static_64.lib"
+        "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysXPvdSDK_static_64.lib"
+        "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysXExtensions_static_64.lib"
+)
 
 target_include_directories(TetraEngine PRIVATE
         ${CMAKE_SOURCE_DIR}/deps/assimp/include
-        ${CMAKE_SOURCE_DIR}/core/pch)
+        ${CMAKE_SOURCE_DIR}/core/pch
+        ${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/include
+)
 
 target_precompile_headers(TetraEngine PUBLIC core/pch/tetrapc.h)
+
+add_definitions(-DUNICODE -D_UNICODE)

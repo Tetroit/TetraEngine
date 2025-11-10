@@ -66,7 +66,9 @@ void Texture2D::Load(const std::string& name, bool flip_vertically) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	std::cout << "texture has been loaded\n";
+
+	std::cout << "texture has been loaded at path " << name << "\n";
+	path = name;
 }
 void Texture2D::Bind(int id)
 {
@@ -95,6 +97,11 @@ void Texture2D::Resize(uint width, uint height)
 
 	if (attached != texture) glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+std::string Texture2D::GetPath() const {
+	return path;
+}
+
 uint Texture2D::ID() const
 {
 	return texture;

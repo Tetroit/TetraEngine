@@ -9,12 +9,10 @@ namespace TetraEngine {
 	class DestroyManager
 	{
 	public:
-		static DestroyManager* get();
-		std::queue<ECS::Handle<GameObject>> toDelete;
+		std::vector<GameObject*> toDelete;
 		void clear();
 		void deleteAll();
-		void push(ECS::Handle<GameObject> go);
-
+		void Push(GameObject* go);
 	};
 
 }

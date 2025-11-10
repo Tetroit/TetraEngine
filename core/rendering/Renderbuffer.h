@@ -1,5 +1,7 @@
 #pragma once
 
+#include "tetrapc.h"
+
 namespace TetraEngine {
 	class Renderbuffer
 	{

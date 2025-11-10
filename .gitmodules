@@ -14,3 +14,6 @@
 [submodule "deps/freetype"]
 	path = deps/freetype
 	url = https://github.com/freetype/freetype
+[submodule "deps/PhysX"]
+	path = deps/PhysX
+	url = https://github.com/NVIDIA-Omniverse/PhysX

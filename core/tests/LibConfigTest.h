@@ -14,6 +14,7 @@
 #define IMGUI_TEST true
 #define GLAD_TEST true
 #define STB_IMAGE_TEST true
+#define PHYSX_TEST true
 
 #if GLAD_TEST
 #include <glad/glad.h>
@@ -42,6 +43,10 @@
 
 #if STB_IMAGE_TEST
 #include <stb_image.h>
+#endif
+
+#if PHYSX_TEST
+#include <PxPhysicsAPI.h>
 #endif
 
 namespace TetraEngine::Tests{
@@ -82,6 +87,19 @@ namespace TetraEngine::Tests{
 
 #if STB_IMAGE_TEST
             std::cout << STBI_VERSION << std::endl;
+#endif
+
+
+#if PHYSX_TEST
+
+            physx::PxDefaultAllocator gAllocator;
+            physx::PxDefaultErrorCallback gErrorCallback;
+            physx::PxFoundation* gFoundation = NULL;
+            gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+            std::cout << gFoundation << std::endl;
+
+            PX_RELEASE(gFoundation);
+
 #endif
 
             std::cout << "Hello World!\n";

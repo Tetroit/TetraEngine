@@ -1,6 +1,7 @@
 #pragma once
 #include  "tetrapc.h"
 
+
 namespace TetraEngine {
     namespace ECS {
 
@@ -12,6 +13,7 @@ namespace TetraEngine {
             uint gen = 0;
 
             Entity() = default;
+            Entity(const Entity&) = default;
             Entity(entityID ID, uint gen) : ID(ID), gen(gen) {}
             [[nodiscard]]
             bool isValid() const;
@@ -19,4 +21,13 @@ namespace TetraEngine {
             bool operator == (const Entity& other) const;
         };
     }
+}
+
+namespace std {
+    template <>
+    struct hash<TetraEngine::ECS::Entity> {
+        size_t operator()(const TetraEngine::ECS::Entity& e) const noexcept {
+            return std::hash<uint32_t>{}(e.ID);
+        }
+    };
 }

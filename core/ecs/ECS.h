@@ -1,5 +1,9 @@
 #pragma once
 #include "Storage.h"
+#include "../utils/Action.h"
+
+
+#define TETRA_COMPONENT_EVENT_LISTENER_PARAMS(Type) Type& component, ECS::Entity entity, ECS::Handle<Type> handle
 
 namespace TetraEngine::ECS {
     class ECS {
@@ -18,27 +22,35 @@ namespace TetraEngine::ECS {
     public:
 
         template<class T>
+        Action<T&, Entity, Handle<T>>& OnComponentCreated();
+        template<class T>
+        Action<T&, Entity, Handle<T>>& OnComponentDestroyed();
+
+        template<class T>
         Storage<T>* GetStorage() const;
 
         template<class T>
-        bool HasStorage() {
+        bool HasStorage() const {
             return storages.contains(typeid(T).hash_code());
         }
 
         Entity CreateEntity();
-        bool ValidateEntity(Entity& entity) const;
+        bool ValidateEntity(const Entity& entity) const;
         void RemoveEntity(Entity& entity);
         bool TryRemoveEntity(Entity& entity);
+        std::vector<std::pair<uint, TypeErasedHandle>> GetAllEntityComponents(const Entity& entity);
 
         template<class T, typename... Args>
         Handle<T> CreateComponent(Entity entity, Args&&... args);
-        template<class T>
-        void OnComponentCreated(Entity entity, Handle<T>& component);
 
         template<class T>
-        T* GetComponent(Entity& entity);
+        T* GetComponent(const Entity& entity);
         template<class T>
         T* GetComponent(Handle<T> handle);
+        template<class T, class U>
+        T* GetRelatedComponent(Handle<U> component);
+        template<class T, class U>
+        Handle<T> GetRelatedComponentHandle(Handle<U> component);
         template<class T>
         Handle<T> GetHandle(Entity entity) const;
 
@@ -68,6 +80,7 @@ namespace TetraEngine::ECS {
     Storage<T>* ECS::CreateStorage() {
         auto id = typeid(T).hash_code();
         storages[id] = std::make_unique<Storage<T>>();
+        storages.at(id)->SetEntityResolutionMethod([&](entityID eid){return Entity(eid, entityGenerations[eid]);});
         return static_cast<Storage<T>*>(storages[id].get());
     }
 
@@ -81,10 +94,22 @@ namespace TetraEngine::ECS {
     }
 
     template<class T>
+    Action<T&, Entity, Handle<T>>& ECS::OnComponentCreated()  {
+        Storage<T>* storage = GetOrCreateStorage<T>();
+        return storage->GetComponentAddedAction();
+    }
+
+    template<class T>
+    Action<T&, Entity, Handle<T>>& ECS::OnComponentDestroyed() {
+        Storage<T>* storage = GetOrCreateStorage<T>();
+        return storage->GetComponentRemovedAction();
+    }
+
+    template<class T>
     Storage<T> * ECS::GetStorage() const {
         auto id = typeid(T).hash_code();
         if (auto loc = storages.find(id); loc == storages.end()) {
-            LOG_ERR("Storage not found");
+            //LOG_ERR("GetStorage: Storage " << typeid(T).name() << " was not found");
             return nullptr;
         }
         return static_cast<Storage<T>*>(storages.at(id).get());
@@ -95,22 +120,23 @@ namespace TetraEngine::ECS {
         if (!ValidateEntity(entity)) {
             return Handle<T>::CreateInvalid();
         }
-        auto storage = GetOrCreateStorage<T>();
+        Storage<T>* storage = GetOrCreateStorage<T>();
         if (HasComponent<T>(entity)) {
             LOG_ERR("Component already exists");
             return Handle<T>::CreateInvalid();
         }
-        return storage->Create(entity.ID, std::forward<Args>(args)...);
+        auto handle = storage->Create(entity.ID, std::forward<Args>(args)...);
+        if (!storage->GetComponentAddedAction().IsEmpty()) {
+            storage->GetComponentAddedAction().Call(*storage->Get(handle), entity, handle);
+        }
+        return handle;
     }
 
     template<class T>
-    T* ECS::GetComponent(Entity &entity) {
-        if (!ValidateEntity(entity)) {
-            return nullptr;
-        }
+    T* ECS::GetComponent(const Entity& entity) {
         auto storage = GetStorage<T>();
         if (storage == nullptr) {
-            LOG_ERR("Storage not found");
+            LOG_ERR("GetComponent(entity): Storage " << typeid(T).name() << " was not found");
             return nullptr;
         }
         return storage->GetByEntity(entity.ID);
@@ -120,10 +146,38 @@ namespace TetraEngine::ECS {
     T* ECS::GetComponent(Handle<T> handle) {
         auto storage = GetStorage<T>();
         if (storage == nullptr) {
-            LOG_ERR("Storage not found");
+            LOG_ERR("GetComponent(handle): Storage " << typeid(T).name() << " was not found");
             return nullptr;
         }
         return storage->Get(handle);
+    }
+
+    template<class T, class U>
+    T* ECS::GetRelatedComponent(Handle<U> component) {
+
+        auto handle = GetRelatedComponentHandle<T,U>(component);
+        if (!handle.Valid())
+            return nullptr;
+
+        auto dstStorage = GetStorage<T>();
+        return dstStorage->Get(handle);
+    }
+
+    template<class T, class U>
+    Handle<T> ECS::GetRelatedComponentHandle(Handle<U> component) {
+        auto srcStorage = GetStorage<U>();
+        auto dstStorage = GetStorage<T>();
+        if (srcStorage == nullptr) {
+            LOG_ERR("Couldn't find storage of type" + std::string(typeid(U).name()));
+            return Handle<T>::CreateInvalid();
+        }
+        if (srcStorage == nullptr) {
+            LOG_ERR("Couldn't find storage of type" + std::string(typeid(T).name()));
+            return Handle<T>::CreateInvalid();
+        }
+
+        entityID entity = srcStorage->GetOwner(component);
+        return dstStorage->GetHandle(entity);
     }
 
     template<class T>
@@ -133,7 +187,7 @@ namespace TetraEngine::ECS {
         }
         auto storage = GetStorage<T>();
         if (storage == nullptr) {
-            LOG_ERR("Storage not found");
+            LOG_ERR("GetHandle: Storage " << typeid(T).name() << " was not found");
             return Handle<T>::CreateInvalid();
         }
         return storage->GetHandle(entity.ID);
@@ -197,7 +251,7 @@ namespace TetraEngine::ECS {
         auto& st2 = *storage2;
         auto entList = st1.GetEntities();
         for (auto ent : entList ) {
-            auto comp1 = st1.GetByEntityRef(ent);
+            auto& comp1 = st1.GetByEntityRef(ent);
             auto comp2 = st2.GetByEntity(ent);
             if (!comp2) continue;
             fn(comp1, *comp2);
@@ -224,7 +278,7 @@ namespace TetraEngine::ECS {
         auto& st3 = *storage3;
         auto entList = st1.GetEntities();
         for (auto ent : entList ) {
-            auto comp1 = st1.GetByEntityRef(ent);
+            auto& comp1 = st1.GetByEntityRef(ent);
             auto comp2 = st2.GetByEntity(ent);
             if (!comp2) continue;
             auto comp3 = st3.GetByEntity(ent);
@@ -258,7 +312,7 @@ namespace TetraEngine::ECS {
         auto& st4 = *storage4;
         auto entList = st1.GetEntities();
         for (auto ent : entList ) {
-            auto comp1 = st1.GetByEntityRef(ent);
+            auto& comp1 = st1.GetByEntityRef(ent);
             auto comp2 = st2.GetByEntity(ent);
             if (!comp2) continue;
             auto comp3 = st3.GetByEntity(ent);

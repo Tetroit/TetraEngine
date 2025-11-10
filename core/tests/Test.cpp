@@ -1,7 +1,7 @@
 // #include  "tetrapc.h"
 
-#define LIB_TEST false
-#define ECS_TEST true
+#define LIB_TEST true
+#define ECS_TEST false
 
 #if LIB_TEST
 #include "LibConfigTest.h"

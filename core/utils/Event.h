@@ -147,7 +147,7 @@ struct EventListenerNonStatic : public EventListenerTemplate<T>
 	/// <returns></returns>
 	std::function<void(const Event<T>&)> GetFunction() const override {
 
-		return std::function<void(const Event<T>&)>(std::bind(function, obj, std::placeholders::_1));
+		return std::function<void(const Event<T>&)>(std::bind(function, std::ref(obj), std::placeholders::_1));
 	}
 	/// <summary>
 	/// Compares if listeners are pointing to the same function and on the same object

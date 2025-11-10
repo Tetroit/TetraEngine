@@ -1,35 +1,35 @@
-#include <tetrapc.h>
+#include "tetrapc.h"
 #include "Core.h"
 
-#include "MyApplication.h"
+#include <backends/imgui_impl_glfw.h>
+
+#include "applications/MyApplication.h"
+#include "../applications/PhysicsTest.h"
+
+
 #include "utils/Event.h"
 #include "utils/Time.h"
 #include "rendering/Scene.h"
 #include "FreeType.h"
 #include "DestroyManager.h"
-#include "rendering/PointLight.h"
+#include "assimp/Logger.hpp"
+#include "physics/RigidBody.h"
 #include "rendering/Material.h"
 #include "rendering/LightRenderer.h"
 #include "rendering/VertexData.h"
 #include "rendering/Camera.h"
-#include "rendering/Texture2D.h"
-#include "rendering/Skybox.h"
 #include "utils/OBJParser.h"
 
-#ifdef NDEBUG
-extern "C" {
-	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
-}
+//#ifdef NDEBUG
 
-extern "C" {
-	__declspec(dllexport) int AmdPowerXpressRequestHighPerformanc = 1;
-}
-#endif //NDEBUG
+	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+//#endif //NDEBUG
 
 using namespace TetraEngine;
 
-unsigned int Core::appWidth = 1920;
-unsigned int Core::appHeight = 1080;
+unsigned int Core::appWidth = 1280;
+unsigned int Core::appHeight = 720;
 
 float Core::lastMouseX;
 float Core::lastMouseY;
@@ -41,10 +41,28 @@ GLFWManager* Core::glfwManager = nullptr;
 ImGuiManager* Core::imguiManager = nullptr;
 InputManager* Core::inputManager = nullptr;
 Viewport* Core::mainViewport = nullptr;
+PhysXInstance* Core::physxInstance = nullptr;
+DestroyManager* Core::destroyManager = nullptr;
 
 ECS::ECS & Core::GetMainECS() {
 	static ECS::ECS mainEcs;
 	return mainEcs;
+}
+
+physx::PxPhysics * Core::GetPhysics() {
+	return physxInstance->GetPhysics();
+}
+
+PhysXInstance * Core::GetPhysicsInstance() {
+	return physxInstance;
+}
+
+PhysicsScene* Core::GetPhysicsScene() {
+	return physxInstance->GetActiveScene();
+}
+
+EventDispatcher<InputInfo> * Core::GetInputDispatcher() {
+    return &inputManager->keyDispatcher;
 }
 
 void Core::processConsole() {
@@ -71,6 +89,7 @@ void Core::processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
+#if TETRA_DEBUG_UI
 	if (imguiManager->allowSceneInteraction) {
 
 		if (inputManager->IsMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
@@ -80,19 +99,22 @@ void Core::processInput(GLFWwindow* window)
 			imguiManager->allowSceneInteraction = false;
 			glfwManager->ToggleCursor(true);
 		}
-
 		inputManager->Update();
 	}
+#else
 
+	inputManager->Update();
+
+#endif
 }
 
 int Core::Initialize()
 {
-	std::srand(time(NULL));
+	std::srand(time(nullptr));
 
 	inputManager = new InputManager();
 
-	glfwManager = new GLFWManager(1920, 1080);
+	glfwManager = new GLFWManager((int)appWidth, (int)appHeight);
 	glfwManager->inputManager = inputManager;
 
 	//window
@@ -116,16 +138,22 @@ int Core::Initialize()
 
 	glEnable(GL_DEPTH_TEST);
 
+	//physx
+
+	physxInstance = new PhysXInstance();
+	physxInstance->Initialise();
+
 	//imgui
 	imguiManager = new ImGuiManager();
 
 	Camera* mainCamera = new Camera(glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	mainCamera->SetProjection((float)glm::radians(45.0), (float)Core::appWidth / (float)Core::appHeight, 0.1f, 100.0f);
+	mainCamera->SetProjection(glm::radians(45.0), (float)appWidth / (float)appHeight, 0.1f, 100.0f);
 	Camera::SetMain(mainCamera);
 
-	mainViewport = new Viewport(1280, 720, *mainCamera);
+	mainViewport = new Viewport(appWidth, appHeight, *mainCamera);
 	//presets
-	Core::InitializePresets();
+	InitializePresets();
+	BindEvents();
 
 	return 0;
 }
@@ -144,36 +172,43 @@ void Core::InitializePresets()
 	std::cout << "materials initialized\n";
 }
 
+void Core::BindEvents() {
+	TETRA_USE_MAIN_ECS
+	auto& transformAddedEv = ecs.OnComponentCreated<Transform>();
+	transformAddedEv.AddCallback(Transform::ComponentCreate, "Transform");
+	auto& rigidBodyAddedEv = ecs.OnComponentCreated<RigidBody>();
+	rigidBodyAddedEv.AddCallback(RigidBody::ComponentCreate, "RigidBody");
 
-void Core::Update()
-{
+	imguiManager->BindEvents();
+}
 
+
+void Core::Update() {
 	Time::Update();
-	Core::processInput(Core::glfwManager->window);
-
-	imguiManager->Update();
+	processInput(glfwManager->window);
 
 	Scene::currentScene->Update();
+	application->Update();
 
-	if (glfwGetWindowAttrib(Core::glfwManager->window, GLFW_ICONIFIED) != 0)
+	if (glfwGetWindowAttrib(glfwManager->window, GLFW_ICONIFIED) != 0)
 	{
 		ImGui_ImplGlfw_Sleep(10);
 	}
 
 	int display_w, display_h;
-	glfwGetFramebufferSize(Core::glfwManager->window, &display_w, &display_h);
+	glfwGetFramebufferSize(glfwManager->window, &display_w, &display_h);
+
 	//glViewport(0, 0, display_w, display_h);
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	application->Update();
-
+#if TETRA_DEBUG_UI
+	imguiManager->StartRender();
+	imguiManager->Render();
 	mainViewport->Bind();
+#endif
+
 	Scene::currentScene->Render(Camera::main);
-
-	imguiManager->testTex = mainViewport->GetTexture();
-
-
 }
 void Core::UpdateOverlay()
 {
@@ -190,15 +225,19 @@ void Core::UpdateOverlay()
 
 	FreeType::RenderText("Keys pressed: " + inputManager->pressedKeys, 10, 20, 1, glm::vec3(1, 1, 1));
 
+#if TETRA_DEBUG_UI
+
 	mainViewport->Unbind(appWidth, appHeight);
-	imguiManager->Render();
+	imguiManager->EndRender();
+
+#endif
 }
 void Core::AfterUpdate()
 {
 	glfwSwapBuffers(glfwManager->window);
 	glfwPollEvents();
 
-	DestroyManager::get()->deleteAll();
+    destroyManager->deleteAll();
 }
 void Core::CleanUp() {
 	delete mainViewport;
@@ -206,4 +245,5 @@ void Core::CleanUp() {
 	delete imguiManager;
 	delete glfwManager;
 	delete inputManager;
+	delete physxInstance;
 }
