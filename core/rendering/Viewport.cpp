@@ -2,17 +2,13 @@
 #include "Viewport.h"
 #include "Framebuffer.h"
 #include "Texture2D.h"
-#include "Camera.h"
-
+#include "ViewportCamera.h"
 
 using namespace TetraEngine;
 
-Viewport::Viewport(uint width, uint height, Camera& cam) : cam(&cam)
+Viewport::Viewport(uint width, uint height, ViewProvider* cam) : cam(cam), width(width), height(height)
 {
 	framebuffer = new Framebuffer(width, height, true);
-	
-	cam.width = width;
-	cam.height = height;
 }
 
 void Viewport::Unbind(uint width, uint height)
@@ -44,9 +40,18 @@ uint Viewport::GetHeight()
 
 void Viewport::SetSize(uint width, uint height)
 {
-	cam->SetProjection((float)glm::radians(45.0), (float)width / (float)height, 0.1f, 100.0f);
+    //framebuffer->Unbind();
+	if (height > 0 && cam != nullptr) {
+		float ratio = (float)width / (float)height;
+		cam->SetRatio(ratio);
+	}
 	framebuffer->Resize(width, height);
 	glViewport(0, 0, width, height);
+    //framebuffer->Bind();
+}
+
+void Viewport::SetCamera(ViewProvider *pCam) {
+	cam = pCam;
 }
 
 Texture2D* Viewport::GetTexture()

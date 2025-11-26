@@ -70,6 +70,9 @@ ImGuiManager::ImGuiManager()
 	componentDisplay = std::make_unique<UI::Inspector>();
 
 	SetInspectors();
+
+    // TETRA_USE_MAIN_INPUT
+    // input->AddListener<ImGuiManager>(InputInfo(GLFW_PRESS, TETRA_INPUT_KEY_MODE), &ImGuiManager::EditorInputEvents, *this);
 }
 
 void ImGuiManager::BindEvents() {
@@ -164,11 +167,15 @@ void ImGuiManager::ShowViewport(Viewport* vp)
 {
 	if (ImGui::Begin("Viewport", &showViewport))
 	{
-		ImVec2 avail_size = ImGui::GetContentRegionAvail();
-		vp->SetSize(avail_size.x, avail_size.y);
-		DrawTexture2D(*vp->GetTexture(), avail_size.x, avail_size.y);
+		ImVec2 contentSize = ImGui::GetContentRegionAvail();
+	    ImVec2 contentPos = ImGui::GetWindowContentRegionMin();
+		vp->SetSize(contentSize.x, contentSize.y);
+		DrawTexture2D(*vp->GetTexture(), contentSize.x, contentSize.y);
 		if (!allowSceneInteraction)
 			allowSceneInteraction = ImGui::IsItemHovered();
+        if (isMaximized) {
+            Core::application->DrawGUI(contentPos, contentSize);
+        }
 	}
 	ImGui::End();
 }
@@ -181,7 +188,42 @@ void ImGuiManager::SetInspectors() {
 	componentDisplay->RegisterComponentDisplay<RigidBody, UI::RigidBodyComponentDisplay>();
 }
 
-void ImGuiManager::Render()
+void ImGuiManager::ToggleMouseEvents(bool state) {
+
+    if (isMouseEventsEnabled && state) {
+        return;
+    }
+    isMouseEventsEnabled = state;
+    if (!state) {
+        io->ConfigFlags |= ImGuiConfigFlags_NoMouse;
+        io->ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+    }
+    else {
+        io->ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+        io->ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+    }
+}
+
+void ImGuiManager::ToggleMaximize() {
+    isMaximized = !isMaximized;
+}
+
+bool ImGuiManager::IsMouseEventsEnabled() {
+    return isMouseEventsEnabled;
+}
+
+bool ImGuiManager::IsMaximized() {
+    return isMaximized;
+}
+
+void ImGuiManager::EditorInputEvents(const Event<InputInfo> &ev) {
+    auto keyEv = ev.ToType<AnyKeyEvent>();
+    // if (keyEv.key == GLFW_KEY_M) {
+    //     ToggleMaximize();
+    // }
+}
+
+void ImGuiManager::RenderApp()
 {
 
 	if (enableDockSpace) ShowDockSpace();
@@ -198,7 +240,10 @@ void ImGuiManager::Render()
 
 	//ImGui::ShowDemoWindow(); // Show demo window! :)
 
-	if ((io->WantCaptureKeyboard || io->WantTextInput) 
+ //    GLFWManager::get()->ToggleKeyboardEvents(true);
+	// GLFWManager::get()->ToggleMouseClickEvents(true);
+	// GLFWManager::get()->ToggleMouseMoveEvents(true);
+	if ((io->WantCaptureKeyboard || io->WantTextInput)
 		&& !allowSceneInteraction) {
 		if (GLFWManager::get()->sendKeyboardEvents)
 			GLFWManager::get()->ToggleKeyboardEvents(false);
@@ -207,7 +252,7 @@ void ImGuiManager::Render()
 		if (!GLFWManager::get()->sendKeyboardEvents)
 			GLFWManager::get()->ToggleKeyboardEvents(true);
 	}
-	if ((io->WantCaptureMouse) 
+	if ((io->WantCaptureMouse)
 		&& !allowSceneInteraction)
 	{
 		if (GLFWManager::get()->sendMouseClickEvents)
@@ -227,7 +272,8 @@ void ImGuiManager::Render()
 
 void ImGuiManager::StartRender() {
 	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
+    if (isMouseEventsEnabled)
+	    ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 }
 

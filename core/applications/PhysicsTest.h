@@ -15,8 +15,10 @@ class PhysicsTest : public Application {
     Shader* litShader = nullptr;
     GameObject* cube1 = nullptr;
     GameObject* cube2 = nullptr;
+    GameObject* floor = nullptr;
     Material* MaterialC1 = nullptr;
     Material* MaterialC2 = nullptr;
+    ECS::Handle<RigidBody> hRigidBodyF;
     ECS::Handle<RigidBody> hRigidBodyC1;
     ECS::Handle<RigidBody> hRigidBodyC2;
 

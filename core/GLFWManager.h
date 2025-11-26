@@ -7,6 +7,23 @@
 #define TETRA_GLFW
 #endif // !TETRA_GLFW
 
+#ifndef TETRA_INPUT_FORMAT_DEFINED
+#define TETRA_INPUT_FORMAT_DEFINED
+
+#define TETRA_INPUT_KEY_COUNT 512
+#define TETRA_INPUT_MOUSE_BUTTON_COUNT 8
+
+#define TETRA_INPUT_CODE(info) info.bits.key
+#define TETRA_INPUT_ACTION(info) info.bits.action
+#define TETRA_INPUT_MODE(info) info.bits.mode
+#define TETRA_INPUT_IS_ANY(info) info.bits.any
+
+#define TETRA_INPUT_KEY_MODE 0
+#define TETRA_INPUT_MOUSE_BUTTON_MODE 1
+#define TETRA_INPUT_MOUSE_MOVE_MODE 2
+
+#endif // !TETRA_INPUT_FORMAT_DEFINED
+
 namespace TetraEngine
 {
 	class InputManager;
@@ -16,6 +33,10 @@ namespace TetraEngine
 	private:
 
 		static GLFWManager* current;
+	    bool keys[TETRA_INPUT_KEY_COUNT];
+	    bool prevKeys[TETRA_INPUT_KEY_COUNT];
+	    bool mouseButtons[TETRA_INPUT_MOUSE_BUTTON_COUNT];
+	    bool prevMouseButtons[TETRA_INPUT_MOUSE_BUTTON_COUNT];
 
 	public:
 
@@ -91,23 +112,14 @@ namespace TetraEngine
 		void ToggleMouseClickEvents(bool toOn);
 		void ToggleMouseMoveEvents(bool toOn);
 
+	    bool WasPressedThisFrameKey(int key);
+	    bool WasPressedThisFrameMouse(int button);
+	    bool WasReleasedThisFrameKey(int key);
+	    bool WasReleasedThisFrameMouse(int button);
+
+	    void Update();
+
 	};
 
 }
 
-#ifndef TETRA_INPUT_FORMAT_DEFINED
-#define TETRA_INPUT_FORMAT_DEFINED
-
-#define TETRA_INPUT_KEY_COUNT 512
-#define TETRA_INPUT_MOUSE_BUTTON_COUNT 8
-
-#define TETRA_INPUT_CODE(info) info.bits.key
-#define TETRA_INPUT_ACTION(info) info.bits.action
-#define TETRA_INPUT_MODE(info) info.bits.mode
-#define TETRA_INPUT_IS_ANY(info) info.bits.any
-
-#define TETRA_INPUT_KEY_MODE 0
-#define TETRA_INPUT_MOUSE_BUTTON_MODE 1
-#define TETRA_INPUT_MOUSE_MOVE_MODE 2
-
-#endif // !TETRA_INPUT_FORMAT_DEFINED

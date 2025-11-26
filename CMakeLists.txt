@@ -39,6 +39,8 @@ file (GLOB STB_GLOB
 file (GLOB TETRA_ENGINE_GLOB
         "core/applications/*.h"
         "core/applications/*.cpp"
+        "core/applications/**/*.h"
+        "core/applications/**/*.cpp"
 
         "core/rendering/*.h"
         "core/rendering/*.cpp"
@@ -153,10 +155,10 @@ target_include_directories(UnitTest PRIVATE
 project(TetraEngine)
 
 add_executable(TetraEngine ${TETRA_ENGINE_GLOB}
-        core/physics/PhysicsCallback.cpp
-        core/physics/PhysicsCallback.h
-        core/applications/Demo2.cpp
-        core/applications/Demo2.h)
+        core/rendering/ViewProvider.cpp
+        core/rendering/ViewProvider.h
+        core/rendering/Camera.cpp
+        core/rendering/Camera.h)
 
 target_link_libraries(TetraEngine PRIVATE glfw glm assimp freetype imgui stb glad
         "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysX_static_64.lib"

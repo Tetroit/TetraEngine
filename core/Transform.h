@@ -9,6 +9,13 @@ namespace TetraEngine {
     class Transform {
 
         friend class ECS::ECS;
+        glm::vec3 position;
+        glm::quat rotation;
+        glm::vec3 scale;
+
+        glm::vec3 g_position;
+        glm::quat g_rotation;
+        glm::vec3 g_scale;
 
         glm::mat4 localMatrix;
         glm::mat4 globalMatrix;
@@ -29,6 +36,7 @@ namespace TetraEngine {
         [[nodiscard]]
         bool IsDirty() const;
 
+        [[deprecated]]
         void SetParent(ECS::Handle<Transform> transform); //work in progress
         static void SetParent(ECS::Handle<Transform> transform, ECS::Handle<Transform> parent);
 
@@ -48,24 +56,21 @@ namespace TetraEngine {
         std::ranges::subrange<std::vector<ECS::Handle<Transform>>::const_iterator> GetChildrenConst() const;
 
         [[nodiscard]]
-        glm::mat4 GetLocalMatrix() const;
+        glm::mat4 GetLocalMatrix();
         [[nodiscard]]
         glm::mat4 GetGlobalMatrix();
+        [[nodiscard]]
         glm::mat4 GetParentMatrix();
 
-        void SetGlobalMatrix(glm::mat4&& newMatrix);
-
         void Recalculate();
-        void RecalculateGlobalMatrix();
-        void RecalculateWith(glm::mat4 m);
 
         void LocalTranslate(glm::vec3 pos);
         void LocalRotate(glm::quat rot);
-        void LocalScale(glm::vec3 pos);
+        void LocalScale(glm::vec3 sc);
 
         void GlobalTranslate(glm::vec3 pos);
         void GlobalRotate(glm::quat rot);
-        void GlobalScale(glm::vec3 scale);
+        void GlobalScale(glm::vec3 sc);
 
         glm::vec3 GetPosition();
         glm::quat GetRotation();
@@ -82,5 +87,10 @@ namespace TetraEngine {
         void SetLocalPosition(glm::vec3 pos);
         void SetLocalRotation(glm::quat rot);
         void SetLocalScale(glm::vec3 scale);
+
+        glm::vec3 TransformPointToWorld(glm::vec3 pos);
+        glm::vec3 TransformPointToLocal(glm::vec3 pos);
+        glm::vec3 TransformDirectionToWorld(glm::vec3 pos);
+        glm::vec3 TransformDirectionToLocal(glm::vec3 pos);
     };
 }

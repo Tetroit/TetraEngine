@@ -1,7 +1,7 @@
 #include "tetrapc.h"
 #include "GLFWManager.h"
 #include "rendering/Scene.h"
-#include "rendering/Camera.h"
+#include "rendering/ViewportCamera.h"
 #include "InputManager.h"
 #include "Core.h"
 
@@ -49,6 +49,15 @@ GLFWManager::GLFWManager(int width, int height) : width(width), height(height)
 
 	if (current == nullptr)
 		current = this;
+
+    for (auto& key: keys)
+        key = false;
+    for (auto& key : prevKeys)
+        key = false;
+    for (auto& button : mouseButtons)
+        button = false;
+    for (auto& button : prevMouseButtons)
+        button = false;
 }
 GLFWManager::~GLFWManager()
 {
@@ -125,6 +134,7 @@ void GLFWManager::mouse_callback(GLFWwindow* window, double xposIn, double yposI
 
 void GLFWManager::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
+    current->mouseButtons[button] = action == GLFW_PRESS;
 	if (current->sendMouseClickEvents)
 	{
 		if (action == GLFW_PRESS)
@@ -136,18 +146,23 @@ void GLFWManager::mouse_button_callback(GLFWwindow* window, int button, int acti
 
 void GLFWManager::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (current->sendKeyboardEvents)
-	{
-		if (action == GLFW_PRESS)
+    if (action == GLFW_PRESS) {
+        current->keys[key] = true;
+	    if (current->sendKeyboardEvents)
 			current->inputManager->OnKeyDown(key);
-		if (action == GLFW_RELEASE)
-			current->inputManager->OnKeyUp(key);
-	}
+    }
+    else if (action == GLFW_RELEASE) {
+        current->keys[key] = false;
+        if (current->sendKeyboardEvents)
+            current->inputManager->OnKeyUp(key);
+    }
 }
 
 void GLFWManager::framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 	glViewport(0, 0, width, height);
-	Camera::main->SetProjection(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+	if (height > 0) {
+		ViewProvider::GetCurrent()->SetRatio((float)width / (float)height);
+	}
 }
 
 void GLFWManager::ToggleCursor(bool toOn)
@@ -182,4 +197,29 @@ void GLFWManager::ToggleMouseClickEvents(bool toOn)
 void GLFWManager::ToggleMouseMoveEvents(bool toOn)
 {
 	sendMouseMoveEvents = toOn;
+}
+
+bool GLFWManager::WasPressedThisFrameKey(int key) {
+    return keys[key] && !prevKeys[key];
+}
+
+bool GLFWManager::WasPressedThisFrameMouse(int button) {
+    return mouseButtons[button] && !prevMouseButtons[button];
+}
+
+bool GLFWManager::WasReleasedThisFrameKey(int key) {
+    return !keys[key] && prevKeys[key];
+}
+
+bool GLFWManager::WasReleasedThisFrameMouse(int button) {
+    return !mouseButtons[button] && prevMouseButtons[button];
+}
+
+void GLFWManager::Update() {
+    for (int i=0; i<TETRA_INPUT_KEY_COUNT; i++) {
+        prevKeys[i] = keys[i];
+    }
+    for (int i=0; i<TETRA_INPUT_MOUSE_BUTTON_COUNT; i++) {
+        prevMouseButtons[i] = mouseButtons[i];
+    }
 }

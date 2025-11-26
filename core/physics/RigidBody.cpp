@@ -44,20 +44,32 @@ namespace TetraEngine {
     void RigidBody::ComponentCreate(RigidBody &rb, ECS::Entity entity, ECS::Handle<RigidBody> handle) {
         TETRA_USE_MAIN_ECS
         TETRA_USE_MAIN_PHYSICS
+        TETRA_USE_MAIN_PHYSICS_INSTANCE
         rb.transformComp = ecs.GetHandle<Transform>(entity);
         rb.infoComp = ecs.GetHandle<GameObjectInfo>(entity);
-        auto mat = ecs.GetComponent<Transform>(rb.transformComp)->GetGlobalMatrix();
-        rb.currentTransform = PhysXUtils::TransformToPX(mat);
+        auto t = ecs.GetComponent<Transform>(rb.transformComp);
+        auto pos = t->GetPosition();
+        auto rot = t->GetRotation();
+        rb.currentTransform = PxTransform(PhysXUtils::Vec3ToPX(pos), PhysXUtils::QuatToPX(rot));
         rb.previousTransform = rb.currentTransform;
-        if (rb.isStatic)
-            rb.rigidBody = physics->createRigidStatic(rb.currentTransform);
+        if (rb.isStatic) {
+            if (rb.isPlane)
+                rb.rigidBody = PxCreatePlane(*physics, PxPlane(0, 1, 0, -pos.y), *physicsInstance->GetDefaultMaterial());
+            else {
+                rb.rigidBody = physics->createRigidStatic(rb.currentTransform);
+            }
+        }
         else
             rb.rigidBody = physics->createRigidDynamic(rb.currentTransform);
-        rb.rigidBody = physics->createRigidDynamic(rb.currentTransform);
-        rb.rigidBody->setName(ecs.GetComponent(rb.infoComp)->name.c_str());
+        auto info = ecs.GetComponent(rb.infoComp);
+        if (rb.rigidBody == nullptr) {
+            LOG_ERR("Failed to create rigid body");
+            return;
+        }
+        rb.rigidBody->setName(info->name.c_str());
         rb.rigidBody->userData = reinterpret_cast<void*>(new ECS::Handle(handle));
     }
-    RigidBody::RigidBody(bool isStatic) : isStatic(isStatic) {
+    RigidBody::RigidBody(bool isStatic, bool isPlane) : isStatic(isStatic), isPlane(isPlane) {
     }
 
     RigidBody::~RigidBody() {

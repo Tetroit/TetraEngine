@@ -27,9 +27,9 @@ namespace TetraEngine {
 		static constexpr const char* name = "Material";
 	};
 
-	class Camera;
+	class ViewportCamera;
 	template<>
-	struct TypeInfo<Camera>
+	struct TypeInfo<ViewportCamera>
 	{
 		static constexpr type_id id = 3;
 		static constexpr const char* name = "Camera";

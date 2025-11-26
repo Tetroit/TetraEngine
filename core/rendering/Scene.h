@@ -10,19 +10,23 @@
 
 namespace TetraEngine
 {
-	class Camera;
+	class ViewportCamera;
 	class Skybox;
 	class GameObject;
 	class Shader;
 	class Transform;
 	class MeshRenderer;
     class PhysicsScene;
-    class DestroyManager;
+	class DestroyManager;
+	class Camera;
+	class ViewProvider;
 
 	class Scene
 	{
 		std::unique_ptr<LightManager> lightManager;
 	    std::unique_ptr<PhysicsScene> physicsScene;
+		std::unique_ptr<ViewportCamera> viewportCamera;
+		ViewProvider* cameraContext = nullptr;
 
 	public:
 		static Scene* currentScene;
@@ -30,9 +34,9 @@ namespace TetraEngine
 		std::string name;
 		std::map<Shader*, int> utilizedShaders;
 		Skybox* skybox = nullptr;
-		Camera* cameraContext = nullptr;
 		std::vector<ECS::Handle<Transform>> rootObjects;
 	    std::vector<ECS::Entity> gameObjects;
+		Camera* gameCamera;
 
 		Scene();
 		~Scene();
@@ -53,7 +57,7 @@ namespace TetraEngine
 		void RegisterShader(Shader* shader);
 		void DeregisterShader(Shader* shader);
 		void SetGlobalShaderData();
-		void Render(Camera* cam);
+		void Render(ViewProvider* cam);
 		void Render();
 		void RenderItems();
 		void RenderItem(GameObjectInfo& info, Transform& transform, MeshRenderer& renderer);
@@ -61,6 +65,9 @@ namespace TetraEngine
 		void Update();
 
 		void ParentChangedCallback(ECS::Handle<Transform>& transform, ECS::Handle<Transform>& parent);
+
+		void SwitchToGameView();
+		void SwitchToEditorView();
 
 	private:
 

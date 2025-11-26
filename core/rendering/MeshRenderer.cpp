@@ -3,7 +3,7 @@
 
 #include "Shader.h"
 #include "VertexData.h"
-#include "Camera.h"
+#include "ViewportCamera.h"
 #include "Material.h"
 #include "Skybox.h"
 #include "Texture2D.h"
@@ -14,7 +14,7 @@ using namespace TetraEngine;
 MeshRenderer* MeshRenderer::defaultRenderer;
 MeshRenderer* MeshRenderer::skyboxRenderer;
 
-MeshRenderer::MeshRenderer(std::shared_ptr<VertexData> vd, Shader* sh) : mesh(vd), shader(sh), camera(Camera::main), material(Material::defaultMaterial) {
+MeshRenderer::MeshRenderer(std::shared_ptr<VertexData> vd, Shader* sh) : mesh(vd), shader(sh), camera(ViewProvider::GetCurrent()), material(Material::defaultMaterial) {
     diffuseTexture = nullptr;
     specularTexture = nullptr;
     emissionTexture = nullptr;
@@ -34,7 +34,7 @@ void MeshRenderer::Render(glm::mat4 transform) {
         mesh = VertexData::GetPrefab(0);
         shader = Shader::billboardShader;
     }
-    glm::mat4 view = Camera::main->GetViewMatrix();
+    glm::mat4 view = ViewProvider::GetCurrent()->GetViewMatrix();
 
     if (Shader::currentShader != shader)
         shader->Use();
@@ -48,7 +48,8 @@ void MeshRenderer::Render(glm::mat4 transform) {
     }
     shader->SetInt("textureFlags", textureFlags);
 
-    shader->SetMat4("projection", Camera::main->projectionView);
+    auto projection = ViewProvider::GetCurrent()->GetProjection();
+    shader->SetMat4("projection", projection);
     shader->SetMat4("view", view);
     shader->SetMat4("transform", transform);
 

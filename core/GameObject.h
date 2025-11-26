@@ -9,6 +9,7 @@ namespace TetraEngine {
 
     class Scene;
     class RigidBody;
+    class Camera;
 
     class GameObjectInfo {
     public:
@@ -68,6 +69,7 @@ namespace TetraEngine {
 
 #include "Core.h"
 #include "physics/RigidBody.h"
+#include "rendering/Camera.h"
 
 namespace TetraEngine
 {

@@ -5,7 +5,7 @@
 #include "tetrapc.h"
 #include "PhysicsTest.h"
 #include "../Core.h"
-#include "../physics/BoxCollider.h"
+#include "../physics/Collider.h"
 #include "../physics/PhysicsScene.h"
 #include "../rendering/Skybox.h"
 #include "../utils/OBJParser.h"
@@ -20,7 +20,7 @@ PhysicsTest::PhysicsTest() {
     TETRA_USE_MAIN_INPUT
 
     input->AddListener<PhysicsTest>(InputInfo(GLFW_PRESS, TETRA_INPUT_KEY_MODE), &PhysicsTest::ProcessInput, *this);
-    myScene.GetPhysicsScene()->SetGravity(glm::vec3(0, -0.1f, 0));
+    myScene.GetPhysicsScene()->SetGravity(glm::vec3(0, -5.0f, 0));
     myScene.skybox = new Skybox(Skybox::BOX, assetPath + "/skybox");
     Skybox::current = myScene.skybox;
     litShader = new Shader(shaderPath + "/lit.glvs", shaderPath + "/lit.glfs");
@@ -49,13 +49,22 @@ PhysicsTest::PhysicsTest() {
     cube2 = new GameObject("Cube 2");
     myScene.AddObject(*cube2);
 
-    cube2->GetTransform()->LocalTranslate(glm::vec3(5,0,5));
+    cube2->GetTransform()->LocalTranslate(glm::vec3(5,5,5));
     auto hMeshRendererC2 = cube2->AddComponent<MeshRenderer>(VertexData::GetPrefab(VD_CUBE), litShader);
 
     meshRenderer = ecs.GetComponent(hMeshRendererC2);
     meshRenderer->material = MaterialC2;
 
+    floor = new GameObject("Floor");
+    myScene.AddObject(*floor);
 
+    floor->GetTransform()->SetPosition(glm::vec3(0.0f, -5.0f, 0.0f));
+    floor->GetTransform()->SetScale(glm::vec3(10.0f, 10.0f, 10.0f));
+    auto hMeshRendererF = floor->AddComponent<MeshRenderer>(VertexData::GetPrefab(VD_RECTANGLE_Y), litShader);
+    meshRenderer = ecs.GetComponent(hMeshRendererF);
+    meshRenderer->material = MaterialC2;
+
+    hRigidBodyF = floor->AddComponent<RigidBody>(true, true);
 }
 
 PhysicsTest::~PhysicsTest() {
@@ -85,7 +94,8 @@ void PhysicsTest::StartSimulation() {
 
     hRigidBodyC1 = cube1->AddComponent<RigidBody>();
     auto* rigidBody = ecs.GetComponent(hRigidBodyC1);
-    auto* collider = BoxCollider::CreateDefault();
+    auto* collider = new Collider();
+    collider->AddBox(1);
     rigidBody->SetCollider(collider);
     rigidBody->AddAngular(glm::vec3(0.25f,0.63f,1.87f));
     rigidBody->AddLinear(glm::vec3(0.0f, 1.0f, 1.0f));
@@ -94,7 +104,7 @@ void PhysicsTest::StartSimulation() {
     rigidBody = ecs.GetComponent(hRigidBodyC2);
     rigidBody->SetCollider(collider);
     rigidBody->AddAngular(glm::vec3(1,1,1));
-    rigidBody->AddLinear(glm::vec3(0.0f, 1.0f, -1.0f));
+    rigidBody->AddLinear(glm::vec3(0.0f, 1.0f, -2.0f));
 
     simulationStarted = true;
     simulationPaused = false;
@@ -116,4 +126,7 @@ void PhysicsTest::ResumeSimulation() {
 }
 
 void PhysicsTest::Update() {
+    TETRA_USE_MAIN_ECS
+    if (simulationPaused && !simulationPaused) {
+    }
 }

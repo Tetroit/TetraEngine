@@ -2,6 +2,8 @@
 
 #include "tetrapc.h"
 #include <imgui.h>
+#include "../utils/Event.h"
+#include "../InputManager.h"
 
 #include "Inspector.h"
 #include "Hierarchy.h"
@@ -11,6 +13,9 @@ namespace TetraEngine {
 	class Viewport;
 	class ImGuiManager
 	{
+	    bool isMaximized = false;
+	    bool isMouseEventsEnabled = true;
+
 	public:
 		bool enableDockSpace = true;
 		bool showViewport = true;
@@ -34,7 +39,13 @@ namespace TetraEngine {
 		void ShowViewport(Viewport* vp);
 		void SetInspectors();
 
-		void Render();
+	    void ToggleMouseEvents(bool state);
+	    void ToggleMaximize();
+	    bool IsMouseEventsEnabled();
+	    bool IsMaximized();
+	    void EditorInputEvents(const Event<InputInfo>& ev);
+
+		void RenderApp();
 		void StartRender();
 		void EndRender();
 		~ImGuiManager();

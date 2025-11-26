@@ -24,14 +24,28 @@ void TetraEngine::Transform::ComponentCreate(Transform &transform, ECS::Entity e
 
 TetraEngine::Transform::Transform() :
 isDirty(false),
+position(glm::vec3(0.0f)),
+rotation(glm::quat(1.0f,0.0f,0.0f,0.0f)),
+scale(glm::vec3(1.0f)),
+
+g_position(glm::vec3(0.0f)),
+g_rotation(glm::quat(1.0f,0.0f,0.0f,0.0f)),
+g_scale(glm::vec3(1.0f)),
+
 localMatrix(glm::mat4(1.0f)),
 globalMatrix(glm::mat4(1.0f)),
+
 parent (ECS::Handle<Transform>::CreateInvalid()),
 children (std::vector<ECS::Handle<Transform> >()) {}
 
 
 void TetraEngine::Transform::MarkDirty() {
-    isDirty = true;
+    if (!isDirty) {
+        isDirty = true;
+        for (int i = 0; i<children.size(); i++) {
+            GetChild(i)->MarkDirty();
+        }
+    }
 }
 
 bool TetraEngine::Transform::IsDirty() const {
@@ -104,15 +118,17 @@ TetraEngine::Transform * TetraEngine::Transform::GetChild(uint id) const {
 
 std::ranges::subrange<std::vector<TetraEngine::ECS::Handle<TetraEngine::Transform>>::iterator> TetraEngine::Transform::GetChildren() {
 
-    return std::ranges::subrange(children.begin(), children.end());
+    return {children.begin(), children.end()};
 }
 std::ranges::subrange<std::vector<TetraEngine::ECS::Handle<TetraEngine::Transform>>::const_iterator> TetraEngine::Transform::GetChildrenConst() const {
 
-    return std::ranges::subrange(children.cbegin(), children.cend());
+    return {children.cbegin(), children.cend()};
 }
 
-glm::mat4 TetraEngine::Transform::GetLocalMatrix() const {
-
+glm::mat4 TetraEngine::Transform::GetLocalMatrix() {
+    if (IsDirty()) {
+        Recalculate();
+    }
     return  localMatrix;
 }
 
@@ -130,151 +146,181 @@ glm::mat4 TetraEngine::Transform::GetParentMatrix() {
     return GetParent()->GetGlobalMatrix();
 }
 
-void TetraEngine::Transform::SetGlobalMatrix(glm::mat4&& newMatrix) {
-    localMatrix = glm::inverse(GetParentMatrix()) * newMatrix;
-    MarkDirty();
-}
-
 void TetraEngine::Transform::Recalculate() {
+
+    localMatrix = glm::translate(glm::mat4(1.0f), position)
+                    * glm::toMat4(rotation)
+                    * glm::scale(glm::mat4(1.0f), scale);
+
     auto parentPtr = GetParent();
-    auto parentMat = glm::mat4(1.0);
+
     if (parentPtr) {
-        parentMat = parentPtr->globalMatrix;
-    }
-    globalMatrix = parentMat * localMatrix;
-    for (auto child : children) {
-        Core::GetMainECS().GetComponent(child)->RecalculateWith(globalMatrix);
-    }
-    isDirty = false;
-}
+        if (parentPtr->IsDirty())
+            parentPtr->Recalculate();
 
-void TetraEngine::Transform::RecalculateGlobalMatrix() {
-
-    auto par = GetParent();
-    Transform* lastDirty = nullptr;
-    while (par != nullptr)
-    {
-        if (par->IsDirty())
-            lastDirty = par;
-        par = par->GetParent();
+        g_rotation = parentPtr->g_rotation * rotation;
+        g_scale = parentPtr->g_scale * scale;
+        g_position = parentPtr->g_position + parentPtr->g_rotation * (parentPtr->g_scale * position);
+        globalMatrix = parentPtr->globalMatrix * localMatrix;
     }
-    if (lastDirty)
-        lastDirty->Recalculate();
-}
-
-void TetraEngine::Transform::RecalculateWith(glm::mat4 m) {
-    globalMatrix = m * localMatrix;
-    for (auto child : children) {
-        Core::GetMainECS().GetComponent(child)->RecalculateWith(globalMatrix);
+    else {
+        g_rotation = rotation;
+        g_scale = scale;
+        g_position = position;
+        globalMatrix = localMatrix;
     }
+
     isDirty = false;
 }
 
 void TetraEngine::Transform::LocalTranslate(glm::vec3 pos)
 {
-    localMatrix = glm::translate(localMatrix, pos);
+    position += pos;
     MarkDirty();
 }
 void TetraEngine::Transform::LocalRotate(glm::quat rot)
 {
-    localMatrix *= glm::toMat4(glm::normalize(rot));
+    rotation *= rot;
     MarkDirty();
 }
-void TetraEngine::Transform::LocalScale(glm::vec3 scale)
+void TetraEngine::Transform::LocalScale(glm::vec3 sc)
 {
-    localMatrix = glm::scale(localMatrix, scale);
+    scale *= sc;
     MarkDirty();
 }
 
-void TetraEngine::Transform::GlobalTranslate(glm::vec3 pos)
-{
-    localMatrix = glm::translate(localMatrix, glm::vec3(glm::inverse(globalMatrix) * glm::vec4(pos, 0)));
+void TetraEngine::Transform::GlobalTranslate(glm::vec3 pos) {
+    if (parent.Valid()) {
+        position += glm::inverse(GetParentMatrix()) * glm::vec4(pos, 1);
+    }
+    else {
+        position += pos;
+    }
     MarkDirty();
 }
+
 void TetraEngine::Transform::GlobalRotate(glm::quat rot)
 {
-    localMatrix *= glm::inverse(globalMatrix) * glm::toMat4(glm::normalize(rot)) * globalMatrix;
+    if (parent.Valid()) {
+        rotation *= glm::inverse(GetParent()->GetRotation()) * rot;
+    }
+    else {
+        rotation *= rot;
+    }
     MarkDirty();
 }
-void TetraEngine::Transform::GlobalScale(glm::vec3 scale)
+void TetraEngine::Transform::GlobalScale(glm::vec3 sc)
 {
-    localMatrix *= glm::inverse(globalMatrix) * glm::scale(scale) * globalMatrix;
-    MarkDirty();
+    if (parent.Valid()) {
+        auto parentMat = GetParent()->GetGlobalMatrix();
+        glm::vec3 parentScale(1);
+        parentScale.x = glm::length(glm::vec3(parentMat[0]));
+        parentScale.y = glm::length(glm::vec3(parentMat[1]));
+        parentScale.z = glm::length(glm::vec3(parentMat[2]));
+        scale *= parentScale * sc;
+    }
+    else {
+        scale *= sc;
+    }
 }
 
 glm::vec3 TetraEngine::Transform::GetPosition() {
     if (isDirty) Recalculate();
-    return {globalMatrix[3][0], globalMatrix[3][1], globalMatrix[3][2]};
+    return g_position;
 }
 
 glm::quat TetraEngine::Transform::GetRotation() {
     if (isDirty) Recalculate();
-    return glm::normalize(glm::toQuat(globalMatrix));
+    return g_rotation;
 }
 
 glm::vec3 TetraEngine::Transform::GetScale() {
     if (isDirty) Recalculate();
-    return {
-        glm::length(glm::vec3(globalMatrix[0])),
-        glm::length(glm::vec3(globalMatrix[1])),
-        glm::length(glm::vec3(globalMatrix[2]))
-    };
+    return g_scale;
 }
 
 glm::vec3 TetraEngine::Transform::GetLocalPosition() {
-
-    return {localMatrix[3][0], localMatrix[3][1], localMatrix[3][2]};
+    return position;
 }
 glm::quat TetraEngine::Transform::GetLocalRotation() {
-    return glm::normalize(glm::toQuat(localMatrix));
+    return rotation;
 }
-
 glm::vec3 TetraEngine::Transform::GetLocalScale() {
-    return {
-        glm::length(glm::vec3(localMatrix[0])),
-        glm::length(glm::vec3(localMatrix[1])),
-        glm::length(glm::vec3(localMatrix[2]))
-    };
+    return scale;
 }
 
 void TetraEngine::Transform::SetPosition(glm::vec3 pos) {
 
-    SetLocalPosition( glm::inverse(GetParentMatrix()) * glm::vec4(pos, 1) );
+    if (parent.Valid()) {
+        position = glm::inverse(GetParentMatrix()) * glm::vec4(pos, 1);
+    }
+    else {
+        position = pos;
+    }
     MarkDirty();
 }
 
 void TetraEngine::Transform::SetRotation(glm::quat rot) {
-    auto currentRot = GetRotation();
-    GlobalRotate(rot);
-    MarkDirty();
-    //WORK IN PROGRESS
+    if (parent.Valid()) {
+        rotation = glm::inverse(GetParent()->GetRotation()) * rot;
+    }
+    else {
+        rotation = rot;
+    }
 }
 
-void TetraEngine::Transform::SetScale(glm::vec3 scale) {
+void TetraEngine::Transform::SetScale(glm::vec3 sc) {
 
-    //WORK IN PROGRESS
+    if (parent.Valid()) {
+        auto parentMat = GetParent()->GetGlobalMatrix();
+        glm::vec3 parentScale(1);
+        parentScale.x = glm::length(glm::vec3(parentMat[0]));
+        parentScale.y = glm::length(glm::vec3(parentMat[1]));
+        parentScale.z = glm::length(glm::vec3(parentMat[2]));
+        scale = parentScale * sc;
+    }
+    else {
+        scale = sc;
+    }
 }
 
 void TetraEngine::Transform::SetLocalPosition(glm::vec3 pos) {
 
-    localMatrix[3][0] = pos.x;
-    localMatrix[3][1] = pos.y;
-    localMatrix[3][2] = pos.z;
+    position = pos;
     MarkDirty();
 }
 
 void TetraEngine::Transform::SetLocalRotation(glm::quat rot) {
 
-    //WORK IN PROGRESS
+    rotation = rot;
+    MarkDirty();
 }
 
-void TetraEngine::Transform::SetLocalScale(glm::vec3 scale) {
-    for (int i = 0; i < 3; i++) {
-        int len = glm::length(glm::vec3(localMatrix[i]));
-        for (int j = 0; j < 3; j++) {
-            localMatrix[i][j] = localMatrix[j][i] / len * scale[i];
-        }
-    }
+void TetraEngine::Transform::SetLocalScale(glm::vec3 sc) {
+    scale = sc;
     MarkDirty();
+}
+
+glm::vec3 TetraEngine::Transform::TransformDirectionToWorld(glm::vec3 pos) {
+    if (isDirty) Recalculate();
+    glm::vec4 vec = glm::vec4(pos, 0);
+    return globalMatrix * vec;
+}
+
+glm::vec3 TetraEngine::Transform::TransformDirectionToLocal(glm::vec3 pos) {
+    if (isDirty) Recalculate();
+    glm::vec4 vec = glm::vec4(pos, 0);
+    return glm::inverse(globalMatrix) * vec;
+}
+glm::vec3 TetraEngine::Transform::TransformPointToWorld(glm::vec3 pos) {
+    if (isDirty) Recalculate();
+    glm::vec4 vec = glm::vec4(pos, 1);
+    return globalMatrix * vec;
+}
+
+glm::vec3 TetraEngine::Transform::TransformPointToLocal(glm::vec3 pos) {
+    if (isDirty) Recalculate();
+    glm::vec4 vec = glm::vec4(pos, 1);
+    return glm::inverse(globalMatrix) * vec;
 }
 

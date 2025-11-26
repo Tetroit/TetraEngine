@@ -34,6 +34,7 @@ namespace TetraEngine {
 
         bool isStatic = false;
         bool staticUpdated = false;
+        bool isPlane = false;
 
         void ToStatic();
         void ToDynamic();
@@ -41,7 +42,7 @@ namespace TetraEngine {
     public:
 
         static void ComponentCreate(RigidBody& rb, ECS::Entity entity, ECS::Handle<RigidBody> handle);
-        explicit RigidBody(bool isStatic = false);
+        explicit RigidBody(bool isStatic = false, bool isPlane = false);
         ~RigidBody();
 
         void ReadTransform();

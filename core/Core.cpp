@@ -14,10 +14,11 @@
 #include "DestroyManager.h"
 #include "assimp/Logger.hpp"
 #include "physics/RigidBody.h"
+#include "rendering/Camera.h"
 #include "rendering/Material.h"
 #include "rendering/LightRenderer.h"
 #include "rendering/VertexData.h"
-#include "rendering/Camera.h"
+#include "rendering/ViewportCamera.h"
 #include "utils/OBJParser.h"
 
 //#ifdef NDEBUG
@@ -49,7 +50,7 @@ ECS::ECS & Core::GetMainECS() {
 	return mainEcs;
 }
 
-physx::PxPhysics * Core::GetPhysics() {
+PxPhysics * Core::GetPhysics() {
 	return physxInstance->GetPhysics();
 }
 
@@ -65,16 +66,6 @@ EventDispatcher<InputInfo> * Core::GetInputDispatcher() {
     return &inputManager->keyDispatcher;
 }
 
-void Core::processConsole() {
-
-	std::string command;
-	while (!glfwWindowShouldClose(glfwManager->window))
-	{
-		std::getline(std::cin, command);
-		//ConsoleManager::ParseCommand(command);
-	}
-}
-
 void Core::CloseApplication(const Event<InputInfo>& ev) {
 
 	if (ev.GetType().bits.any) return;
@@ -84,35 +75,66 @@ void Core::CloseApplication(const Event<InputInfo>& ev) {
 	&& ev.GetType().bits.action == GLFW_PRESS)
 		glfwSetWindowShouldClose(glfwManager->window, true);
 }
+
+void Core::processConsole() {
+
+    std::string command;
+    while (!glfwWindowShouldClose(glfwManager->window))
+    {
+        std::getline(std::cin, command);
+        //ConsoleManager::ParseCommand(command);
+    }
+}
 void Core::processInput(GLFWwindow* window)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
+    if (glfwManager->WasPressedThisFrameKey(GLFW_KEY_M)) {
+        imguiManager->ToggleMaximize();
 
-#if TETRA_DEBUG_UI
-	if (imguiManager->allowSceneInteraction) {
+        bool enableCursor = !imguiManager->IsMaximized() || application->IsCursorEnabled();
+        glfwManager->ToggleCursor(enableCursor);
+        imguiManager->ToggleMouseEvents(enableCursor);
 
-		if (inputManager->IsMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
-			glfwManager->ToggleCursor(false);
-		else
-		{
-			imguiManager->allowSceneInteraction = false;
-			glfwManager->ToggleCursor(true);
+    	if (imguiManager->IsMaximized()) {
+    		if (Scene::currentScene->gameCamera != nullptr) {
+    			Scene::currentScene->SwitchToGameView();
+    		}
 		}
-		inputManager->Update();
-	}
-#else
-
-	inputManager->Update();
-
-#endif
+    	else {
+    		Scene::currentScene->SwitchToEditorView();
+    	}
+    }
+    if (imguiManager->IsMaximized()) {
+        inputManager->Update();
+    }
+    else {
+        if (glfwManager->WasPressedThisFrameKey(GLFW_KEY_ESCAPE)) {
+            glfwSetWindowShouldClose(window, true);
+        }
+    }
+// #if TETRA_DEBUG_UI
+//     if (imguiManager->allowSceneInteraction) {
+//
+//         if (inputManager->IsMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
+//             glfwManager->ToggleCursor(false);
+//         else
+//         {
+//             imguiManager->allowSceneInteraction = false;
+//             glfwManager->ToggleCursor(true);
+//         }
+//         inputManager->Update();
+//     }
+// #else
+//
+//     inputManager->Update();
+//
+// #endif
 }
-
 int Core::Initialize()
 {
 	std::srand(time(nullptr));
 
 	inputManager = new InputManager();
+    destroyManager = new DestroyManager();
 
 	glfwManager = new GLFWManager((int)appWidth, (int)appHeight);
 	glfwManager->inputManager = inputManager;
@@ -139,18 +161,12 @@ int Core::Initialize()
 	glEnable(GL_DEPTH_TEST);
 
 	//physx
-
 	physxInstance = new PhysXInstance();
 	physxInstance->Initialise();
 
 	//imgui
 	imguiManager = new ImGuiManager();
-
-	Camera* mainCamera = new Camera(glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	mainCamera->SetProjection(glm::radians(45.0), (float)appWidth / (float)appHeight, 0.1f, 100.0f);
-	Camera::SetMain(mainCamera);
-
-	mainViewport = new Viewport(appWidth, appHeight, *mainCamera);
+	mainViewport = new Viewport(appWidth, appHeight,  nullptr);
 	//presets
 	InitializePresets();
 	BindEvents();
@@ -178,6 +194,8 @@ void Core::BindEvents() {
 	transformAddedEv.AddCallback(Transform::ComponentCreate, "Transform");
 	auto& rigidBodyAddedEv = ecs.OnComponentCreated<RigidBody>();
 	rigidBodyAddedEv.AddCallback(RigidBody::ComponentCreate, "RigidBody");
+	auto& cameraAddedEv = ecs.OnComponentCreated<Camera>();
+	cameraAddedEv.AddCallback(Camera::ComponentCreate, "Camera");
 
 	imguiManager->BindEvents();
 }
@@ -185,6 +203,8 @@ void Core::BindEvents() {
 
 void Core::Update() {
 	Time::Update();
+
+    glfwPollEvents();
 	processInput(glfwManager->window);
 
 	Scene::currentScene->Update();
@@ -202,13 +222,14 @@ void Core::Update() {
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-#if TETRA_DEBUG_UI
 	imguiManager->StartRender();
-	imguiManager->Render();
+
+#if TETRA_DEBUG_UI
+	imguiManager->RenderApp();
 	mainViewport->Bind();
 #endif
 
-	Scene::currentScene->Render(Camera::main);
+	Scene::currentScene->Render();
 }
 void Core::UpdateOverlay()
 {
@@ -228,16 +249,17 @@ void Core::UpdateOverlay()
 #if TETRA_DEBUG_UI
 
 	mainViewport->Unbind(appWidth, appHeight);
+#endif
+
 	imguiManager->EndRender();
 
-#endif
 }
 void Core::AfterUpdate()
 {
 	glfwSwapBuffers(glfwManager->window);
-	glfwPollEvents();
 
     destroyManager->deleteAll();
+    glfwManager->Update();
 }
 void Core::CleanUp() {
 	delete mainViewport;
@@ -246,4 +268,5 @@ void Core::CleanUp() {
 	delete glfwManager;
 	delete inputManager;
 	delete physxInstance;
+    delete destroyManager;
 }

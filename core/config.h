@@ -2,8 +2,8 @@
 #include <string>
 
 namespace TetraEngine {
-	const std::string assetPath("../../assets");
-	const std::string fontPath("../../assets/fonts");
-	const std::string meshPath("../../assets/meshes");
-	const std::string shaderPath("../../shaders");
+	const std::string assetPath("./assets");
+	const std::string fontPath(assetPath + "/fonts");
+	const std::string meshPath(assetPath + "/meshes");
+	const std::string shaderPath("./shaders");
 }

@@ -86,9 +86,8 @@ namespace TetraEngine {
             glm::quat qLerp = glm::slerp(q1, q2, fac);
             glm::vec3 pLerp = p1 * (1 - fac) + p2 * fac;
 
-            glm::mat4 tr = glm::translate(glm::mat4(1), pLerp);
-            tr = tr * glm::toMat4(qLerp);
-            t.SetGlobalMatrix(std::move(tr));
+            t.SetPosition(pLerp);
+            t.SetRotation(qLerp);
             if (rb.isStatic) {
                 rb.staticUpdated = true;
             }

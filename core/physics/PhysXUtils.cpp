@@ -20,6 +20,10 @@ namespace TetraEngine {
     physx::PxTransform PhysXUtils::TransformToPX(const glm::mat4 &m) {
         glm::vec3 translation(m[3]);
         glm::mat3 rotation(m);
+        glm::vec3 scale;
+        rotation[0] /= glm::length(rotation[0]);
+        rotation[1] /= glm::length(rotation[1]);
+        rotation[2] /= glm::length(rotation[2]);
         auto rot = glm::quat_cast(rotation);
         return physx::PxTransform(Vec3ToPX(translation), QuatToPX(rot));
     }

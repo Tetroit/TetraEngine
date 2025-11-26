@@ -3,7 +3,7 @@
 
 #include "VertexData.h"
 #include "Shader.h"
-#include "Camera.h"
+#include "ViewportCamera.h"
 #include "Cubemap.h"
 #include "Texture2D.h"
 
@@ -45,11 +45,11 @@ void Skybox::Render()
 
 	if (mode == SPHERE)
 	{
-		glm::mat4 inverseProj = glm::inverse(Camera::main->projectionView);
-		glm::mat4 inverseView = glm::inverse(Camera::main->GetViewMatrix());
+		glm::mat4 inverseProj = glm::inverse(ViewProvider::GetCurrent()->GetProjection());
+		glm::mat4 inverseView = glm::inverse(ViewProvider::GetCurrent()->GetViewMatrix());
 		shader->SetMat4("inverseProj", inverseProj);
 		shader->SetMat4("inverseView", inverseView);
-		shader->SetVec3("viewPos", Camera::main->Position);
+		shader->SetVec3("viewPos", ViewProvider::GetCurrent()->GetPosition());
 
 		shader->SetInt("tex", 0);
 		texture->Bind(0);
@@ -58,8 +58,8 @@ void Skybox::Render()
 	}
 	if (mode == BOX)
 	{
-		glm::mat4 proj = Camera::main->projectionView;
-		glm::mat4 view = glm::mat4(glm::mat3(Camera::main->GetViewMatrix()));
+		glm::mat4 proj = ViewProvider::GetCurrent()->GetProjection();
+		glm::mat4 view = glm::mat4(glm::mat3(ViewProvider::GetCurrent()->GetViewMatrix()));
 		shader->SetMat4("projection", proj);
 		shader->SetMat4("view", view);
 

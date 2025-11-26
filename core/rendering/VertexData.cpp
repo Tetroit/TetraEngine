@@ -144,6 +144,15 @@ void VertexData::Draw()
     glDrawElements(GL_TRIANGLES, faces.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
+
+std::vector<Vertex> & VertexData::GetVertices() {
+    return verts;
+}
+
+std::vector<uint> & VertexData::GetFaces() {
+    return faces;
+}
+
 void VertexData::AddVert(Vertex vert)
 {
     verts.push_back(vert);
@@ -166,7 +175,7 @@ void VertexData::LoadFaces(unsigned int* ptr, int size)
 }
 void VertexData::InitialisePrefabs() {
 
-    std::shared_ptr<VertexData> rect = VertexData::CreateVertexData();
+    std::shared_ptr<VertexData> rect = CreateVertexData();
     std::vector<Vertex> vertices = {
         Vertex(-1.0f, -1.0f, 0.0f, /*uv*/ 0.0f, 0.0f, /*normal*/ 0.0f, 0.0f, 1.0f),
         Vertex(1.0f, -1.0f, 0.0f, /*uv*/ 1.0f, 0.0f, /*normal*/ 0.0f, 0.0f, 1.0f),
@@ -185,7 +194,25 @@ void VertexData::InitialisePrefabs() {
     vertices.clear();
     index.clear();
 
-    std::shared_ptr<VertexData> cube = VertexData::CreateVertexData();
+    std::shared_ptr<VertexData> rectY = CreateVertexData();
+    vertices.insert (vertices.end(), {
+        Vertex(-1.0f,0, -1.0f, /*uv*/ 0.0f, 0.0f, /*normal*/ 0.0f, 1.0f, 0.0f),
+        Vertex(1.0f,0, -1.0f, /*uv*/ 1.0f, 0.0f, /*normal*/ 0.0f, 1.0f, 0.0f),
+        Vertex(-1.0f,0,  1.0f, /*uv*/ 0.0f, 1.0f,/*normal*/ 0.0f, 1.0f, 0.0f),
+        Vertex(1.0f,0,  1.0f, /*uv*/ 1.0f, 1.0f, /*normal*/ 0.0f, 1.0f, 0.0f),
+    });
+    index.insert(index.end(), {
+        0, 1, 2,
+        1, 2, 3,
+    });
+
+    rectY->LoadVerts(&vertices[0],4);
+    rectY->LoadFaces(&index[0], 6);
+    rectY->Setup();
+
+    vertices.clear();
+    index.clear();
+    std::shared_ptr<VertexData> cube = CreateVertexData();
     vertices.insert(vertices.end(), {
 
         Vertex(-0.5f, -0.5f, 0.5f,/*uv*/ 0.0f, 0.0f,/*normal*/ 0.0f, 0.0f, 1.0f),

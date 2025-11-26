@@ -1,7 +1,7 @@
 #include "tetrapc.h"
 #include "Scene.h"
 
-#include "Camera.h"
+#include "ViewportCamera.h"
 #include "../Core.h"
 #include "../GameObject_old.h"
 #include "../GameObject.h"
@@ -26,10 +26,11 @@ Scene::Scene() {
 		currentScene = this;
     physicsScene = std::make_unique<PhysicsScene>();
     lightManager = std::make_unique<LightManager>();
+	viewportCamera = std::make_unique<ViewportCamera>();
+	SwitchToEditorView();
 }
 Scene::~Scene() {
     Clear();
-	delete cameraContext;
 }
 
 void Scene::SetActiveScene(Scene *scene) {
@@ -59,7 +60,7 @@ void Scene::Clear() {
 void Scene::Render() {
 
 	if (cameraContext == nullptr)
-		cameraContext = Camera::main;
+		cameraContext = viewportCamera.get();
 
 	lightManager->CollectLightData();
 	SetGlobalShaderData();
@@ -103,6 +104,18 @@ void Scene::ParentChangedCallback(ECS::Handle<Transform> &parent, ECS::Handle<Tr
 	else if (emptyParent && !rootSubject) {
 		rootObjects.push_back(transform);
 	}
+}
+
+void Scene::SwitchToGameView() {
+	cameraContext = gameCamera;
+	Core::mainViewport->SetCamera(cameraContext);
+	ViewProvider::SetCurrent(cameraContext);
+}
+
+void Scene::SwitchToEditorView() {
+	cameraContext = viewportCamera.get();
+	Core::mainViewport->SetCamera(cameraContext);
+	ViewProvider::SetCurrent(cameraContext);
 }
 
 void Scene::AddObject(const GameObject& go) {
@@ -253,12 +266,12 @@ void Scene::SetGlobalShaderData()
 		Shader* shader = key.first;
 		shader->Use();
 
-		shader->SetVec3("viewPos", cameraContext->Position);
+		shader->SetVec3("viewPos", cameraContext->GetPosition());
 		lightManager->dispatchPointLights(shader);
 	}
 }
 
-void Scene::Render(Camera* cam)
+void Scene::Render(ViewProvider* cam)
 {
 	cameraContext = cam;
 	Render();

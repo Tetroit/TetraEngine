@@ -7,9 +7,13 @@
 #define SPECULAR_TEXTURE_BIT 0x2
 #define EMISSION_TEXTURE_BIT 0x4
 
+namespace TetraEngine {
+	class ViewProvider;
+}
+
 namespace TetraEngine
 {
-	class Camera;
+	class ViewportCamera;
 	class Texture2D;
 	class Material;
 	class Shader;
@@ -28,7 +32,7 @@ namespace TetraEngine
 		Texture2D* specularTexture;
 		Texture2D* emissionTexture;
 		Shader* shader;
-		Camera* camera;
+		ViewProvider* camera;
 		Material* material;
 
 		bool isRegistered = false;
