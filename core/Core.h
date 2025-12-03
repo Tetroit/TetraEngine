@@ -31,7 +31,6 @@ namespace TetraEngine {
 		Core(const Core&) = delete;
 		Core& operator=(const Core&) = delete;
 
-		static uint appWidth, appHeight;
 		static float lastMouseX, lastMouseY;
 		static bool cursorEnabled;
 

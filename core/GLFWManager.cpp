@@ -11,7 +11,34 @@ using namespace TetraEngine;
 
 GLFWManager* GLFWManager::current = nullptr;
 
-GLFWManager::GLFWManager(int width, int height) : width(width), height(height)
+void GLFWManager::SetFullscreen() {
+	auto* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+	width = mode->width;
+	height = mode->height;
+
+	glfwGetWindowPos(window, &xWindowed, &yWindowed);
+	glfwGetWindowSize(window, &widthWindowed, &heightWindowed);
+
+	glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
+	glfwSetWindowPos(window, 0, 0);
+	glfwSetWindowSize(window, width, height);
+}
+
+void GLFWManager::SetWindowed() {
+	width = widthWindowed;
+	height = heightWindowed;
+
+	glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
+	glfwSetWindowPos(window, xWindowed, yWindowed);
+	glfwSetWindowSize(window, width, height);
+
+}
+
+GLFWManager::GLFWManager(int width, int height) :
+width(width),
+widthWindowed(width),
+height(height),
+heightWindowed(height)
 {
 	//window
 
@@ -23,13 +50,15 @@ GLFWManager::GLFWManager(int width, int height) : width(width), height(height)
 		throw std::runtime_error("Failed to initialize GLFW");
 	}
 
-	glfwWindowHint(GLFW_REFRESH_RATE, 30);
 
+	glfwWindowHint(GLFW_REFRESH_RATE, 60);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+	glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
 	//DisplayModes();
 
 	//glfwCreateWindow -> glfwCreateWindow -> _glfwCrerateWindowWin32 -> _glfwInitWGL can cause issue with duplicate monitor
 
-	window = glfwCreateWindow(width, height, "showcase", NULL, NULL);
+	window = glfwCreateWindow(width, height, "TetraEngine", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -58,6 +87,8 @@ GLFWManager::GLFWManager(int width, int height) : width(width), height(height)
         button = false;
     for (auto& button : prevMouseButtons)
         button = false;
+
+	glfwGetWindowPos(window, &xWindowed, &yWindowed);
 }
 GLFWManager::~GLFWManager()
 {
@@ -122,6 +153,20 @@ void GLFWManager::DisplayModes() {
 	// }
 	// ReleaseDC(hwnd, hdc);
 	// DestroyWindow(hwnd);
+}
+
+void GLFWManager::SetScreenMode(bool fullscreen) {
+	if (fullscreen) {
+		SetFullscreen();
+	}
+	else {
+		SetWindowed();
+	}
+	isFullscreen = fullscreen;
+}
+
+bool GLFWManager::IsFullscreen() const {
+	return isFullscreen;
 }
 
 void GLFWManager::mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {

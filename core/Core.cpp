@@ -29,9 +29,6 @@
 
 using namespace TetraEngine;
 
-unsigned int Core::appWidth = 1280;
-unsigned int Core::appHeight = 720;
-
 float Core::lastMouseX;
 float Core::lastMouseY;
 
@@ -85,8 +82,12 @@ void Core::processConsole() {
         //ConsoleManager::ParseCommand(command);
     }
 }
+
 void Core::processInput(GLFWwindow* window)
 {
+	if (glfwManager->WasPressedThisFrameKey(GLFW_KEY_F11)) {
+		glfwManager->SetScreenMode(!glfwManager->IsFullscreen());
+	}
     if (glfwManager->WasPressedThisFrameKey(GLFW_KEY_M)) {
         imguiManager->ToggleMaximize();
 
@@ -111,6 +112,16 @@ void Core::processInput(GLFWwindow* window)
             glfwSetWindowShouldClose(window, true);
         }
     }
+	if (imguiManager->allowSceneInteraction) {
+	    if (inputManager->IsMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
+	        glfwManager->ToggleCursor(false);
+	    else
+	    {
+	        imguiManager->allowSceneInteraction = false;
+	        glfwManager->ToggleCursor(true);
+	    }
+	    inputManager->Update();
+	}
 // #if TETRA_DEBUG_UI
 //     if (imguiManager->allowSceneInteraction) {
 //
@@ -136,7 +147,7 @@ int Core::Initialize()
 	inputManager = new InputManager();
     destroyManager = new DestroyManager();
 
-	glfwManager = new GLFWManager((int)appWidth, (int)appHeight);
+	glfwManager = new GLFWManager(1280, 720);
 	glfwManager->inputManager = inputManager;
 
 	//window
@@ -166,7 +177,7 @@ int Core::Initialize()
 
 	//imgui
 	imguiManager = new ImGuiManager();
-	mainViewport = new Viewport(appWidth, appHeight,  nullptr);
+	mainViewport = new Viewport(glfwManager->width, glfwManager->height,  nullptr);
 	//presets
 	InitializePresets();
 	BindEvents();
@@ -244,11 +255,11 @@ void Core::UpdateOverlay()
 	Shader::textShader->Use();
 	Shader::textShader->SetMat4("projection", proj);
 
-	FreeType::RenderText("Keys pressed: " + inputManager->pressedKeys, 10, 20, 1, glm::vec3(1, 1, 1));
+	//FreeType::RenderText("Keys pressed: " + inputManager->pressedKeys, 10, 20, 1, glm::vec3(1, 1, 1));
 
 #if TETRA_DEBUG_UI
 
-	mainViewport->Unbind(appWidth, appHeight);
+	mainViewport->Unbind(glfwManager->width, glfwManager->height);
 #endif
 
 	imguiManager->EndRender();

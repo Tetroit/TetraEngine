@@ -4,17 +4,19 @@
 
 namespace TetraEngine {
 
-
     class IUpdatable {
     protected:
-        IUpdatable() {
-
-        }
-        virtual void Update() = 0;
+        IUpdatable() = default;
+    public:
+        virtual ~IUpdatable() = default;
+        virtual void Update(float dt) = 0;
     };
     class UpdateManager {
-
+    std::vector<IUpdatable*> toUpdate;
     public:
-        static void AddUpdatable();
+        void AddUpdatable(IUpdatable* updatable);
+        void RemoveUpdatable(IUpdatable* updatable);
+        void UpdateAll(float dt) const;
+        void Clear();
     };
 } // TetraEngine

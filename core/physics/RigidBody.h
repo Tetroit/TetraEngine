@@ -42,6 +42,7 @@ namespace TetraEngine {
     public:
 
         static void ComponentCreate(RigidBody& rb, ECS::Entity entity, ECS::Handle<RigidBody> handle);
+        static ECS::Handle<RigidBody> GetHandleFromPxActor(const PxRigidActor& actor);
         explicit RigidBody(bool isStatic = false, bool isPlane = false);
         ~RigidBody();
 
@@ -74,7 +75,7 @@ namespace TetraEngine {
 
         void AddAngular(glm::vec3 angularVelocity, PxForceMode::Enum mode = PxForceMode::eVELOCITY_CHANGE);
         void AddLinear(glm::vec3 linearVelocity, PxForceMode::Enum mode = PxForceMode::eVELOCITY_CHANGE);
-        bool IsStatic() const;
+        [[nodiscard]] bool IsStatic() const;
         void SetStatic();
         void SetDynamic();
 

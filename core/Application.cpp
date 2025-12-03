@@ -1,10 +1,16 @@
 #include "tetrapc.h"
 #include "Application.h"
 
+#include "utils/Time.h"
+
 using namespace TetraEngine;
 
-void Application::Update() {
+Application::Application() {
+    updateManager = std::make_unique<UpdateManager>();
+}
 
+void Application::Update() {
+    updateManager->UpdateAll(Time::deltaTime);
 }
 
 void Application::DrawGUI(ImVec2 origin, ImVec2 size) {

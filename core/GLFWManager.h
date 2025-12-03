@@ -37,7 +37,10 @@ namespace TetraEngine
 	    bool prevKeys[TETRA_INPUT_KEY_COUNT];
 	    bool mouseButtons[TETRA_INPUT_MOUSE_BUTTON_COUNT];
 	    bool prevMouseButtons[TETRA_INPUT_MOUSE_BUTTON_COUNT];
+		bool isFullscreen = false;
 
+		void SetFullscreen();
+		void SetWindowed();
 	public:
 
 		union KeyInfo
@@ -92,12 +95,17 @@ namespace TetraEngine
 
 		bool cursorEnabled = true;
 		unsigned int width = 1920, height = 1080;
+		int widthWindowed = 1920, heightWindowed = 1080;
+		int xWindowed = 0, yWindowed = 0;
 		float lastMouseX = 0, lastMouseY = 0;
 
 		GLFWManager(int width, int height);
+
 		~GLFWManager();
 		static GLFWManager* get();
 		static void DisplayModes();
+		void SetScreenMode (bool fullscreen);
+		[[nodiscard]] bool IsFullscreen() const;
 
 		static void mouse_callback(::GLFWwindow* window, double xposIn, double yposIn);
 

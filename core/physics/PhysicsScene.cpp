@@ -20,7 +20,7 @@ namespace TetraEngine {
         auto gDispatcher = physicsInstance->GetDispatcher();
 
         PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
-        sceneDesc.gravity = PxVec3(0.0f, -1.0f, 0.0f);
+        sceneDesc.gravity = PxVec3(0.0f, -9.8f, 0.0f);
         sceneDesc.cpuDispatcher	= gDispatcher;
         sceneDesc.filterShader = FilterShader;
         sceneDesc.simulationEventCallback = new PhysicsCallback();
@@ -45,12 +45,16 @@ namespace TetraEngine {
     }
 
     void PhysicsScene::Update(float dt) {
-        TETRA_USE_MAIN_ECS
+        if (isPaused) {
+            return;
+        }
 
         if (scene == nullptr) {
             LOG_ERR("PhysX scene is null");
             return;
         }
+
+        TETRA_USE_MAIN_ECS
 
         accumulator += dt;
         float simDt = 1.0f / simulationRate;
@@ -94,9 +98,17 @@ namespace TetraEngine {
         });
     }
 
+    void PhysicsScene::PauseSimulation() {
+        isPaused = true;
+    }
+
+    void PhysicsScene::ResumeSimulation() {
+        isPaused = false;
+    }
+
     PxFilterFlags PhysicsScene::FilterShader(PxFilterObjectAttributes attributes0,
-        PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1,
-        PxPairFlags &pairFlags, const void *constantBlock, PxU32 constantBlockSize)
+                                             PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1,
+                                             PxPairFlags &pairFlags, const void *constantBlock, PxU32 constantBlockSize)
     {
         pairFlags = PxPairFlag::eCONTACT_DEFAULT;
         pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_LOST;

@@ -24,13 +24,12 @@ namespace TetraEngine {
 
     public:
 
-        physx::PxPhysics* GetPhysics() const;
-        physx::PxFoundation* GetFoundation() const;
+        [[nodiscard]] physx::PxPhysics* GetPhysics() const;
+        [[nodiscard]] physx::PxFoundation* GetFoundation() const;
         void SetActiveScene(PhysicsScene *scene);
-        PhysicsScene* GetActiveScene() const;
-        physx::PxMaterial* GetDefaultMaterial() const;
-
-        physx::PxDefaultCpuDispatcher *GetDispatcher() const;
+        [[nodiscard]] PhysicsScene* GetActiveScene() const;
+        [[nodiscard]] physx::PxMaterial* GetDefaultMaterial() const;
+        [[nodiscard]] physx::PxDefaultCpuDispatcher *GetDispatcher() const;
 
         ~PhysXInstance();
         void Initialise();

@@ -14,9 +14,9 @@
 #define TETRA_STR_HELPER(x) #x
 #define TETRA_STR(x) TETRA_STR_HELPER(x)
 
-#define TETRA_APPLICATION_INCLUDE TETRA_STR(../applications/TETRA_APPLICATION_NAME.h)
+#define TETRA_APPLICATION_INCLUDE "../applications/" TETRA_APPLICATION_NAME ".h"
 
-#include TETRA_APPLICATION_INCLUDE
+#include TETRA_APPLICATION_HEADER
 
 using namespace TetraEngine;
 
@@ -25,7 +25,7 @@ int main()
 	if (Core::Initialize() != 0)
 		return -1;
 
-	Core::CreateApplication<TETRA_APPLICATION_NAME>();
+	Core::CreateApplication<TETRA_APPLICATION_TYPE>();
 
 	std::thread consoleThread(Core::processConsole);
 

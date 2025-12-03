@@ -9,12 +9,18 @@
 #include "../rendering/Texture2D.h"
 #include "../rendering/Material.h"
 #include "../GameObject.h"
+#include "PhysicsDemo2/Ball.h"
+#include "PhysicsDemo2/Ball.h"
 
 
+class Ball;
 namespace TetraEngine {
-    class Demo2 : public Application {
+    class PhysicsDemo2 : public Application {
+        
         Scene myScene = Scene();
         Shader* litShader;
+        std::vector<Ball*> balls;
+        std::vector<Material*> ballsMaterials;
 
         GameObject* ball;
         GameObject* ground;
@@ -22,10 +28,16 @@ namespace TetraEngine {
 
         Material* MtBall;
         Material* MtDefault;
+        int MSphereID;
 
     public:
-        Demo2();
+
+        PhysicsDemo2();
+        ~PhysicsDemo2();
+        void ProcessInput(const Event<GLFWManager::KeyInfo> & event);
         void Update() override;
         void DrawGUI(ImVec2 origin, ImVec2 size) override;
+
+        Ball* SpawnBall(std::string&& name, glm::vec3 position, Material* material);
     };
 }

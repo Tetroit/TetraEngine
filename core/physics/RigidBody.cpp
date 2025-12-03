@@ -66,9 +66,14 @@ namespace TetraEngine {
             LOG_ERR("Failed to create rigid body");
             return;
         }
-        rb.rigidBody->setName(info->name.c_str());
+
         rb.rigidBody->userData = reinterpret_cast<void*>(new ECS::Handle(handle));
     }
+
+    ECS::Handle<RigidBody> RigidBody::GetHandleFromPxActor(const PxRigidActor &actor) {
+        return *static_cast<ECS::Handle<RigidBody>*>(actor.userData);
+    }
+
     RigidBody::RigidBody(bool isStatic, bool isPlane) : isStatic(isStatic), isPlane(isPlane) {
     }
 
@@ -235,11 +240,17 @@ namespace TetraEngine {
     }
 
     void RigidBody::CollisionEntered(RigidBody &other, CollisionInfo info) {
-        LOG(rigidBody->getName() << " entered collision with " << other.rigidBody->getName());
+        TETRA_USE_MAIN_ECS
+        auto* infoThis = ecs.GetComponent(infoComp);
+        auto* infoOther = ecs.GetComponent(other.infoComp);
+        //LOG(infoThis->name << " entered collision with " << infoOther->name);
         OnCollisionEnter.Call(other, info);
     }
     void RigidBody::CollisionLeft(RigidBody &other, CollisionInfo info) {
-        LOG(rigidBody->getName() << " left collision with " << other.rigidBody->getName());
+        TETRA_USE_MAIN_ECS
+        auto* infoThis = ecs.GetComponent(infoComp);
+        auto* infoOther = ecs.GetComponent(other.infoComp);
+        //LOG(infoThis->name << " left collision with " << infoOther->name);
         OnCollisionEnter.Call(other, info);
     }
 

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_STANDARD 20)
+set(APP_NAME "PhysicsDemo2")
 
 find_package(OpenGL)
 
@@ -36,11 +37,20 @@ file (GLOB STB_GLOB
         deps/stb_image/stb_impl.cpp
         deps/stb_image/stb_image.h)
 
+file(GLOB APP_FILES_NON_RECURSE
+        "core/applications/${APP_NAME}.cpp"
+        "core/applications/${APP_NAME}.h"
+        "core/applications/${APP_NAME}/*.cpp"
+        "core/applications/${APP_NAME}/*.h"
+)
+
+file(GLOB_RECURSE APP_FILES_RECURSE
+        "core/applications/${APP_NAME}/**/*.cpp"
+        "core/applications/${APP_NAME}/**/*.h"
+)
+
 file (GLOB TETRA_ENGINE_GLOB
-        "core/applications/*.h"
-        "core/applications/*.cpp"
-        "core/applications/**/*.h"
-        "core/applications/**/*.cpp"
+        "core/applications/ApplicationConfig.h"
 
         "core/rendering/*.h"
         "core/rendering/*.cpp"
@@ -154,11 +164,7 @@ target_include_directories(UnitTest PRIVATE
 
 project(TetraEngine)
 
-add_executable(TetraEngine ${TETRA_ENGINE_GLOB}
-        core/rendering/ViewProvider.cpp
-        core/rendering/ViewProvider.h
-        core/rendering/Camera.cpp
-        core/rendering/Camera.h)
+add_executable(TetraEngine ${TETRA_ENGINE_GLOB} ${APP_FILES_NON_RECURSE} ${APP_FILES_RECURSE})
 
 target_link_libraries(TetraEngine PRIVATE glfw glm assimp freetype imgui stb glad
         "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysX_static_64.lib"
@@ -172,6 +178,11 @@ target_include_directories(TetraEngine PRIVATE
         ${CMAKE_SOURCE_DIR}/deps/assimp/include
         ${CMAKE_SOURCE_DIR}/core/pch
         ${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/include
+)
+target_compile_definitions(TetraEngine PRIVATE
+        TETRA_APPLICATION_TYPE=${APP_NAME}
+        TETRA_APPLICATION_NAME="${APP_NAME}"
+        TETRA_APPLICATION_HEADER="applications/${APP_NAME}.h"
 )
 
 target_precompile_headers(TetraEngine PUBLIC core/pch/tetrapc.h)

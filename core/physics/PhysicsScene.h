@@ -11,6 +11,8 @@ namespace TetraEngine {
         physx::PxScene* scene = nullptr;
         float accumulator = 0;
         const float simulationRate = 60.0f;
+        bool isPaused = false;
+
     public:
         PhysicsScene();
         ~PhysicsScene();
@@ -19,6 +21,8 @@ namespace TetraEngine {
         void RemoveObject(const RigidBody &rb);
         void SetGravity(glm::vec3 g);
         void Update(float dt);
+        void PauseSimulation();
+        void ResumeSimulation();
 
         static physx::PxFilterFlags FilterShader(
             physx::PxFilterObjectAttributes attributes0, physx::PxFilterData filterData0,
