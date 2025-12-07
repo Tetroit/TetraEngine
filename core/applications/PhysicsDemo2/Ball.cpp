@@ -30,21 +30,21 @@ Ball::~Ball() {
     delete gameObject;
 }
 
-Transform * Ball::GetTransform() {
+Transform * Ball::GetTransform() const {
     TETRA_USE_MAIN_ECS
     return ecs.GetComponent(transform);
 }
 
-RigidBody * Ball::GetRigidBody() {
+RigidBody * Ball::GetRigidBody() const {
     TETRA_USE_MAIN_ECS
     return ecs.GetComponent(rigidBody);
 }
 
-MeshRenderer * Ball::GetRenderer() {
+MeshRenderer * Ball::GetRenderer() const {
     TETRA_USE_MAIN_ECS
     return ecs.GetComponent(renderer);
 }
 
-GameObject * Ball::GetGameObject() {
+GameObject * Ball::GetGameObject() const {
     return gameObject;
 }

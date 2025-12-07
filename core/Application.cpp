@@ -24,3 +24,11 @@ void Application::ToggleCursor(bool state) {
 bool Application::IsCursorEnabled() {
     return cursorEnabled;
 }
+
+void Application::AddUpdatable(IUpdatable *updatable) {
+    updateManager->AddUpdatable(updatable);
+}
+
+void Application::RemoveUpdatable(IUpdatable *updatable) {
+    updateManager->RemoveUpdatable(updatable);
+}

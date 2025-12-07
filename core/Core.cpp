@@ -59,18 +59,11 @@ PhysicsScene* Core::GetPhysicsScene() {
 	return physxInstance->GetActiveScene();
 }
 
-EventDispatcher<InputInfo> * Core::GetInputDispatcher() {
-    return &inputManager->keyDispatcher;
+EventDispatcher<InputEvent> * Core::GetGameDispatcher() {
+    return &inputManager->GetGameDispatcher();
 }
-
-void Core::CloseApplication(const Event<InputInfo>& ev) {
-
-	if (ev.GetType().bits.any) return;
-	KeyEvent keyEvent = ev.ToType<KeyEvent>();
-
-	if (ev.GetType().bits.key == GLFW_KEY_ESCAPE 
-	&& ev.GetType().bits.action == GLFW_PRESS)
-		glfwSetWindowShouldClose(glfwManager->window, true);
+EventDispatcher<InputEvent> * Core::GetEditorDispatcher() {
+	return &inputManager->GetEditorDispatcher();
 }
 
 void Core::processConsole() {
@@ -89,19 +82,22 @@ void Core::processInput(GLFWwindow* window)
 		glfwManager->SetScreenMode(!glfwManager->IsFullscreen());
 	}
     if (glfwManager->WasPressedThisFrameKey(GLFW_KEY_M)) {
-        imguiManager->ToggleMaximize();
+    	if (!imguiManager->IsMaximized() && Scene::currentScene->gameCamera == nullptr) {
+    		LOG_ERR_FROM("Core::processInput()", "No game camera");
+    	}
+    	else {
+    		imguiManager->ToggleMaximize();
 
-        bool enableCursor = !imguiManager->IsMaximized() || application->IsCursorEnabled();
-        glfwManager->ToggleCursor(enableCursor);
-        imguiManager->ToggleMouseEvents(enableCursor);
+    		bool enableCursor = !imguiManager->IsMaximized() || application->IsCursorEnabled();
+    		glfwManager->ToggleCursor(enableCursor);
+    		imguiManager->ToggleMouseEvents(enableCursor);
 
-    	if (imguiManager->IsMaximized()) {
-    		if (Scene::currentScene->gameCamera != nullptr) {
+    		if (imguiManager->IsMaximized()) {
     			Scene::currentScene->SwitchToGameView();
     		}
-		}
-    	else {
-    		Scene::currentScene->SwitchToEditorView();
+    		else {
+    			Scene::currentScene->SwitchToEditorView();
+    		}
     	}
     }
     if (imguiManager->IsMaximized()) {

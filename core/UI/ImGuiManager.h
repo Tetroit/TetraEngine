@@ -43,7 +43,7 @@ namespace TetraEngine {
 	    void ToggleMaximize();
 	    bool IsMouseEventsEnabled();
 	    bool IsMaximized();
-	    void EditorInputEvents(const Event<InputInfo>& ev);
+	    void EditorInputEvents(const Event<InputEvent>& ev);
 
 		void RenderApp();
 		void StartRender();

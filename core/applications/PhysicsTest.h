@@ -27,7 +27,7 @@ class PhysicsTest : public Application {
 public:
     PhysicsTest();
     ~PhysicsTest() override;
-    void ProcessInput(const Event<InputInfo>& ev);
+    void ProcessInput(const Event<InputEvent>& ev);
     void StartSimulation();
     void PauseSimulation();
     void ResumeSimulation();

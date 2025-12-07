@@ -17,7 +17,7 @@ using namespace TetraEngine;
 PhysicsDemo2::PhysicsDemo2() {
 
     ToggleCursor(false);
-    TETRA_USE_MAIN_INPUT
+    TETRA_USE_GAME_INPUT
     input->AddListener<PhysicsDemo2>(InputInfo(GLFW_PRESS, TETRA_INPUT_KEY_MODE), &PhysicsDemo2::ProcessInput, *this);
     TETRA_USE_MAIN_ECS
     myScene.GetPhysicsScene()->SetGravity(glm::vec3(0.0f, -9.8f, 0.0f));

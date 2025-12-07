@@ -34,7 +34,7 @@ namespace TetraEngine {
 
         PhysicsDemo2();
         ~PhysicsDemo2();
-        void ProcessInput(const Event<GLFWManager::KeyInfo> & event);
+        void ProcessInput(const Event<GLFWManager::InputEvent> & event);
         void Update() override;
         void DrawGUI(ImVec2 origin, ImVec2 size) override;
 

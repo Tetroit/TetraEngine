@@ -43,6 +43,9 @@ uniform int textureFlags = 0;
 uniform sampler2D textureD;
 uniform sampler2D textureS;
 uniform sampler2D textureA;
+uniform vec4 textureD_SO = vec4(1,1,0,0);
+uniform vec4 textureS_SO = vec4(1,1,0,0);
+uniform vec4 textureA_SO = vec4(1,1,0,0);
 uniform samplerCube skyTexture;
 
 uniform vec3 viewPos = vec3(0,0,0);
@@ -103,16 +106,16 @@ void main()
 	
 	if ((textureFlags & 1) != 0) 
 	{
-		colorA += texture(textureD, texCoord).xyz * surface.ambient;
-		colorD *= texture(textureD, texCoord).xyz;
+		colorA += texture(textureD, texCoord * textureD_SO.xy + textureD_SO.zw).xyz * surface.ambient;
+		colorD *= texture(textureD, texCoord * textureD_SO.xy + textureD_SO.zw).xyz;
 	}
 	else {
 		colorA += surface.ambient;
 		colorD *= surface.diffuse;
 	}
-	if ((textureFlags & 2) != 0) colorS = texture(textureS, texCoord).xxx * colorS;
+	if ((textureFlags & 2) != 0) colorS = texture(textureS, texCoord * textureS_SO.xy + textureS_SO.zw).xxx * colorS;
 	else colorS *= surface.specular.x;
-	if ((textureFlags & 4) != 0) colorA += texture(textureA, texCoord).xyz;
+	if ((textureFlags & 4) != 0) colorA += texture(textureA, texCoord * textureA_SO.xy + textureA_SO.zw).xyz;
 	
 	
 	vec3 color = colorA + colorD + colorS;

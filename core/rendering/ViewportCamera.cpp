@@ -24,7 +24,7 @@ ViewportCamera::ViewportCamera(float posX, float posY, float posZ, float upX, fl
 ViewportCamera(glm::vec3(posX, posY, posZ), glm::vec3(upX, upY, upZ), yaw, pitch)
 {}
 
-void ViewportCamera::ProcessMovement(const Event<InputInfo>& ev)
+void ViewportCamera::ProcessMovement(const Event<InputEvent>& ev)
 {
     if (InputManager::GetMain()->IsMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
 
@@ -45,15 +45,15 @@ void ViewportCamera::ProcessMovement(const Event<InputInfo>& ev)
 }
 
 void ViewportCamera::Enable() {
-    TETRA_USE_MAIN_INPUT
-    input->AddListener<ViewportCamera>(InputInfo(GLFW_REPEAT, TETRA_INPUT_KEY_MODE), &ViewportCamera::ProcessMovement, (*this));
-    input->AddListener<ViewportCamera>(InputInfo(TETRA_INPUT_MOUSE_MOVE_MODE), &ViewportCamera::ProcessMouseMovement, (*this));
+    TETRA_USE_GAME_INPUT
+    input->AddListener<ViewportCamera>(AnyKeyEvent::GetLink(GLFW_REPEAT), &ViewportCamera::ProcessMovement, (*this));
+    input->AddListener<ViewportCamera>(MouseMoveEvent::GetLink(), &ViewportCamera::ProcessMouseMovement, (*this));
 }
 
 void ViewportCamera::Disable() {
-    TETRA_USE_MAIN_INPUT
-    input->RemoveListener<ViewportCamera>(InputInfo(GLFW_REPEAT, TETRA_INPUT_KEY_MODE), &ViewportCamera::ProcessMovement, (*this));
-    input->RemoveListener<ViewportCamera>(InputInfo(TETRA_INPUT_MOUSE_MOVE_MODE), &ViewportCamera::ProcessMouseMovement, (*this));
+    TETRA_USE_GAME_INPUT
+    input->RemoveListener<ViewportCamera>(AnyKeyEvent::GetLink(GLFW_REPEAT), &ViewportCamera::ProcessMovement, (*this));
+    input->RemoveListener<ViewportCamera>(MouseMoveEvent::GetLink(), &ViewportCamera::ProcessMouseMovement, (*this));
 }
 
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix
@@ -85,10 +85,9 @@ void ViewportCamera::ProcessMovement(Camera_Movement direction)
         position -= glm::vec3(0, 1, 0) * velocity;
 }
 
-void ViewportCamera::ProcessMouseMovement(const Event<InputInfo>& ev)
+void ViewportCamera::ProcessMouseMovement(const Event<InputEvent>& ev)
 {
-	if (TETRA_INPUT_MODE(ev.GetType()) == TETRA_INPUT_MOUSE_MOVE_MODE
-        && InputManager::GetMain()->IsMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
+	if (InputManager::GetMain()->IsMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
 		auto mouse = ev.ToType<MouseMoveEvent>();
         mouse.deltaX *= MouseSensitivity;

@@ -9,19 +9,6 @@
 
 #ifndef TETRA_INPUT_FORMAT_DEFINED
 #define TETRA_INPUT_FORMAT_DEFINED
-
-#define TETRA_INPUT_KEY_COUNT 512
-#define TETRA_INPUT_MOUSE_BUTTON_COUNT 8
-
-#define TETRA_INPUT_CODE(info) info.bits.key
-#define TETRA_INPUT_ACTION(info) info.bits.action
-#define TETRA_INPUT_MODE(info) info.bits.mode
-#define TETRA_INPUT_IS_ANY(info) info.bits.any
-
-#define TETRA_INPUT_KEY_MODE 0
-#define TETRA_INPUT_MOUSE_BUTTON_MODE 1
-#define TETRA_INPUT_MOUSE_MOVE_MODE 2
-
 #endif // !TETRA_INPUT_FORMAT_DEFINED
 
 namespace TetraEngine
@@ -30,61 +17,40 @@ namespace TetraEngine
 
 	class GLFWManager
 	{
+	public:
+		static constexpr int key_count = 512;
+		static constexpr int mb_count = 8;
 	private:
-
 		static GLFWManager* current;
-	    bool keys[TETRA_INPUT_KEY_COUNT];
-	    bool prevKeys[TETRA_INPUT_KEY_COUNT];
-	    bool mouseButtons[TETRA_INPUT_MOUSE_BUTTON_COUNT];
-	    bool prevMouseButtons[TETRA_INPUT_MOUSE_BUTTON_COUNT];
+	    bool keys[key_count];
+	    bool prevKeys[key_count];
+	    bool mouseButtons[mb_count];
+	    bool prevMouseButtons[mb_count];
 		bool isFullscreen = false;
 
 		void SetFullscreen();
 		void SetWindowed();
 	public:
 
-		union KeyInfo
+		struct
+		InputEvent
 		{
-		public:
+			enum InputEventType {
+				KEY = 0,
+				KEY_ANY = 1,
+				MB = 2,
+				MB_ANY = 3,
+				MOUSE_MOVE = 4
+			};
 
-			uint16_t raw;
-			struct {
-				uint16_t key : 9;
-				uint16_t action : 2;
-				uint16_t any : 1;
-				uint16_t mode : 2;
-				uint16_t _unused : 2;
-			} bits;
-
-			KeyInfo(int key, int action, int mode)
-			{
-				bits.key = key & 0b111111111;
-				bits.action = action & 0b11;
-				bits.any = 0;
-				bits.mode = mode;
-				bits._unused = 0;
-			};
-			KeyInfo(int action, int mode)
-			{
-				bits.key = 0;
-				bits.action = action & 0b11;
-				bits.any = 1;
-				bits.mode = mode;
-				bits._unused = 0;
-			};
-			KeyInfo(int mode)
-			{
-				bits.key = 0;
-				bits.action = 0;
-				bits.any = 0;
-				bits.mode = mode;
-				bits._unused = 0;
-			};
-			bool operator <(const KeyInfo& other) const { return raw < other.raw; }
-			bool operator ==(const KeyInfo& other) const { return raw == other.raw; }
-			operator int() const { return raw; }
+			InputEventType type;
+			int key;
+			int mode;
+			constexpr InputEvent(InputEventType type, int mode = -1, int key = -1) : type(type), key(key), mode(mode) {}
+			bool operator == (const InputEvent& other) const {
+				return type == other.type && key == other.key && mode == other.mode;
+			}
 		};
-
 
 		bool sendMouseMoveEvents = true;
 		bool sendKeyboardEvents = true;
@@ -131,3 +97,19 @@ namespace TetraEngine
 
 }
 
+
+namespace std {
+	template<>
+	struct hash<TetraEngine::GLFWManager::InputEvent> {
+		std::size_t operator()(const TetraEngine::GLFWManager::InputEvent& e) const noexcept {
+			std::size_t h1 = std::hash<int>{}(e.type);
+			std::size_t h2 = std::hash<int>{}(e.mode);
+			std::size_t h3 = std::hash<int>{}(e.key);
+
+			std::size_t seed = h1;
+			seed ^= h2 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+			seed ^= h3 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+			return seed;
+		}
+	};
+}

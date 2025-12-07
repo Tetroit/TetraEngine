@@ -35,6 +35,37 @@ Texture2D::Texture2D(int width, int height, int channels) : width(width), height
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
+Texture2D::Texture2D(const std::string &name, bool flip_vertically) {
+
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	int channelMode = 0;
+	stbi_set_flip_vertically_on_load(flip_vertically);
+	data = stbi_load(name.c_str(), &width, &height, &channels, 0);
+	if (data)
+	{
+		if (channels == 1) channelMode = GL_RED;
+		if (channels == 2) channelMode = GL_RG;
+		if (channels == 3) channelMode = GL_RGB;
+		if (channels == 4) channelMode = GL_RGBA;
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, channelMode, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture " << name << std::endl;
+	}
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, channelMode, GL_UNSIGNED_BYTE, NULL);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
+
 Texture2D::~Texture2D() {
 	glDeleteTextures(1, &texture);
 }
@@ -65,7 +96,6 @@ void Texture2D::Load(const std::string& name, bool flip_vertically) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
 
 	std::cout << "texture has been loaded at path " << name << "\n";
 	path = name;

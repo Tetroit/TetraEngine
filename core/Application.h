@@ -19,6 +19,9 @@ namespace TetraEngine {
 
 	    void ToggleCursor(bool state);
 	    bool IsCursorEnabled();
+
+		void AddUpdatable(IUpdatable* updatable);
+		void RemoveUpdatable(IUpdatable* updatable);
 	};
 }
 

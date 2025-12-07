@@ -28,6 +28,10 @@ Skybox::Skybox(Mode mode, const std::string& path) : mode(mode)
 		shader = Shader::skyboxShader;
 		mesh = VertexData::GetPrefab(VD_CUBE);
 	}
+
+	if (current == nullptr) {
+		current = this;
+	}
 }
 
 Skybox::~Skybox()

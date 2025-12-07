@@ -224,7 +224,7 @@ void GLFWManager::ToggleKeyboardEvents(bool toOn)
 	sendKeyboardEvents = toOn;
 	if (!toOn)
 	{
-		for (int i = 0; i < TETRA_INPUT_KEY_COUNT; i++)
+		for (int i = 0; i < key_count; i++)
 			inputManager->keys[i] = false;
 	}
 }
@@ -234,7 +234,7 @@ void GLFWManager::ToggleMouseClickEvents(bool toOn)
 	sendMouseClickEvents = toOn;
 	if (!toOn)
 	{
-		for (int i = 0; i < TETRA_INPUT_MOUSE_BUTTON_COUNT; i++)
+		for (int i = 0; i < mb_count; i++)
 			inputManager->mouseButtons[i] = false;
 	}
 }
@@ -261,10 +261,10 @@ bool GLFWManager::WasReleasedThisFrameMouse(int button) {
 }
 
 void GLFWManager::Update() {
-    for (int i=0; i<TETRA_INPUT_KEY_COUNT; i++) {
+    for (int i=0; i<key_count; i++) {
         prevKeys[i] = keys[i];
     }
-    for (int i=0; i<TETRA_INPUT_MOUSE_BUTTON_COUNT; i++) {
+    for (int i=0; i<mb_count; i++) {
         prevMouseButtons[i] = mouseButtons[i];
     }
 }

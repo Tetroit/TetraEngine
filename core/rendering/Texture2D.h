@@ -13,6 +13,7 @@ namespace TetraEngine {
 
 		Texture2D();
 		Texture2D(int width, int height, int channels = 3);
+		explicit Texture2D(const std::string& name, bool flip_vertically = false);
 		~Texture2D();
 
 		static void Unbind(int id = 0);

@@ -17,7 +17,8 @@
 #define TETRA_USE_MAIN_PHYSICS_INSTANCE auto* physicsInstance = TetraEngine::Core::GetPhysicsInstance();
 #define TETRA_USE_MAIN_PHYSICS auto* physics = TetraEngine::Core::GetPhysics();
 #define TETRA_USE_MAIN_PHYSICS_SCENE auto* physicsScene = TetraEngine::Core::GetPhysicsScene();
-#define TETRA_USE_MAIN_INPUT auto* input = TetraEngine::Core::GetInputDispatcher();
+#define TETRA_USE_GAME_INPUT auto* input = TetraEngine::Core::GetGameDispatcher();
+#define TETRA_USE_EDITOR_INPUT auto* input = TetraEngine::Core::GetEditorDispatcher();
 
 namespace TetraEngine {
 
@@ -62,10 +63,10 @@ namespace TetraEngine {
 		static physx::PxPhysics* GetPhysics();
 		static PhysXInstance* GetPhysicsInstance();
 		static PhysicsScene* GetPhysicsScene();
-		static EventDispatcher<InputInfo>* GetInputDispatcher();
+		static EventDispatcher<InputEvent>* GetGameDispatcher();
+		static EventDispatcher<InputEvent>* GetEditorDispatcher();
 		//console
 		static void processConsole();
-		static void CloseApplication(const Event<InputInfo>& ev);
 		//input
 		static void processInput(GLFWwindow* window);
 	};

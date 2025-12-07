@@ -34,9 +34,9 @@ namespace TetraEngine
 		std::string name;
 		std::map<Shader*, int> utilizedShaders;
 		Skybox* skybox = nullptr;
+		Camera* gameCamera = nullptr;
 		std::vector<ECS::Handle<Transform>> rootObjects;
 	    std::vector<ECS::Entity> gameObjects;
-		Camera* gameCamera;
 
 		Scene();
 		~Scene();

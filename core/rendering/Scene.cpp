@@ -107,6 +107,10 @@ void Scene::ParentChangedCallback(ECS::Handle<Transform> &parent, ECS::Handle<Tr
 }
 
 void Scene::SwitchToGameView() {
+	if (gameCamera == nullptr) {
+		LOG_ERR_FROM("Scene::SwitchToGameView()", "No game camera");
+		return;
+	}
 	cameraContext = gameCamera;
 	Core::mainViewport->SetCamera(cameraContext);
 	ViewProvider::SetCurrent(cameraContext);

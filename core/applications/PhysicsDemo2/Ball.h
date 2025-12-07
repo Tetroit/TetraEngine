@@ -19,8 +19,8 @@ public:
 
     ~Ball();
 
-    Transform* GetTransform();
-    RigidBody* GetRigidBody();
-    MeshRenderer* GetRenderer();
-    GameObject* GetGameObject();
+    Transform* GetTransform() const;
+    RigidBody* GetRigidBody() const;
+    MeshRenderer* GetRenderer() const;
+    GameObject* GetGameObject() const;
 };

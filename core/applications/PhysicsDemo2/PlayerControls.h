@@ -7,7 +7,7 @@ using namespace TetraEngine;
 namespace Demo2 {
     class PlayerControls {
         ECS::Handle<RigidBody> bodyHandle;
-        void ProcessInput(const Event<InputInfo>& ev) {
+        void ProcessInput(const Event<InputEvent>& ev) {
 
             auto keyEv = ev.ToType<AnyKeyEvent>();
             if (keyEv.key == GLFW_KEY_E) {

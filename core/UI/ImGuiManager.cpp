@@ -216,7 +216,7 @@ bool ImGuiManager::IsMaximized() {
     return isMaximized;
 }
 
-void ImGuiManager::EditorInputEvents(const Event<InputInfo> &ev) {
+void ImGuiManager::EditorInputEvents(const Event<InputEvent> &ev) {
     auto keyEv = ev.ToType<AnyKeyEvent>();
     // if (keyEv.key == GLFW_KEY_M) {
     //     ToggleMaximize();

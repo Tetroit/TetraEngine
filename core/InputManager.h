@@ -1,79 +1,112 @@
 #pragma once
+#include <array>
+
 #include "utils/Event.h"
 #include "GLFWManager.h"
-#include <map>
 
 namespace TetraEngine
 {
 	#ifdef TETRA_GLFW
-	typedef GLFWManager::KeyInfo InputInfo;
-	#endif // !TETRA_INPUT_FORMAT_DEFINED
+	typedef GLFWManager::InputEvent InputEvent;
+	typedef GLFWManager::InputEvent::InputEventType InputEventType;
+	#endif // TETRA_GLFW
 
 	#ifndef TETRA_INPUT_FORMAT_DEFINED
 	#error No input format found
-	#endif // !TETRA_INPUTFORMAT_DEFINED
+	#endif // !TETRA_INPUT_FORMAT_DEFINED
 
-	class KeyEvent : public Event<InputInfo> {
+	class KeyEvent : public Event<InputEvent> {
 	public:
-		KeyEvent(int key, int mode, std::string name) : Event<InputInfo>(InputInfo(key, mode, TETRA_INPUT_KEY_MODE), name) {};
+		KeyEvent(int key, int mode) : Event(
+			InputEvent(InputEventType::KEY, mode, key),
+				"KeyEvent"
+			) {};
+		constexpr static InputEvent GetLink(int mode, int key) {
+			return InputEvent(InputEventType::KEY, mode, key);
+		}
 	};
-	class AnyKeyEvent : public Event<InputInfo>
+	class AnyKeyEvent : public Event<InputEvent>
 	{
 	public:
 		int key;
-		AnyKeyEvent(int key, int mode, std::string name) : Event<InputInfo>(InputInfo(mode, TETRA_INPUT_KEY_MODE), name), key(key) {};
+		AnyKeyEvent(int key, int mode) : Event(
+			InputEvent(
+				InputEventType::KEY_ANY, mode),
+				"AnyKeyEvent"
+			), key(key) {}
+		constexpr static InputEvent GetLink(int mode) {
+			return InputEvent(InputEventType::KEY_ANY, mode);
+		}
 	};
-
-
-	class MouseEvent : public Event<InputInfo> {
+	class MouseEvent : public Event<InputEvent> {
 	public:
-		MouseEvent(int button, int mode, std::string name) : Event<InputInfo>(InputInfo(button, mode, TETRA_INPUT_MOUSE_BUTTON_MODE), name) {};
+		MouseEvent(int key, int mode) : Event(
+			InputEvent(
+				InputEventType::MB, mode, key),
+				"MouseEvent"
+			) {};
+		constexpr static InputEvent GetLink(int mode, int key) {
+			return InputEvent(InputEventType::MB, mode, key);
+		}
 	};
-	class AnyMouseEvent : public Event<InputInfo>
+	class AnyMouseEvent : public Event<InputEvent>
 	{
 	public:
 		int key;
-		AnyMouseEvent(int button, int mode, std::string name) : Event<InputInfo>(InputInfo(mode, TETRA_INPUT_MOUSE_BUTTON_MODE), name), key(button) {};
+		AnyMouseEvent(int key, int mode) : Event(
+			InputEvent(
+				InputEventType::MB_ANY, mode),
+				"AnyMouseEvent"
+			), key(key) {}
+		constexpr static InputEvent GetLink(int mode) {
+			return InputEvent(InputEventType::MB_ANY, mode);
+		}
 	};
 
 
-	class MouseMoveEvent : public Event<InputInfo> {
+	class MouseMoveEvent : public Event<InputEvent> {
 	public:
 		float deltaX, deltaY;
 		float currentX, currentY;
 
 		MouseMoveEvent(float deltaX, float deltaY, float currentX, float currentY, std::string name = "Mouse moved") :
-			Event<InputInfo>(InputInfo(TETRA_INPUT_MOUSE_MOVE_MODE), name),
+			Event(InputEvent(InputEventType::MOUSE_MOVE), name),
 		deltaX(deltaX), deltaY(deltaY), currentX(currentX), currentY(currentY) {};
+		constexpr static InputEvent GetLink() {
+			return InputEvent(InputEventType::MOUSE_MOVE);
+		}
 	};
 
 	class InputManager
 	{
-	
+		typedef std::array<std::pair<int, std::string_view>, GLFWManager::key_count> keyArray;
+		typedef std::array<std::pair<int, std::string_view>, GLFWManager::mb_count> mbArray;
 	private:
+		static const keyArray keyNames;
+		static const mbArray mouseNames;
+		void DispatchKeyEvent(int key, int mode);
+		void DispatchMouseEvent(int key, int mode);
+		void DispatchMouseMoveEvent();
 
-		static std::map<int, std::string> keyNames;
-		static std::map<int, std::string> mouseNames;
-		void DispatchKeyEvent(InputInfo info);
-		void DispatchMouseEvent(InputInfo info);
-		void DispatchMouseMoveEvent(InputInfo info);
+		EventDispatcher<InputEvent> gameDispatcher;
+		EventDispatcher<InputEvent> editorDispatcher;
 
 	public:
 
 		std::string pressedKeys = "";
 
 		bool anyPressed = false;
-		bool keys[TETRA_INPUT_KEY_COUNT];
-		bool mouseButtons[TETRA_INPUT_MOUSE_BUTTON_COUNT];
+		bool keys[GLFWManager::key_count];
+		bool mouseButtons[GLFWManager::mb_count];
 
 		float mousePosX, mousePosY;
 		float deltaMouseX, deltaMouseY;
 
-		EventDispatcher<InputInfo> keyDispatcher;
-
 		InputManager();
 		~InputManager();
-		static std::string GetKeyName(int key);
+
+		static constexpr std::string_view GetKeyName(int key);
+		static constexpr std::string_view GetMouseButtonName(int key);
 		static InputManager* GetMain();
 
 		void OnKeyDown(int key);
@@ -86,13 +119,16 @@ namespace TetraEngine
 
 		void OnMouseMove();
 
-		bool IsKeyDown(int key) { return keys[key]; }
-		bool IsMouseButtonDown(int button) { return mouseButtons[button]; }
+		bool IsKeyDown(int key) const { return keys[key]; }
+		bool IsMouseButtonDown(int button) const { return mouseButtons[button]; }
 
 		void Update();
 		void UpdateKeys();
 		void UpdateMouse();
 		void UpdateMouseMovement(float newX, float newY);
+
+		EventDispatcher<InputEvent>& GetGameDispatcher();
+		EventDispatcher<InputEvent>& GetEditorDispatcher();
 	};
 
 }

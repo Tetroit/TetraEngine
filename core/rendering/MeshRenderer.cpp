@@ -15,18 +15,18 @@ MeshRenderer* MeshRenderer::defaultRenderer;
 MeshRenderer* MeshRenderer::skyboxRenderer;
 
 MeshRenderer::MeshRenderer(std::shared_ptr<VertexData> vd, Shader* sh) : mesh(vd), shader(sh), camera(ViewProvider::GetCurrent()), material(Material::defaultMaterial) {
-    diffuseTexture = nullptr;
-    specularTexture = nullptr;
-    emissionTexture = nullptr;
+    textureDiffuse = nullptr;
+    textureSpecular = nullptr;
+    textureEmission = nullptr;
     textureFlags = 0;
 }
 
 void MeshRenderer::Render(glm::mat4 transform) {
 
     textureFlags =
-        (diffuseTexture != nullptr) +
-        ((specularTexture != nullptr) << 1) +
-        ((emissionTexture != nullptr) << 2) +
+        (textureDiffuse != nullptr) +
+        ((textureSpecular != nullptr) << 1) +
+        ((textureEmission != nullptr) << 2) +
         ((Skybox::current != nullptr) << 3);
 
     if (mesh == nullptr) {
@@ -53,20 +53,23 @@ void MeshRenderer::Render(glm::mat4 transform) {
     shader->SetMat4("view", view);
     shader->SetMat4("transform", transform);
 
-    if (diffuseTexture) 
+    if (textureDiffuse)
     {
         shader->SetInt("textureD", 0);
-        diffuseTexture->Bind(0);
+        shader->SetVec4("textureD_SO", scaleOffsetDiffuse);
+        textureDiffuse->Bind(0);
     }
-    if (specularTexture) 
+    if (textureSpecular)
     {
         shader->SetInt("textureS", 1);
-        specularTexture->Bind(1);
+        shader->SetVec4("textureS_SO", scaleOffsetSpecular);
+        textureSpecular->Bind(1);
     }
-    if (emissionTexture) 
+    if (textureEmission)
     {
         shader->SetInt("textureA", 2);
-        emissionTexture->Bind(2);
+        shader->SetVec4("textureA_SO", scaleOffsetEmission);
+        textureEmission->Bind(2);
     }
 
     if (Skybox::current != nullptr)
@@ -76,21 +79,21 @@ void MeshRenderer::Render(glm::mat4 transform) {
     }
     mesh->Draw();
 
-    if (emissionTexture) Texture2D::Unbind(2);
-    if (specularTexture) Texture2D::Unbind(1);
-    if (diffuseTexture) Texture2D::Unbind(0);
+    if (textureEmission) Texture2D::Unbind(2);
+    if (textureSpecular) Texture2D::Unbind(1);
+    if (textureDiffuse) Texture2D::Unbind(0);
 }
 
 void MeshRenderer::setTexture(Texture2D* tex, int texBit)
 {
-    if ((texBit & 1) != 0) diffuseTexture = tex;
-    if ((texBit & 2) != 0) specularTexture = tex;
-    if ((texBit & 4) != 0) emissionTexture = tex;
+    if ((texBit & 1) != 0) textureDiffuse = tex;
+    if ((texBit & 2) != 0) textureSpecular = tex;
+    if ((texBit & 4) != 0) textureEmission = tex;
 }
 void MeshRenderer::setTexture(const std::string& path)
 {
-    diffuseTexture = new Texture2D();
-    diffuseTexture->Load(path);
+    textureDiffuse = new Texture2D();
+    textureDiffuse->Load(path);
 }
 
 void MeshRenderer::InitialiseRenderer() {

@@ -33,9 +33,9 @@ namespace TetraEngine::UI{
             ImGui::PushID("RigidBody");
             if (ImGui::TreeNode("Textures")) {
 
-                DisplayTextureInfo(renderer->emissionTexture, "Emissive");
-                DisplayTextureInfo(renderer->diffuseTexture, "Diffuse");
-                DisplayTextureInfo(renderer->specularTexture, "Specular");
+                DisplayTextureInfo(renderer->textureEmission, "Emissive");
+                DisplayTextureInfo(renderer->textureDiffuse, "Diffuse");
+                DisplayTextureInfo(renderer->textureSpecular, "Specular");
 
                 ImGui::TreePop();
             }

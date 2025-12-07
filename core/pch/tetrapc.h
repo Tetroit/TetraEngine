@@ -33,6 +33,7 @@
 #define LOG(x) std::cout << "SYSTEM::" << x << '\n'
 #define LOG_ERR(x) std::cerr << "ERROR::" << x << '\n'
 #define LOG_FROM(x,y) std::cout << x << "::" << y << '\n'
+#define LOG_ERR_FROM(x,y) std::cerr << "ERROR::" << x << "::" << y << '\n'
 
 constexpr void log_assert(const bool expr, const std::string& success, const std::string& error) {
     if (expr) LOG(success);

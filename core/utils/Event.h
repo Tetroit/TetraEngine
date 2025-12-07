@@ -3,7 +3,6 @@
 #include <iostream>
 #include <functional>
 #include <string>
-#include <map>
 #include <vector>
 #include <algorithm>
 #include <memory>	
@@ -24,10 +23,12 @@ private:
 protected:
 	virtual bool Handled() const { return handled; };
 public:
+	virtual ~Event() = default;
+
 	/// <returns> Event name </returns>
 	std::string GetName() const { return name; };
 	/// <returns> Event type </returns>
-	inline T GetType() const { return type; }
+	T GetType() const { return type; }
 	/// <summary>
 	/// Casts statically event to a different event type, 
 	/// useful when you want to upbuild a custom event class 
@@ -36,11 +37,10 @@ public:
 	/// <typeparam name="EventType"> Other event type </typeparam>
 	/// <returns> cast event </returns>
 	template <typename EventType>
-	inline EventType ToType() const {
-		if (std::is_base_of<Event<T>, EventType>::value)
+	EventType ToType() const {
+		if (std::is_base_of<Event, EventType>::value)
 			return static_cast<const EventType&> (*this);
-		else
-			throw std::invalid_argument("wrong event type");
+		throw std::invalid_argument("wrong event type");
 	}
 	Event(T eventType, std::string eventName = "new event") : name(eventName), type(eventType) {};
 };
@@ -51,6 +51,8 @@ public:
 template <typename T>
 struct EventListenerTemplate
 {
+	virtual ~EventListenerTemplate() = default;
+
 	/// <summary>
 	/// Virtual constructor
 	/// </summary>
@@ -72,7 +74,7 @@ struct EventListenerTemplate
 	/// <typeparam name="ListenerType"> Other listener type </typeparam>
 	/// <returns></returns>
 	template <typename ListenerType>
-	inline ListenerType ToType() const {
+	ListenerType ToType() const {
 		return static_cast<const ListenerType&> (*this);
 	}
 	/// <returns> true if the listener is static, false if non-static </returns>
@@ -115,7 +117,7 @@ struct EventListener : public EventListenerTemplate<T>
 	/// Triggers the function
 	/// </summary>
 	/// <param name="ev"></param>
-	void operator()(const Event<T>& ev) {
+	void operator()(const Event<T>& ev) override {
 		function(ev);
 	};
 };
@@ -161,7 +163,7 @@ struct EventListenerNonStatic : public EventListenerTemplate<T>
 	/// Triggers the function
 	/// </summary>
 	/// <param name="ev"> Other listener </param>
-	void operator()(const Event<T>& ev) {
+	void operator()(const Event<T>& ev) override {
 		(obj.*function)(ev); 
 	};
 };
@@ -177,7 +179,7 @@ class EventDispatcher
 	/// <summary>
 	/// Contains all events and their listeners
 	/// </summary>
-	std::map<T, std::vector<std::unique_ptr<func>>> calls;
+	std::unordered_map<T, std::vector<std::unique_ptr<func>>> calls;
 
 public:
 	/// <summary>

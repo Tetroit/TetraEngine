@@ -17,7 +17,7 @@ using namespace TetraEngine;
 PhysicsTest::PhysicsTest() {
     TETRA_USE_MAIN_ECS
     TETRA_USE_MAIN_PHYSICS_INSTANCE
-    TETRA_USE_MAIN_INPUT
+    TETRA_USE_GAME_INPUT
 
     input->AddListener<PhysicsTest>(InputInfo(GLFW_PRESS, TETRA_INPUT_KEY_MODE), &PhysicsTest::ProcessInput, *this);
     myScene.GetPhysicsScene()->SetGravity(glm::vec3(0, -5.0f, 0));
