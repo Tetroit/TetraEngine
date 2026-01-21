@@ -32,5 +32,6 @@ namespace TetraEngine {
         uint AddBox(PxReal a, PxPhysics* physics = nullptr, PxMaterial* mat = nullptr);
 
         uint AddSphere(PxReal r, PxPhysics* physics = nullptr, PxMaterial* mat = nullptr);
+        // uint AddConvexMesh(const VertexData& data);
     };
 } // TetraEngine

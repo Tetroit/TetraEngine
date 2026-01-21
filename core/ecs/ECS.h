@@ -251,6 +251,8 @@ namespace TetraEngine::ECS {
         auto& st2 = *storage2;
         auto entList = st1.GetEntities();
         for (auto ent : entList ) {
+            if (ent == std::numeric_limits<uint>::max())
+                continue;
             auto& comp1 = st1.GetByEntityRef(ent);
             auto comp2 = st2.GetByEntity(ent);
             if (!comp2) continue;
@@ -278,6 +280,8 @@ namespace TetraEngine::ECS {
         auto& st3 = *storage3;
         auto entList = st1.GetEntities();
         for (auto ent : entList ) {
+            if (ent == std::numeric_limits<uint>::max())
+                continue;
             auto& comp1 = st1.GetByEntityRef(ent);
             auto comp2 = st2.GetByEntity(ent);
             if (!comp2) continue;
@@ -312,6 +316,8 @@ namespace TetraEngine::ECS {
         auto& st4 = *storage4;
         auto entList = st1.GetEntities();
         for (auto ent : entList ) {
+            if (ent == std::numeric_limits<uint>::max())
+                continue;
             auto& comp1 = st1.GetByEntityRef(ent);
             auto comp2 = st2.GetByEntity(ent);
             if (!comp2) continue;

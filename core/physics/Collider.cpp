@@ -26,7 +26,8 @@ namespace TetraEngine {
 
     void Collider::MakeTrigger(bool state) {
         auto* sh = GetShape();
-        sh->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, state);
+        sh->setFlag(PxShapeFlag::eSIMULATION_SHAPE, !state);
+        sh->setFlag(PxShapeFlag::eTRIGGER_SHAPE, state);
     }
 
     bool Collider::IsTrigger() const {
@@ -37,7 +38,10 @@ namespace TetraEngine {
         ResolveProperties(physics, mat);
         shapes.push_back(physics->createShape(PxBoxGeometry(a,b,c), *mat));
         shapeTypes.push_back(BOX);
-        return static_cast<uint>(shapes.size()) - 1;
+        uint id = static_cast<uint>(shapes.size()) - 1;
+        if (id == 0)
+            MakeTrigger(isTrigger);
+        return id;
     }
 
     uint Collider::AddBox(PxReal a, PxPhysics *physics, PxMaterial *mat) {
@@ -48,6 +52,13 @@ namespace TetraEngine {
         ResolveProperties(physics, mat);
         shapes.push_back(physics->createShape(PxSphereGeometry(r), *mat));
         shapeTypes.push_back(SPHERE);
-        return static_cast<uint>(shapes.size()) - 1;
+        uint id = static_cast<uint>(shapes.size()) - 1;
+        if (id == 0)
+            MakeTrigger(isTrigger);
+        return id;
     }
+
+    // uint Collider::AddConvexMesh(const VertexData &data) {
+    //
+    // }
 } // TetraEngine

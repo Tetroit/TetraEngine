@@ -122,6 +122,7 @@ void PhysicsDemo2::DrawGUI(ImVec2 origin, ImVec2 size) {
 
     ImGui::SetCursorPos(ImVec2(origin.x, origin.y));
     if (ImGui::Button("Test", ImVec2(size.x/2, size.y/2))) {
+        LOG("BOOP");
     }
 }
 

@@ -15,6 +15,9 @@ namespace TetraEngine {
 		Application();
 		virtual ~Application() = default;
 		virtual void Update();
+
+	    void LateUpdate();
+
 	    virtual void DrawGUI(ImVec2 origin, ImVec2 size);
 
 	    void ToggleCursor(bool state);

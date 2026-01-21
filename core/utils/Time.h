@@ -5,6 +5,7 @@ namespace TetraEngine
 	class Time
 	{
 	public:
+		static int frameN;
 		static float fps;
 		static float time;
 		static float prevTime;

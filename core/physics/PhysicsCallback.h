@@ -1,30 +1,42 @@
 #pragma once
 #include "PxPhysicsAPI.h"
+#include "../ecs/ECS.h"
 #include "../utils/Action.h"
+
+namespace TetraEngine {
+    class RigidBody;
+}
 
 using namespace physx;
 namespace TetraEngine {
 
+    struct CollisionPointInfo {
+        const glm::vec3 positions;
+        const glm::vec3 normal;
+        const float penetration;
+        const glm::vec3 impulse;
+    };
     struct CollisionInfo {
         PxU32 nContacts;
-        const PxContactPair* contacts;
+        std::vector<CollisionPointInfo> contacts;
 
         [[nodiscard]]
-        PxContactPairPoint* GetCollisionPoint(int id = 0) {
-            PxContactPairPoint* cp = new PxContactPairPoint[8];
-            int nPoints = contacts[0].extractContacts(cp, 8);
-            if (nPoints <= id)
-                return nullptr;
-            auto res = new PxContactPairPoint(cp[id]);
-            delete[] cp;
-            return res;
+        CollisionPointInfo GetCollisionPoint(int id = 0) const {
+            return contacts[id];
         }
+    };
+
+    struct TriggerInfo {
+        uint nContacts;
+        //add more info if necessary
     };
     class PhysicsCallback : public PxSimulationEventCallback {
         Action<const PxContactPairHeader &, const PxContactPair*, PxU32> onContactAction;
+        std::unordered_map<ECS::Handle<RigidBody>, std::unordered_map<ECS::Handle<RigidBody>, CollisionPointInfo, ECS::HandleHasher<RigidBody>>,ECS::HandleHasher<RigidBody>> contactPairs;
     public:
         void onContact(const PxContactPairHeader &pairHeader, const PxContactPair *pairs, PxU32 nbPairs) override;
-        void onTrigger(PxTriggerPair* pairs, PxU32 count) override {}
+        void onTrigger(PxTriggerPair* pairs, PxU32 count) override;
+
         void onConstraintBreak(PxConstraintInfo*, PxU32) override {}
         void onWake(PxActor**, PxU32) override {}
         void onSleep(PxActor**, PxU32) override {}

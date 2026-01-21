@@ -171,8 +171,8 @@ void ImGuiManager::ShowViewport(Viewport* vp)
 	    ImVec2 contentPos = ImGui::GetWindowContentRegionMin();
 		vp->SetSize(contentSize.x, contentSize.y);
 		DrawTexture2D(*vp->GetTexture(), contentSize.x, contentSize.y);
-		if (!allowSceneInteraction)
-			allowSceneInteraction = ImGui::IsItemHovered();
+		// if (!viewportHovered)
+		viewportHovered = ImGui::IsItemHovered();
         if (isMaximized) {
             Core::application->DrawGUI(contentPos, contentSize);
         }
@@ -204,14 +204,12 @@ void ImGuiManager::ToggleMouseEvents(bool state) {
     }
 }
 
-void ImGuiManager::ToggleMaximize() {
-    isMaximized = !isMaximized;
-}
-
 bool ImGuiManager::IsMouseEventsEnabled() {
     return isMouseEventsEnabled;
 }
-
+void ImGuiManager::SetMaximize(bool maximized) {
+	isMaximized = maximized;
+}
 bool ImGuiManager::IsMaximized() {
     return isMaximized;
 }
@@ -237,36 +235,12 @@ void ImGuiManager::RenderApp()
 		ImGui::ShowStyleEditor();
 		ImGui::End();
 	}
-
-	//ImGui::ShowDemoWindow(); // Show demo window! :)
+	ImGui::ShowDemoWindow(); // Show demo window! :)
 
  //    GLFWManager::get()->ToggleKeyboardEvents(true);
 	// GLFWManager::get()->ToggleMouseClickEvents(true);
 	// GLFWManager::get()->ToggleMouseMoveEvents(true);
-	if ((io->WantCaptureKeyboard || io->WantTextInput)
-		&& !allowSceneInteraction) {
-		if (GLFWManager::get()->sendKeyboardEvents)
-			GLFWManager::get()->ToggleKeyboardEvents(false);
-	}
-	else {
-		if (!GLFWManager::get()->sendKeyboardEvents)
-			GLFWManager::get()->ToggleKeyboardEvents(true);
-	}
-	if ((io->WantCaptureMouse)
-		&& !allowSceneInteraction)
-	{
-		if (GLFWManager::get()->sendMouseClickEvents)
-			GLFWManager::get()->ToggleMouseClickEvents(false);
-		if (GLFWManager::get()->sendMouseMoveEvents)
-			GLFWManager::get()->ToggleMouseMoveEvents(false);
-	}
-	else
-	{
-		if (!GLFWManager::get()->sendMouseClickEvents)
-			GLFWManager::get()->ToggleMouseClickEvents(true);
-		if (!GLFWManager::get()->sendMouseMoveEvents)
-			GLFWManager::get()->ToggleMouseMoveEvents(true);
-	}
+
 
 }
 

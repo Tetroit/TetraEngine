@@ -4,6 +4,7 @@
 
 using namespace TetraEngine;
 
+int Time::frameN = 0;
 float Time::time = 0;
 float Time::prevTime = 0;
 float Time::deltaTime;
@@ -11,6 +12,7 @@ float Time::sDeltaTime = 0;
 float Time::fps = 0;
 void Time::Update()
 {
+	frameN++;
 	prevTime = time;
 	time = glfwGetTime();
 	deltaTime = time - prevTime;

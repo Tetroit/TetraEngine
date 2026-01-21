@@ -40,7 +40,7 @@ namespace TetraEngine {
         public:
             template<typename ...Args>
             Handle<T> Create(entityID entity, Args&&... args);
-            Handle<T> Add(entityID entity, T comp);
+            Handle<T> Add(entityID entity, T&& comp);
 
             void SetEntityResolutionMethod(std::function<Entity(uint)>&& fn) override;
 
@@ -98,13 +98,36 @@ namespace TetraEngine {
         }
 
         template<class T>
-        template<typename ... Args>
-        Handle<T> Storage<T>::Create(entityID entity, Args &&...args) {
-            return Add(entity, T(std::forward<Args>(args)...));
+        template<typename... Args>
+        Handle<T> Storage<T>::Create(entityID entity, Args&&... args)
+        {
+            uint slot;
+
+            if (freeSlots.empty()) {
+                slot = static_cast<uint>(data.size());
+
+                data.emplace_back(std::forward<Args>(args)...);
+                gen.push_back(0);
+                occupied.push_back(true);
+                entities.push_back(entity);
+            }
+            else {
+                slot = freeSlots.front();
+                freeSlots.pop();
+
+                occupied[slot] = true;
+                entities[slot] = entity;
+
+                data[slot].~T();
+                new (&data[slot]) T(std::forward<Args>(args)...);
+            }
+
+            entityToComponent[entity] = slot;
+            return Handle<T>(slot, gen[slot]);
         }
 
         template<class T>
-        Handle<T> Storage<T>::Add(entityID entity, T comp) {
+        Handle<T> Storage<T>::Add(entityID entity, T&& comp) {
 
             uint slot;
             if (freeSlots.empty()) {

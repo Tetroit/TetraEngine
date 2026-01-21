@@ -10,6 +10,10 @@ namespace TetraEngine {
     class Transform;
     class Collider;
     struct CollisionInfo;
+    struct TriggerInfo;
+
+    typedef Action<ECS::Entity, ECS::Entity, TriggerInfo> TriggerAction;
+    typedef Action<ECS::Entity, ECS::Entity, CollisionInfo> CollisionAction;
 
     struct DynamicRigidBodyData {
         PxVec3 linearVelocity = PxVec3(0.0f);
@@ -26,6 +30,7 @@ namespace TetraEngine {
 
         ECS::Handle<Transform> transformComp;
         ECS::Handle<GameObjectInfo> infoComp;
+        ECS::Entity entity;
         PxRigidActor* rigidBody = nullptr;
         PxTransform previousTransform;
         PxTransform currentTransform;
@@ -44,6 +49,7 @@ namespace TetraEngine {
         static void ComponentCreate(RigidBody& rb, ECS::Entity entity, ECS::Handle<RigidBody> handle);
         static ECS::Handle<RigidBody> GetHandleFromPxActor(const PxRigidActor& actor);
         explicit RigidBody(bool isStatic = false, bool isPlane = false);
+
         ~RigidBody();
 
         void ReadTransform();
@@ -53,7 +59,10 @@ namespace TetraEngine {
         void SetCollider(Collider* collider);
         Collider* GetCollider();
         PxScene const* GetScene() const;
+        PxActor const* GetActor() const;
         void SetScene(PxScene* scene);
+        void RemoveFromScene() const;
+        void DestroyImmediate();
 
         float GetMass() const;
         void SetMass(float mass);
@@ -81,7 +90,11 @@ namespace TetraEngine {
 
         void CollisionEntered(RigidBody& other, CollisionInfo info);
         void CollisionLeft(RigidBody& other, CollisionInfo info);
-        Action<RigidBody&, CollisionInfo> OnCollisionEnter;
-        Action<RigidBody&, CollisionInfo> OnCollisionLeave;
+        void TriggerEntered(RigidBody& other, TriggerInfo info);
+        void TriggerLeft(RigidBody& other, TriggerInfo info);
+        CollisionAction OnCollisionEnter;
+        CollisionAction OnCollisionLeave;
+        TriggerAction OnTriggerEnter;
+        TriggerAction OnTriggerLeave;
     };
 } // TetraEngine

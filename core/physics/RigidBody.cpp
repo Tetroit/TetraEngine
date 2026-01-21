@@ -45,6 +45,7 @@ namespace TetraEngine {
         TETRA_USE_MAIN_ECS
         TETRA_USE_MAIN_PHYSICS
         TETRA_USE_MAIN_PHYSICS_INSTANCE
+        rb.entity = entity;
         rb.transformComp = ecs.GetHandle<Transform>(entity);
         rb.infoComp = ecs.GetHandle<GameObjectInfo>(entity);
         auto t = ecs.GetComponent<Transform>(rb.transformComp);
@@ -78,6 +79,13 @@ namespace TetraEngine {
     }
 
     RigidBody::~RigidBody() {
+        // if (rigidBody == nullptr)
+        //     return;
+        // auto scene = rigidBody->getScene();
+        // if (scene != nullptr) {
+        //     scene->removeActor(*rigidBody);
+        // }
+        // rigidBody->release();
     }
 
     PxTransform RigidBody::GetTransform() {
@@ -118,8 +126,11 @@ namespace TetraEngine {
     }
 
     void RigidBody::SetPosition(glm::vec3 pos) {
+        TETRA_USE_MAIN_ECS
         currentTransform.p = PhysXUtils::Vec3ToPX(pos);
         rigidBody->setGlobalPose(currentTransform);
+        auto tr = ecs.GetComponent<Transform>(entity);
+        tr->SetPosition(pos);
     }
 
     glm::quat RigidBody::GetRotation() const {
@@ -127,8 +138,12 @@ namespace TetraEngine {
     }
 
     void RigidBody::SetRotation(glm::quat rot) {
+
+        TETRA_USE_MAIN_ECS
         currentTransform.q = PhysXUtils::QuatToPX(rot);
         rigidBody->setGlobalPose(currentTransform);
+        auto tr = ecs.GetComponent<Transform>(entity);
+        tr->SetRotation(rot);
     }
 
     glm::vec3 RigidBody::GetLinearVelocity() const {
@@ -216,7 +231,7 @@ namespace TetraEngine {
     void RigidBody::AddLinear(glm::vec3 linearVelocity, PxForceMode::Enum mode) {
         if (!isStatic) {
             auto* rigidDynamic = static_cast<PxRigidDynamic*>(rigidBody);
-            rigidDynamic->addForce(PhysXUtils::Vec3ToPX(linearVelocity), PxForceMode::eIMPULSE);
+            rigidDynamic->addForce(PhysXUtils::Vec3ToPX(linearVelocity), mode);
         }
         else {
             LOG_ERR("Static RigidBody " << Core::GetMainECS().GetComponent(infoComp)->name << " doesn't support force");
@@ -243,15 +258,31 @@ namespace TetraEngine {
         TETRA_USE_MAIN_ECS
         auto* infoThis = ecs.GetComponent(infoComp);
         auto* infoOther = ecs.GetComponent(other.infoComp);
-        //LOG(infoThis->name << " entered collision with " << infoOther->name);
-        OnCollisionEnter.Call(other, info);
+        // LOG(infoThis->name << " entered collision with " << infoOther->name);
+        OnCollisionEnter.Call(entity, other.entity, info);
     }
     void RigidBody::CollisionLeft(RigidBody &other, CollisionInfo info) {
         TETRA_USE_MAIN_ECS
         auto* infoThis = ecs.GetComponent(infoComp);
         auto* infoOther = ecs.GetComponent(other.infoComp);
-        //LOG(infoThis->name << " left collision with " << infoOther->name);
-        OnCollisionEnter.Call(other, info);
+        // LOG(infoThis->name << " left collision with " << infoOther->name);
+        OnCollisionEnter.Call(entity, other.entity, info);
+    }
+
+    void RigidBody::TriggerEntered(RigidBody &other, TriggerInfo info) {
+        TETRA_USE_MAIN_ECS
+        auto* infoThis = ecs.GetComponent(infoComp);
+        auto* infoOther = ecs.GetComponent(other.infoComp);
+        LOG(infoThis->name << " entered trigger with " << infoOther->name << std::flush);
+        OnTriggerEnter.Call(entity, other.entity, info);
+    }
+
+    void RigidBody::TriggerLeft(RigidBody &other, TriggerInfo info) {
+        TETRA_USE_MAIN_ECS
+        auto* infoThis = ecs.GetComponent(infoComp);
+        auto* infoOther = ecs.GetComponent(other.infoComp);
+        LOG(infoThis->name << " left trigger with " << infoOther->name << std::flush);
+        OnTriggerLeave.Call(entity, other.entity, info);
     }
 
     Collider * RigidBody::GetCollider() {
@@ -262,8 +293,25 @@ namespace TetraEngine {
         return rigidBody->getScene();
     }
 
+    PxActor const * RigidBody::GetActor() const {
+        return rigidBody;
+    }
+
     void RigidBody::SetScene(PxScene *scene) {
         scene->addActor(*rigidBody);
+    }
+
+    void RigidBody::RemoveFromScene() const {
+        Core::destroyManager->Push(rigidBody->getScene(), rigidBody);
+    }
+
+    void RigidBody::DestroyImmediate() {
+        auto scene = rigidBody->getScene();
+        if (scene != nullptr) {
+            scene->removeActor(*rigidBody);
+        }
+        rigidBody->release();
+        rigidBody = nullptr;
     }
 
     float RigidBody::GetMass() const {

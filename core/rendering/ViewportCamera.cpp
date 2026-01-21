@@ -26,7 +26,8 @@ ViewportCamera(glm::vec3(posX, posY, posZ), glm::vec3(upX, upY, upZ), yaw, pitch
 
 void ViewportCamera::ProcessMovement(const Event<InputEvent>& ev)
 {
-    if (InputManager::GetMain()->IsMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
+    if (InputManager::GetMain()->IsMouseButtonDownEditor(GLFW_MOUSE_BUTTON_RIGHT) &&
+        Core::IsFocusedOnViewport() ) {
 
         auto anyKey = ev.ToType<AnyKeyEvent>();
         if (anyKey.key == GLFW_KEY_W)
@@ -45,13 +46,13 @@ void ViewportCamera::ProcessMovement(const Event<InputEvent>& ev)
 }
 
 void ViewportCamera::Enable() {
-    TETRA_USE_GAME_INPUT
+    TETRA_USE_EDITOR_INPUT
     input->AddListener<ViewportCamera>(AnyKeyEvent::GetLink(GLFW_REPEAT), &ViewportCamera::ProcessMovement, (*this));
     input->AddListener<ViewportCamera>(MouseMoveEvent::GetLink(), &ViewportCamera::ProcessMouseMovement, (*this));
 }
 
 void ViewportCamera::Disable() {
-    TETRA_USE_GAME_INPUT
+    TETRA_USE_EDITOR_INPUT
     input->RemoveListener<ViewportCamera>(AnyKeyEvent::GetLink(GLFW_REPEAT), &ViewportCamera::ProcessMovement, (*this));
     input->RemoveListener<ViewportCamera>(MouseMoveEvent::GetLink(), &ViewportCamera::ProcessMouseMovement, (*this));
 }
@@ -87,7 +88,8 @@ void ViewportCamera::ProcessMovement(Camera_Movement direction)
 
 void ViewportCamera::ProcessMouseMovement(const Event<InputEvent>& ev)
 {
-	if (InputManager::GetMain()->IsMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
+	if (InputManager::GetMain()->IsMouseButtonDownEditor(GLFW_MOUSE_BUTTON_RIGHT) &&
+	    Core::IsFocusedOnViewport() )
 	{
 		auto mouse = ev.ToType<MouseMoveEvent>();
         mouse.deltaX *= MouseSensitivity;

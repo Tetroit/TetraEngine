@@ -11,7 +11,7 @@ using namespace TetraEngine;
 namespace GameDemo {
     class CameraConstraint : public IUpdatable {
         glm::vec3 viewDir = normalize(glm::vec3(0, -1, 1));
-        float dist = 5.0f;
+        float dist = 15.0f;
         ECS::Handle<Transform> camTransform;
         ECS::Handle<Transform> targetTransform;
     public:

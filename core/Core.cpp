@@ -12,6 +12,7 @@
 #include "rendering/Scene.h"
 #include "FreeType.h"
 #include "DestroyManager.h"
+#include "Editor.h"
 #include "assimp/Logger.hpp"
 #include "physics/RigidBody.h"
 #include "rendering/Camera.h"
@@ -19,6 +20,7 @@
 #include "rendering/LightRenderer.h"
 #include "rendering/VertexData.h"
 #include "rendering/ViewportCamera.h"
+#include "rendering/Viewport.h"
 #include "utils/OBJParser.h"
 
 //#ifdef NDEBUG
@@ -41,6 +43,7 @@ InputManager* Core::inputManager = nullptr;
 Viewport* Core::mainViewport = nullptr;
 PhysXInstance* Core::physxInstance = nullptr;
 DestroyManager* Core::destroyManager = nullptr;
+Editor* Core::editor = nullptr;
 
 ECS::ECS & Core::GetMainECS() {
 	static ECS::ECS mainEcs;
@@ -57,6 +60,18 @@ PhysXInstance * Core::GetPhysicsInstance() {
 
 PhysicsScene* Core::GetPhysicsScene() {
 	return physxInstance->GetActiveScene();
+}
+
+InputManager* Core::GetInputManager() {
+	return inputManager;
+}
+
+Editor::Mode Core::GetEditorMode() {
+	return editor->GetMode();
+}
+
+bool Core::IsFocusedOnViewport() {
+	return editor->IsFocused();
 }
 
 EventDispatcher<InputEvent> * Core::GetGameDispatcher() {
@@ -78,69 +93,35 @@ void Core::processConsole() {
 
 void Core::processInput(GLFWwindow* window)
 {
-	if (glfwManager->WasPressedThisFrameKey(GLFW_KEY_F11)) {
-		glfwManager->SetScreenMode(!glfwManager->IsFullscreen());
-	}
     if (glfwManager->WasPressedThisFrameKey(GLFW_KEY_M)) {
     	if (!imguiManager->IsMaximized() && Scene::currentScene->gameCamera == nullptr) {
     		LOG_ERR_FROM("Core::processInput()", "No game camera");
     	}
     	else {
-    		imguiManager->ToggleMaximize();
-
-    		bool enableCursor = !imguiManager->IsMaximized() || application->IsCursorEnabled();
-    		glfwManager->ToggleCursor(enableCursor);
-    		imguiManager->ToggleMouseEvents(enableCursor);
-
-    		if (imguiManager->IsMaximized()) {
-    			Scene::currentScene->SwitchToGameView();
-    		}
-    		else {
-    			Scene::currentScene->SwitchToEditorView();
+    		switch (GetEditorMode()) {
+    			case Editor::PLAY:
+    				editor->SwitchMode(Editor::EDIT);
+    				break;
+    			case Editor::EDIT:
+    				editor->SwitchMode(Editor::PLAY);
+    				break;
     		}
     	}
     }
-    if (imguiManager->IsMaximized()) {
-        inputManager->Update();
-    }
-    else {
-        if (glfwManager->WasPressedThisFrameKey(GLFW_KEY_ESCAPE)) {
-            glfwSetWindowShouldClose(window, true);
-        }
-    }
-	if (imguiManager->allowSceneInteraction) {
-	    if (inputManager->IsMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
-	        glfwManager->ToggleCursor(false);
-	    else
-	    {
-	        imguiManager->allowSceneInteraction = false;
-	        glfwManager->ToggleCursor(true);
-	    }
-	    inputManager->Update();
-	}
-// #if TETRA_DEBUG_UI
-//     if (imguiManager->allowSceneInteraction) {
-//
-//         if (inputManager->IsMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
-//             glfwManager->ToggleCursor(false);
-//         else
-//         {
-//             imguiManager->allowSceneInteraction = false;
-//             glfwManager->ToggleCursor(true);
-//         }
-//         inputManager->Update();
-//     }
-// #else
-//
-//     inputManager->Update();
-//
-// #endif
+	inputManager->Update();
 }
+
+void Core::close() {
+    glfwSetWindowShouldClose(glfwManager->window, true);
+}
+
 int Core::Initialize()
 {
 	std::srand(time(nullptr));
 
 	inputManager = new InputManager();
+	inputManager->GetGameDispatcher().Disable();
+
     destroyManager = new DestroyManager();
 
 	glfwManager = new GLFWManager(1280, 720);
@@ -174,6 +155,8 @@ int Core::Initialize()
 	//imgui
 	imguiManager = new ImGuiManager();
 	mainViewport = new Viewport(glfwManager->width, glfwManager->height,  nullptr);
+
+	editor = new Editor(inputManager,imguiManager,glfwManager);
 	//presets
 	InitializePresets();
 	BindEvents();
@@ -189,7 +172,6 @@ void Core::InitializePresets()
 	VertexData::InitialisePrefabs();
 	std::cout << "models initialized\n";
 	MeshRenderer::InitialiseRenderer();
-	//LightRenderer::InitialiseRenderer();
 	std::cout << "renderers initialized\n";
 	Material::Initialize();
 	std::cout << "materials initialized\n";
@@ -233,6 +215,7 @@ void Core::Update() {
 
 #if TETRA_DEBUG_UI
 	imguiManager->RenderApp();
+	editor->Update();
 	mainViewport->Bind();
 #endif
 
@@ -265,12 +248,14 @@ void Core::AfterUpdate()
 {
 	glfwSwapBuffers(glfwManager->window);
 
-    destroyManager->deleteAll();
+	application->LateUpdate();
+    destroyManager->Update();
     glfwManager->Update();
 }
 void Core::CleanUp() {
 	delete mainViewport;
 	delete application;
+	delete editor;
 	delete imguiManager;
 	delete glfwManager;
 	delete inputManager;

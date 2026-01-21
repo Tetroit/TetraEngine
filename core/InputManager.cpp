@@ -213,6 +213,11 @@ void InputManager::OnMouseMove()
 	DispatchMouseMoveEvent();
 }
 
+bool InputManager::IsKeyDown(int key) const { return gameDispatcher.isEnabled() && keys[key]; }
+bool InputManager::IsMouseButtonDown(int button) const { return gameDispatcher.isEnabled() && mouseButtons[button]; }
+bool InputManager::IsKeyDownEditor(int key) const { return editorDispatcher.isEnabled() && keys[key]; }
+bool InputManager::IsMouseButtonDownEditor(int button) const { return editorDispatcher.isEnabled() && mouseButtons[button]; }
+
 
 void InputManager::Update() {
 	UpdateKeys();
@@ -274,17 +279,23 @@ void InputManager::DispatchKeyEvent(int key, int mode)
 
 	gameDispatcher.Invoke(KeyEvent(key, mode));
 	gameDispatcher.Invoke(AnyKeyEvent(key, mode));
+
+	editorDispatcher.Invoke(KeyEvent(key, mode));
+	editorDispatcher.Invoke(AnyKeyEvent(key, mode));
 }
 
 void InputManager::DispatchMouseEvent(int key, int mode)
 {
 	gameDispatcher.Invoke(MouseEvent(key, mode));
 	gameDispatcher.Invoke(AnyMouseEvent(key, mode));
+	editorDispatcher.Invoke(MouseEvent(key, mode));
+	editorDispatcher.Invoke(AnyMouseEvent(key, mode));
 }
 void InputManager::DispatchMouseMoveEvent()
 {
 	std::string name = "Mouse moved";
 	gameDispatcher.Invoke(MouseMoveEvent(deltaMouseX, deltaMouseY, mousePosX, mousePosY, name));
+	editorDispatcher.Invoke(MouseMoveEvent(deltaMouseX, deltaMouseY, mousePosX, mousePosY, name));
 
 	//std::cout << name << '\n';
 	//std::cout << deltaMouseX << " " << deltaMouseY << " " << mousePosX << " " << mousePosY << '\n';

@@ -45,6 +45,7 @@ namespace TetraEngine {
 
         [[nodiscard]]
         Transform* GetParent() const;
+        void ClearParent();
         [[nodiscard]]
         ECS::Handle<Transform> GetParentHandle() const;
 

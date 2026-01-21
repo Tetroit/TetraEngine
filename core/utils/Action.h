@@ -12,6 +12,9 @@ namespace TetraEngine {
 
         using Function = std::function<void(Args...)>;
         std::unordered_map<std::string, Function> callbacks;
+        std::vector<std::pair<std::string, Function>> toAdd;
+        std::vector<std::string> toRemove;
+        bool locked = false;
 
     public:
         void AddCallback(Function func, std::string name);
@@ -22,12 +25,22 @@ namespace TetraEngine {
 
     template<typename ... Args>
     void Action<Args...>::AddCallback(Function func, std::string name) {
-        callbacks[name] = func;
+        if (locked) {
+            toAdd.emplace_back(name, func);
+        }
+        else {
+            callbacks[name] = func;
+        }
     }
 
     template<typename ... Args>
     void Action<Args...>::RemoveCallback(std::string name) {
-        callbacks.erase(name);
+        if (locked) {
+            toRemove.emplace_back(name);
+        }
+        else {
+            callbacks.erase(name);
+        }
     }
 
     template<typename ... Args>
@@ -35,10 +48,20 @@ namespace TetraEngine {
         if (IsEmpty()) {
             return;
         }
+        locked = true;
         for (auto& [name, func] : callbacks){
             std::cout << "Invoked " << name << std::endl;
             func(args...);
         }
+        for (auto& name : toRemove) {
+            callbacks.erase(name);
+        }
+        for (auto& [name, func] : toAdd) {
+            callbacks.emplace(name, func);
+        }
+        locked = false;
+        toAdd.clear();
+        toRemove.clear();
     }
 
     template<typename ... Args>

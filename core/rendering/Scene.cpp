@@ -9,6 +9,7 @@
 #include "Shader.h"
 #include "../Transform.h"
 #include "MeshRenderer.h"
+#include "Viewport.h"
 #include "../physics/RigidBody.h"
 #include "../physics/PhysicsScene.h"
 #include "../utils/Time.h"
@@ -134,7 +135,6 @@ void Scene::RemoveObject(const GameObject& go) {
 
 	auto info = go.GetInfoHandle();
 	auto transform = go.GetTransformHandle();
-
 	RemoveObject(go.GetEntity(), info, transform);
 }
 

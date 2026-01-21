@@ -180,6 +180,7 @@ class EventDispatcher
 	/// Contains all events and their listeners
 	/// </summary>
 	std::unordered_map<T, std::vector<std::unique_ptr<func>>> calls;
+	bool enabled = true;
 
 public:
 	/// <summary>
@@ -300,6 +301,8 @@ public:
 	/// </param>
 	void Invoke(const Event<T>& event)
 	{
+		if (!enabled)
+			return;
 		auto qualifier = event.GetType();
 		auto iterator = calls.find(qualifier);
 		if (iterator == calls.end())
@@ -312,4 +315,14 @@ public:
 			(*listener)(event);
 		}
 	}
+
+	void Enable() {
+		enabled = true;
+	}
+	void Disable() {
+		enabled = false;
+	}
+	bool isEnabled() const {
+		return enabled;
+	};
 };

@@ -22,13 +22,10 @@ namespace TetraEngine {
 
     class GameObject {
 
-    public:
-
-    private:
-
         ECS::Entity entity;
         ECS::Handle<Transform> transform;
         ECS::Handle<GameObjectInfo> info;
+        Action<GameObject*> onDestroy;
 
     public:
 
@@ -38,8 +35,12 @@ namespace TetraEngine {
 
         template<class T>
         T* GetComponent() const;
+        template<class T>
+        ECS::Handle<T> GetComponentHandle() const;
         template<class T, typename... Args>
         ECS::Handle<T> AddComponent(Args&&... args);
+
+        Action<GameObject*>* GetDestroyAction();
 
         Transform* GetTransform() const;
         ECS::Handle<Transform> GetTransformHandle() const;
@@ -76,6 +77,11 @@ namespace TetraEngine
     template<class T>
     T* GameObject::GetComponent() const {
         return Core::GetMainECS().GetComponent<T>(entity);
+    }
+
+    template<class T>
+    ECS::Handle<T> GameObject::GetComponentHandle() const {
+        return Core::GetMainECS().GetHandle<T>(entity);
     }
 
     template<class T, typename... Args>

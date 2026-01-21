@@ -119,8 +119,10 @@ namespace TetraEngine
 
 		void OnMouseMove();
 
-		bool IsKeyDown(int key) const { return keys[key]; }
-		bool IsMouseButtonDown(int button) const { return mouseButtons[button]; }
+		bool IsKeyDown(int key) const;
+		bool IsMouseButtonDown(int button) const;
+		bool IsKeyDownEditor(int key) const;
+		bool IsMouseButtonDownEditor(int button) const;
 
 		void Update();
 		void UpdateKeys();

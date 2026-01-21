@@ -22,7 +22,7 @@ namespace TetraEngine {
 		bool showHierarchy = true;
 		bool showComponentDisplay = true;
 		bool showStyles = false;
-		bool allowSceneInteraction = false;
+		bool viewportHovered = false;
 
 		std::unique_ptr<UI::Hierarchy> hierarchy;
 		std::unique_ptr<UI::Inspector> componentDisplay;
@@ -40,8 +40,8 @@ namespace TetraEngine {
 		void SetInspectors();
 
 	    void ToggleMouseEvents(bool state);
-	    void ToggleMaximize();
 	    bool IsMouseEventsEnabled();
+	    void SetMaximize(bool maximised);
 	    bool IsMaximized();
 	    void EditorInputEvents(const Event<InputEvent>& ev);
 

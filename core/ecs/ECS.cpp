@@ -39,17 +39,17 @@ namespace TetraEngine::ECS {
         }
         return true;
     }
-    void ECS::RemoveEntity(Entity &entity) {
+    void ECS::RemoveEntity(Entity& entity) {
         if (!ValidateEntity(entity)) {
             return;
+        }
+        for (auto &storage: storages | std::views::values) {
+            storage->TryRemoveFromEntity(entity.ID);
         }
         entityGenerations.at(entity.ID)++;
         freeIDs.push_back(entity.ID);
         entity.ID = INVALID_ENTITY;
 
-        for (auto &storage: storages | std::views::values) {
-            storage->TryRemoveFromEntity(entity.ID);
-        }
     }
 
     bool ECS::TryRemoveEntity(Entity &entity) {

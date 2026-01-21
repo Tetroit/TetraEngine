@@ -22,6 +22,12 @@ namespace TetraEngine {
         }
     }
 
+    void UpdateManager::LateUpdateAll(float dt) const {
+        for (auto& updatable : toUpdate) {
+            updatable->LateUpdate(dt);
+        }
+    }
+
     void UpdateManager::Clear() {
         toUpdate.clear();
     }

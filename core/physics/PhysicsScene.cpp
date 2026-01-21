@@ -38,8 +38,9 @@ namespace TetraEngine {
     }
 
     void PhysicsScene::RemoveObject(const RigidBody &rb) {
-        scene->removeActor(*rb.rigidBody);
+        rb.RemoveFromScene();
     }
+
     void PhysicsScene::SetGravity(glm::vec3 g) {
         scene->setGravity(PhysXUtils::Vec3ToPX(g));
     }

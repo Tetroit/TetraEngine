@@ -12,6 +12,9 @@ Application::Application() {
 void Application::Update() {
     updateManager->UpdateAll(Time::deltaTime);
 }
+void Application::LateUpdate() {
+    updateManager->LateUpdateAll(Time::deltaTime);
+}
 
 void Application::DrawGUI(ImVec2 origin, ImVec2 size) {
 

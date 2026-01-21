@@ -10,6 +10,7 @@ namespace TetraEngine {
     public:
         virtual ~IUpdatable() = default;
         virtual void Update(float dt) = 0;
+        virtual void LateUpdate(float dt) {}
     };
     class UpdateManager {
     std::vector<IUpdatable*> toUpdate;
@@ -17,6 +18,7 @@ namespace TetraEngine {
         void AddUpdatable(IUpdatable* updatable);
         void RemoveUpdatable(IUpdatable* updatable);
         void UpdateAll(float dt) const;
+        void LateUpdateAll(float dt) const;
         void Clear();
     };
 } // TetraEngine

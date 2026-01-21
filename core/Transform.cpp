@@ -108,6 +108,17 @@ void TetraEngine::Transform::SetParent(ECS::Handle<Transform> transform, ECS::Ha
 TetraEngine::Transform * TetraEngine::Transform::GetParent() const {
     return Core::GetMainECS().GetComponent(parent);
 }
+
+void TetraEngine::Transform::ClearParent() {
+    if (auto parentPtr = GetParent(); parentPtr != nullptr) {
+        auto parentLoc = std::ranges::find(parentPtr->children, self);
+        if (parentLoc != parentPtr->children.end()) {
+            parentPtr->children.erase(parentLoc);
+        }
+    }
+    parent = ECS::Handle<Transform>::CreateInvalid();
+}
+
 TetraEngine::ECS::Handle<TetraEngine::Transform> TetraEngine::Transform::GetParentHandle() const {
     return parent;
 }
@@ -202,7 +213,8 @@ void TetraEngine::Transform::GlobalTranslate(glm::vec3 pos) {
 void TetraEngine::Transform::GlobalRotate(glm::quat rot)
 {
     if (parent.Valid()) {
-        rotation *= glm::inverse(GetParent()->GetRotation()) * rot;
+        glm::quat parentRot = GetParent()->GetRotation();
+        rotation = glm::inverse(parentRot) * rot * parentRot * rotation;
     }
     else {
         rotation *= rot;

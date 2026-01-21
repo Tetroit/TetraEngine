@@ -27,6 +27,10 @@ namespace TetraEngine {
         Core::GetMainECS().RemoveEntity(entity);
     }
 
+    Action<GameObject*>* GameObject::GetDestroyAction() {
+        return &onDestroy;
+    }
+
     Transform* GameObject::GetTransform() const {
         return Core::GetMainECS().GetComponent<Transform>(transform);
     }
@@ -68,11 +72,8 @@ namespace TetraEngine {
     }
 
     void GameObject::Destroy() {
-        auto* scene = GetInfo()->scene;
-        if (scene != nullptr) {
-            scene->RemoveObject(*this);
-        }
         Core::destroyManager->Push(this);
+        onDestroy.Call(this);
     }
 
     template<>

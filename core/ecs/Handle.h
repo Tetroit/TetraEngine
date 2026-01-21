@@ -22,7 +22,15 @@ namespace TetraEngine {
             void Invalidate();
             bool operator==(const Handle& other) const;
         };
-
+        template<class T>
+        struct HandleHasher
+        {
+            size_t operator()(const Handle<T>& h) const noexcept
+            {
+                return (static_cast<size_t>(h.slot) << 32) |
+                       static_cast<size_t>(h.compGeneration);
+            }
+        };
         struct TypeErasedHandle {
             uint type;
             uint slot = std::numeric_limits<uint>::max();

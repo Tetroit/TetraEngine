@@ -5,10 +5,10 @@
 #include "Application.h"
 #include "ConsoleManager.h"
 #include "DestroyManager.h"
+#include "Editor.h"
 #include "InputManager.h"
 #include "UI/ImGuiManager.h"
 #include "GLFWManager.h"
-#include "rendering/Viewport.h"
 #include "ecs/ECS.h"
 #include "physics/PhysX.h"
 
@@ -19,6 +19,10 @@
 #define TETRA_USE_MAIN_PHYSICS_SCENE auto* physicsScene = TetraEngine::Core::GetPhysicsScene();
 #define TETRA_USE_GAME_INPUT auto* input = TetraEngine::Core::GetGameDispatcher();
 #define TETRA_USE_EDITOR_INPUT auto* input = TetraEngine::Core::GetEditorDispatcher();
+
+namespace TetraEngine {
+	class Editor;
+}
 
 namespace TetraEngine {
 
@@ -42,6 +46,7 @@ namespace TetraEngine {
 		static Viewport* mainViewport;
 		static PhysXInstance* physxInstance;
 	    static DestroyManager* destroyManager;
+		static Editor* editor;
 
 		template <typename T>
 		static void CreateApplication() {
@@ -63,11 +68,16 @@ namespace TetraEngine {
 		static physx::PxPhysics* GetPhysics();
 		static PhysXInstance* GetPhysicsInstance();
 		static PhysicsScene* GetPhysicsScene();
+		static InputManager* GetInputManager();
+		static Editor::Mode GetEditorMode();
+		static bool IsFocusedOnViewport();
+
 		static EventDispatcher<InputEvent>* GetGameDispatcher();
 		static EventDispatcher<InputEvent>* GetEditorDispatcher();
 		//console
 		static void processConsole();
 		//input
 		static void processInput(GLFWwindow* window);
+		static void close();
 	};
 }
