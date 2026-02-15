@@ -9,6 +9,7 @@
 #include "../rendering/Skybox.h"
 #include "../rendering/Texture2D.h"
 #include "../utils/OBJParser.h"
+#include "../utils/Time.h"
 #include "GameDemoApp/CameraConstraint.h"
 #include "GameDemoApp/CollectManager.h"
 #include "GameDemoApp/Level.h"
@@ -114,4 +115,5 @@ void GameDemoApp::DrawGUI(ImVec2 origin, ImVec2 size) {
     //     LOG("BOOP");
     // }
     collectManager->ShowScore(origin, size);
+    ImGui::Text("FPS: %f", Time::fps);
 }

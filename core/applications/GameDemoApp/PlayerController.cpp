@@ -2,6 +2,7 @@
 
 #include "../../Core.h"
 #include "../../physics/RigidBody.h"
+#include "../../utils/Time.h"
 
 namespace GameDemo {
     PlayerController::PlayerController(ECS::Handle<RigidBody> rb) {
@@ -42,7 +43,7 @@ namespace GameDemo {
         if (noInput) {
             return;
         }
-        velocity = normalize(velocity);
+        velocity = normalize(velocity) * Time::deltaTime * acceleration;
         auto* rb = ecs.GetComponent(rigidBody);
         rb->AddLinear(glm::vec3(-velocity.x, 0.0f, velocity.y), PxForceMode::eACCELERATION);
     }
