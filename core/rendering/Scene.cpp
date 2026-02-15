@@ -10,8 +10,6 @@
 #include "../Transform.h"
 #include "MeshRenderer.h"
 #include "Viewport.h"
-#include "../physics/RigidBody.h"
-#include "../physics/PhysicsScene.h"
 #include "../utils/Time.h"
 #include "../DestroyManager.h"
 
@@ -25,7 +23,6 @@ Scene::Scene() {
 	RegisterShader(Shader::textShader);
 	if (currentScene == nullptr)
 		currentScene = this;
-    physicsScene = std::make_unique<PhysicsScene>();
     lightManager = std::make_unique<LightManager>();
 	viewportCamera = std::make_unique<ViewportCamera>();
 	SwitchToEditorView();
@@ -39,14 +36,8 @@ void Scene::SetActiveScene(Scene *scene) {
         return;
     }
     if (currentScene == nullptr) {
-        TETRA_USE_MAIN_PHYSICS_INSTANCE
         currentScene = scene;
-        physicsInstance->SetActiveScene(scene->physicsScene.get());
     }
-}
-
-PhysicsScene * Scene::GetPhysicsScene() {
-    return physicsScene.get();
 }
 
 void Scene::Clear() {
@@ -88,7 +79,6 @@ void Scene::RenderItem(GameObjectInfo& info,  Transform& transform, MeshRenderer
 }
 
 void Scene::Update() {
-    physicsScene->Update(Time::deltaTime);
 }
 
 void Scene::ParentChangedCallback(ECS::Handle<Transform> &parent, ECS::Handle<Transform> &transform) {
@@ -177,11 +167,6 @@ void Scene::AddObject(const ECS::Entity& go,
             RegisterShader(comp->shader);
         }
     }
-    if (ECS.HasStorage<RigidBody>()) {
-        if (auto comp = ECS.GetComponent<RigidBody>(go); comp != nullptr) {
-            physicsScene->AddObject(*comp);
-        }
-    }
 
 	for (auto child: transform->GetChildren()) {
 		auto childInfo = ECS.GetRelatedComponent<GameObjectInfo, Transform>(child);
@@ -224,10 +209,6 @@ void Scene::RemoveObject(const ECS::Entity &go,
 
 	if (auto comp = ECS.GetComponent<MeshRenderer>(go); comp != nullptr) {
 		DeregisterShader(comp->shader);
-	}
-	if (auto comp = ECS.GetComponent<RigidBody>(go); comp != nullptr) {
-		TETRA_USE_MAIN_PHYSICS_INSTANCE
-	    physicsScene->RemoveObject(*comp);
 	}
 
 	for (auto child: transform->GetChildren()) {

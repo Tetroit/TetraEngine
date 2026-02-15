@@ -14,7 +14,6 @@
 #include "DestroyManager.h"
 #include "Editor.h"
 #include "assimp/Logger.hpp"
-#include "physics/RigidBody.h"
 #include "rendering/Camera.h"
 #include "rendering/Material.h"
 #include "rendering/LightRenderer.h"
@@ -41,25 +40,12 @@ GLFWManager* Core::glfwManager = nullptr;
 ImGuiManager* Core::imguiManager = nullptr;
 InputManager* Core::inputManager = nullptr;
 Viewport* Core::mainViewport = nullptr;
-PhysXInstance* Core::physxInstance = nullptr;
 DestroyManager* Core::destroyManager = nullptr;
 Editor* Core::editor = nullptr;
 
 ECS::ECS & Core::GetMainECS() {
 	static ECS::ECS mainEcs;
 	return mainEcs;
-}
-
-PxPhysics * Core::GetPhysics() {
-	return physxInstance->GetPhysics();
-}
-
-PhysXInstance * Core::GetPhysicsInstance() {
-	return physxInstance;
-}
-
-PhysicsScene* Core::GetPhysicsScene() {
-	return physxInstance->GetActiveScene();
 }
 
 InputManager* Core::GetInputManager() {
@@ -148,10 +134,6 @@ int Core::Initialize()
 
 	glEnable(GL_DEPTH_TEST);
 
-	//physx
-	physxInstance = new PhysXInstance();
-	physxInstance->Initialise();
-
 	//imgui
 	imguiManager = new ImGuiManager();
 	mainViewport = new Viewport(glfwManager->width, glfwManager->height,  nullptr);
@@ -181,8 +163,6 @@ void Core::BindEvents() {
 	TETRA_USE_MAIN_ECS
 	auto& transformAddedEv = ecs.OnComponentCreated<Transform>();
 	transformAddedEv.AddCallback(Transform::ComponentCreate, "Transform");
-	auto& rigidBodyAddedEv = ecs.OnComponentCreated<RigidBody>();
-	rigidBodyAddedEv.AddCallback(RigidBody::ComponentCreate, "RigidBody");
 	auto& cameraAddedEv = ecs.OnComponentCreated<Camera>();
 	cameraAddedEv.AddCallback(Camera::ComponentCreate, "Camera");
 
@@ -259,6 +239,5 @@ void Core::CleanUp() {
 	delete imguiManager;
 	delete glfwManager;
 	delete inputManager;
-	delete physxInstance;
     delete destroyManager;
 }

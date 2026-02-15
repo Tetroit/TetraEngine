@@ -3,9 +3,7 @@
 #include "GameObject.h"
 
 #include "Core.h"
-#include "physics/PhysicsScene.h"
 #include "rendering/Scene.h"
-#include "physics/RigidBody.h"
 
 namespace TetraEngine {
     GameObjectInfo::GameObjectInfo(std::string name, ECS::Entity entity): name(std::move(name)), scene(nullptr), isEnabled(true), entity(entity) {}
@@ -86,19 +84,6 @@ namespace TetraEngine {
         }
         if (scene == Scene::currentScene) {
             scene->RegisterShader(Core::GetMainECS().GetComponent(handle)->shader);
-        }
-    }
-
-    template<>
-    void GameObject::OnComponentAdded<RigidBody>(ECS::Handle<RigidBody> handle) {
-        auto infoRef = GetInfo();
-        auto scene = infoRef->scene;
-        if (!handle.Valid()) {
-            LOG_ERR("Handle is invalid");
-            return;
-        }
-        if (scene == Scene::currentScene) {
-            scene->GetPhysicsScene()->AddObject(*Core::GetMainECS().GetComponent(handle));
         }
     }
 } // TetraEngine

@@ -69,7 +69,6 @@ namespace TetraEngine {
 }
 
 #include "Core.h"
-#include "physics/RigidBody.h"
 #include "rendering/Camera.h"
 
 namespace TetraEngine

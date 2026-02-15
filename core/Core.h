@@ -10,7 +10,6 @@
 #include "UI/ImGuiManager.h"
 #include "GLFWManager.h"
 #include "ecs/ECS.h"
-#include "physics/PhysX.h"
 
 
 #define TETRA_USE_MAIN_ECS auto& ecs = TetraEngine::Core::GetMainECS();
@@ -44,7 +43,6 @@ namespace TetraEngine {
 		static ImGuiManager* imguiManager;
 		static InputManager* inputManager;
 		static Viewport* mainViewport;
-		static PhysXInstance* physxInstance;
 	    static DestroyManager* destroyManager;
 		static Editor* editor;
 
@@ -65,9 +63,6 @@ namespace TetraEngine {
 		static void AfterUpdate();
 		static void CleanUpPresets();
 		static ECS::ECS& GetMainECS();
-		static physx::PxPhysics* GetPhysics();
-		static PhysXInstance* GetPhysicsInstance();
-		static PhysicsScene* GetPhysicsScene();
 		static InputManager* GetInputManager();
 		static Editor::Mode GetEditorMode();
 		static bool IsFocusedOnViewport();

@@ -16,7 +16,6 @@ namespace TetraEngine
 	class Shader;
 	class Transform;
 	class MeshRenderer;
-    class PhysicsScene;
 	class DestroyManager;
 	class Camera;
 	class ViewProvider;
@@ -24,7 +23,6 @@ namespace TetraEngine
 	class Scene
 	{
 		std::unique_ptr<LightManager> lightManager;
-	    std::unique_ptr<PhysicsScene> physicsScene;
 		std::unique_ptr<ViewportCamera> viewportCamera;
 		ViewProvider* cameraContext = nullptr;
 
@@ -42,7 +40,6 @@ namespace TetraEngine
 		~Scene();
 
 	    static void SetActiveScene(Scene* scene);
-        PhysicsScene* GetPhysicsScene();
 
 	    void Clear();
 		void AddObject(const GameObject& go);

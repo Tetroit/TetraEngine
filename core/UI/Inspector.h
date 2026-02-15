@@ -4,7 +4,6 @@
 
 #include "TransformComponentDisplay.h"
 #include "GameObjectInfoComponentDisplay.h"
-#include "RigidBodyComponentDisplay.h"
 #include "MeshRendererComponentDisplay.h"
 #include "PointLightComponentDisplay.h"
 

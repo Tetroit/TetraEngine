@@ -185,7 +185,6 @@ void ImGuiManager::SetInspectors() {
 	componentDisplay->RegisterComponentDisplay<Transform, UI::TransformComponentDisplay>();
 	componentDisplay->RegisterComponentDisplay<MeshRenderer, UI::MeshRendererComponentDisplay>();
 	componentDisplay->RegisterComponentDisplay<PointLight, UI::PointLightComponentDisplay>();
-	componentDisplay->RegisterComponentDisplay<RigidBody, UI::RigidBodyComponentDisplay>();
 }
 
 void ImGuiManager::ToggleMouseEvents(bool state) {

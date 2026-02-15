@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_STANDARD 20)
-set(APP_NAME "GameDemoApp")
+set(APP_NAME "ForD")
 
 find_package(OpenGL)
 
@@ -167,11 +167,7 @@ project(TetraEngine)
 add_executable(TetraEngine ${TETRA_ENGINE_GLOB} ${APP_FILES_NON_RECURSE} ${APP_FILES_RECURSE}
         core/Editor.cpp
         core/Editor.h
-        core/applications/GameDemoApp/CollectManager.cpp
-        core/applications/GameDemoApp/CollectManager.h
-        core/utils/Brush.h
-        core/applications/GameDemoApp/Star.cpp
-        core/applications/GameDemoApp/Star.h)
+        core/utils/Brush.h)
 
 target_link_libraries(TetraEngine PRIVATE glfw glm assimp freetype imgui stb glad
         "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysX_static_64.lib"
