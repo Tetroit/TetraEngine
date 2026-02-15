@@ -8,6 +8,8 @@ namespace TetraEngine {
     {
         std::string vertexPath;
         std::string fragmentPath;
+        std::string geometryPath;
+        bool hasGeometry = false;
     public:
         static Shader* billboardShader;
         static Shader* skysphereShader;
@@ -19,6 +21,7 @@ namespace TetraEngine {
         bool isUpdatedThisFrame = false;
 
         Shader(const std::string& vertexPath, const std::string& fragmentPath);
+        Shader(const std::string& vertexPath, const std::string& geometryPath, const std::string& fragmentPath);
         void Use();
         void SetBool(const std::string& name, bool value) const;
         void SetInt(const std::string& name, int value) const;
@@ -29,6 +32,8 @@ namespace TetraEngine {
         void SetVec3(const std::string& name, float x, float y, float z) const;
         void SetVec4(const std::string& name, float x, float y, float z, float w) const;
         uint GetID() const;
+
+        bool HasGeometry() const { return hasGeometry; };
 
         std::string GetVertexPath() const;
         std::string GetFragmentPath() const;

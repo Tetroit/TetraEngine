@@ -1,0 +1,36 @@
+#version 460 core
+
+layout(triangles) in;
+layout(triangle_strip, max_vertices = 30) out;
+
+in VS_OUT
+{
+    vec3 pos;
+    vec3 normal;
+} gsIn[];
+
+out GS_OUT
+{
+    vec3 pos;
+    vec3 normal;
+} gsOut;
+
+uniform mat4 view = mat4(1);
+uniform mat4 projection = mat4(1);
+
+void main()
+{
+    for (int clone = 0; clone < 10; ++clone){
+
+        float fac = clone * 0.1;
+        for (int i = 0; i < 3; ++i)
+        {
+            gsOut.pos = gsIn[i].pos + gsIn[i].normal * fac;
+            gsOut.normal = gsIn[i].normal;
+            gl_Position = projection * view * vec4(gsOut.pos, 1.0);
+
+            EmitVertex();
+        }
+        EndPrimitive();
+    }
+}

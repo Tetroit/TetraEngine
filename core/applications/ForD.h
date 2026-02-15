@@ -9,5 +9,6 @@ class ForD : public Application{
 public:
 	Scene myScene = Scene();
     std::unique_ptr<Shader> litShader;
+    std::unique_ptr<Shader> geomShader;
     ForD();
 };
