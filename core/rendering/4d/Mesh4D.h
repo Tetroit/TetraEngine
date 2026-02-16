@@ -10,7 +10,7 @@ namespace TetraEngine {
         glm::vec4 position;
     };
     class Mesh4D {
-        std::vector<glm::vec4> vertices;
+        std::vector<Vertex4D> vertices;
         std::vector<glm::u32vec4> tetrahedrons;
         std::vector<glm::vec2> texcoords;
         std::vector<glm::vec4> normals;
