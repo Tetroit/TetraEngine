@@ -2,6 +2,10 @@
 #include "tetrapc.h"
 
 namespace TetraEngine {
+
+    struct Tetrahedron4D;
+
+
     class Slicer {
         inline static int vertOrderTri[4][3] {
             {1,2,3},
@@ -15,6 +19,7 @@ namespace TetraEngine {
             {0,2,3,1}, //03 vs 12
         };
     public:
-        static std::vector<glm::vec3> slice4D(const std::vector<glm::vec4[4]> & tetras, glm::vec4 planeNormal, float planeOffset);
+        static std::vector<glm::vec3> slice4D(const std::vector<Tetrahedron4D> & tetras, glm::vec4 planeNormal, float planeOffset);
+        static glm::vec4 sectSegment4D(const glm::vec4& a, const glm::vec4& b, const glm::vec4& planeNormal, const glm::vec4& planeOrigin);
     };
 } // TetraEngine

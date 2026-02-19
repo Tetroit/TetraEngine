@@ -52,8 +52,10 @@ file(GLOB_RECURSE APP_FILES_RECURSE
 file (GLOB TETRA_ENGINE_GLOB
         "core/applications/ApplicationConfig.h"
 
-        "core/rendering/**/*.h"
-        "core/rendering/**/*.cpp"
+        "core/rendering/*.h"
+        "core/rendering/*.cpp"
+        "core/rendering/4D/*.h"
+        "core/rendering/4D/*.cpp"
 
         "core/utils/*.h"
         "core/utils/*.cpp"

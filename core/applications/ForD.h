@@ -2,6 +2,8 @@
 #include "../Application.h"
 #include "../Core.h"
 #include "../rendering/Scene.h"
+#include "../rendering/4d/Renderer4D.h"
+
 
 using namespace TetraEngine;
 
@@ -10,5 +12,10 @@ public:
 	Scene myScene = Scene();
     std::unique_ptr<Shader> litShader;
     std::unique_ptr<Shader> geomShader;
+	std::unique_ptr<Shader> forDShader;
+
+	std::unique_ptr<Mesh4D> mesh4D;
+	std::unique_ptr<Renderer4D> renderer4D;
+	void Update() override;
     ForD();
 };

@@ -1,0 +1,8 @@
+#version 460
+
+in vec3 color;
+out vec4 Frag;
+
+void main() {
+    Frag = vec4(color, 1);
+}
