@@ -65,9 +65,12 @@ void Scene::Render() {
 
 void Scene::RenderItems() {
 	Core::GetMainECS().Foreach<MeshRenderer, Transform, GameObjectInfo>(
-	    [&](MeshRenderer& mr, Transform& tr, GameObjectInfo& info) {
+		[&](MeshRenderer& mr, Transform& tr, GameObjectInfo& info) {
 		RenderItem(info, tr, mr);
 	});
+	if (!onRenderListeners.IsEmpty()){
+		onRenderListeners.Call();
+	}
 }
 
 void Scene::RenderItem(GameObjectInfo& info,  Transform& transform, MeshRenderer& renderer) {
@@ -75,6 +78,16 @@ void Scene::RenderItem(GameObjectInfo& info,  Transform& transform, MeshRenderer
 		if (transform.IsDirty())
 			transform.Recalculate();
 		renderer.Render(transform.GetGlobalMatrix());
+	}
+}
+
+void Scene::InjectRenderer(const std::string& rname, std::function<void()> renderer) {
+	onRenderListeners.AddCallback(std::move(renderer), name);
+}
+
+void Scene::RemoveRenderer(const std::string &rname) {
+	if (onRenderListeners.HasCallback(name)) {
+		onRenderListeners.RemoveCallback(name);
 	}
 }
 

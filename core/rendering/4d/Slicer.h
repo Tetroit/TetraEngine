@@ -21,5 +21,6 @@ namespace TetraEngine {
     public:
         static std::vector<glm::vec3> slice4D(const std::vector<Tetrahedron4D> & tetras, glm::vec4 planeNormal, float planeOffset);
         static glm::vec4 sectSegment4D(const glm::vec4& a, const glm::vec4& b, const glm::vec4& planeNormal, const glm::vec4& planeOrigin);
+        static glm::vec4 cross4D(const glm::vec4& a, const glm::vec4& b, const glm::vec4& c);
     };
 } // TetraEngine

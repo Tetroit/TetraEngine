@@ -17,6 +17,7 @@ namespace TetraEngine {
                     above.push_back(i);
                 }
                 else {
+                    isAbovePlane[i] = false;
                     below.push_back(i);
                 }
             }
@@ -34,13 +35,13 @@ namespace TetraEngine {
                 }
             }
             else if (lowCnt.size() == 2) {
-                if (!isAbovePlane[0]) {
+                if (isAbovePlane[0]) {
                     lowCnt = above;
                     highCnt = below;
                     flipNormal = true;
                 }
                 int neighbour = lowCnt[1];
-                int* cycle = vertOrderQuad[neighbour];
+                int* cycle = vertOrderQuad[neighbour-1];
                 edgeIndex.emplace_back(cycle[0], cycle[1]);
                 edgeIndex.emplace_back(cycle[2], cycle[1]);
                 edgeIndex.emplace_back(cycle[2], cycle[3]);
@@ -82,5 +83,26 @@ namespace TetraEngine {
         glm::vec4 p = planeOrigin - a;
         float t = glm::dot(planeNormal, p)/glm::dot(planeNormal, l);
         return a + t * l;
+    }
+
+    glm::vec4 Slicer::cross4D(const glm::vec4 &a, const glm::vec4 &b, const glm::vec4 &c) {
+
+        return glm::vec4(
+            + (a.y * (b.z * c.w - b.w * c.z)
+             - a.z * (b.y * c.w - b.w * c.y)
+             + a.w * (b.y * c.z - b.z * c.y)),
+
+            - (a.x * (b.z * c.w - b.w * c.z)
+             - a.z * (b.x * c.w - b.w * c.x)
+             + a.w * (b.x * c.z - b.z * c.x)),
+
+            + (a.x * (b.y * c.w - b.w * c.y)
+             - a.y * (b.x * c.w - b.w * c.x)
+             + a.w * (b.x * c.y - b.y * c.x)),
+
+            - (a.x * (b.y * c.z - b.z * c.y)
+             - a.y * (b.x * c.z - b.z * c.x)
+             + a.z * (b.x * c.y - b.y * c.x))
+        );
     }
 }

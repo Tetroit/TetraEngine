@@ -25,6 +25,7 @@ namespace TetraEngine
 		std::unique_ptr<LightManager> lightManager;
 		std::unique_ptr<ViewportCamera> viewportCamera;
 		ViewProvider* cameraContext = nullptr;
+		Action<> onRenderListeners;
 
 	public:
 		static Scene* currentScene;
@@ -58,6 +59,8 @@ namespace TetraEngine
 		void Render();
 		void RenderItems();
 		void RenderItem(GameObjectInfo& info, Transform& transform, MeshRenderer& renderer);
+		void InjectRenderer(const std::string& name, std::function<void()> renderer);
+		void RemoveRenderer(const std::string& name);
 
 		void Update();
 

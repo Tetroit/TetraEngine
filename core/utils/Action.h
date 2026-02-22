@@ -20,7 +20,8 @@ namespace TetraEngine {
         void AddCallback(Function func, std::string name);
         void RemoveCallback(std::string name);
         void Call(Args... args);
-        bool IsEmpty();
+        [[nodiscard]] bool IsEmpty() const;
+        [[nodiscard]] bool HasCallback(const std::string& name) const;
     };
 
     template<typename ... Args>
@@ -50,7 +51,7 @@ namespace TetraEngine {
         }
         locked = true;
         for (auto& [name, func] : callbacks){
-            std::cout << "Invoked " << name << std::endl;
+            // std::cout << "Invoked " << name << std::endl;
             func(args...);
         }
         for (auto& name : toRemove) {
@@ -65,7 +66,12 @@ namespace TetraEngine {
     }
 
     template<typename ... Args>
-    bool Action<Args...>::IsEmpty() {
+    bool Action<Args...>::IsEmpty() const {
         return callbacks.empty();
+    }
+
+    template<typename ... Args>
+    bool Action<Args...>::HasCallback(const std::string &name) const {
+        return callbacks.find(name) != callbacks.end();
     }
 } // TetraEngine
