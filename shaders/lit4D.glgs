@@ -1,0 +1,156 @@
+#version 460 core
+
+layout(lines_adjacency) in;
+layout(triangle_strip, max_vertices = 6) out;
+
+struct Vertex4D {
+    vec4 pos;
+    vec4 normal;
+    vec4 color;
+};
+in VS_OUT
+{
+    Vertex4D vert;
+} gsIn[];
+
+out GS_OUT
+{
+    vec3 pos;
+    vec3 normal;
+    vec3 color;
+} gsOut;
+
+uniform mat4 view = mat4(1);
+uniform mat4 projection = mat4(1);
+uniform mat4 transform = mat4(1);
+uniform float sliceW = 0.0;
+
+
+int getLargeSizeElement(in int above[4], in int below[4], bool aboveLarger, int id){
+    if (aboveLarger)
+        return above[id];
+    return below[id];
+}
+int getSmallSizeElement(in int above[4], in int below[4], bool aboveLarger, int id){
+    if (!aboveLarger)
+        return above[id];
+    return below[id];
+}
+Vertex4D sectSegment4D(Vertex4D a, Vertex4D b, float w){
+    Vertex4D outVert;
+    float l = b.pos.w - a.pos.w;
+    if (abs(l) < 1e-6)
+        return a;
+    float t = (w - a.pos.w) / l;
+    outVert.pos = mix(a.pos, b.pos, t);
+    outVert.normal = mix(a.normal, b.normal, t);
+    outVert.color = mix(a.color, b.color, t);
+    return outVert;
+}
+void emitVertex(Vertex4D a){
+    vec4 wPos = transform * vec4(a.pos.xyz, 1);
+    gsOut.pos = wPos.xyz;
+    gsOut.normal = normalize(a.normal.xyz);
+    gsOut.color = a.color.xyz;
+    gl_Position = projection * view * wPos;
+    EmitVertex();
+}
+void emitWorldPosTri(Vertex4D a, Vertex4D b, Vertex4D c) {
+    emitVertex(a);
+    emitVertex(b);
+    emitVertex(c);
+    EndPrimitive();
+}
+
+
+const int vertOrderTri[4][3] = int[4][3](
+    int[3](1, 2, 3),
+    int[3](0, 3, 2),
+    int[3](0, 1, 3),
+    int[3](0, 2, 1)
+);
+const int vertOrderQuad[3][4] = int[3][4](
+    int[4](0, 3, 1, 2), // 01 vs 23
+    int[4](0, 1, 2, 3), // 02 vs 13
+    int[4](0, 2, 3, 1)  // 03 vs 12
+);
+void slice() {
+    bool isAbovePlane[4];
+    int above[4];
+    int below[4];
+    int aboveSize = 0;
+    int belowSize = 0;
+    for (int i = 0; i < 4; i++) {
+        vec4 vert = gsIn[i].vert.pos;
+        float fac = gsIn[i].vert.pos.w - sliceW;
+        if (fac >= 0) {
+            isAbovePlane[i] = true;
+            above[aboveSize] = i;
+            aboveSize++;
+        }
+        else {
+            isAbovePlane[i] = false;
+            below[belowSize] = i;
+            belowSize++;
+        }
+    }
+    if (aboveSize == 0 || belowSize == 0) return;
+    int edgeIndex[8];
+    int edgeIndexSize = 0;
+    Vertex4D sects[4];
+    int sectsSize = 0;
+    bool isAboveLarger = false;
+    if (aboveSize > belowSize)
+        isAboveLarger = true;
+
+    if (min(aboveSize, belowSize) == 1) {
+        int baseID = getSmallSizeElement(above, below, isAboveLarger, 0);
+        for (int i=0; i<3; i++) {
+            edgeIndex[edgeIndexSize] = baseID;
+            edgeIndex[edgeIndexSize+1] = vertOrderTri[baseID][i];
+            edgeIndexSize+=2;
+        }
+    }
+    else if (min(aboveSize, belowSize) == 2) {
+
+        isAboveLarger = !isAbovePlane[0];
+
+        int neighbour = getSmallSizeElement(above, below, isAboveLarger, 1);
+        int cycle[4] = vertOrderQuad[neighbour-1];
+        edgeIndex[0] = cycle[0];
+        edgeIndex[1] = cycle[1];
+        edgeIndex[2] = cycle[2];
+        edgeIndex[3] = cycle[1];
+        edgeIndex[4] = cycle[2];
+        edgeIndex[5] = cycle[3];
+        edgeIndex[6] = cycle[0];
+        edgeIndex[7] = cycle[3];
+        edgeIndexSize = 8;
+    }
+    for (int i = 0; i<edgeIndexSize; i+=2) {
+        sects[sectsSize] = sectSegment4D(gsIn[edgeIndex[i+1]].vert, gsIn[edgeIndex[i]].vert, sliceW);
+        sectsSize++;
+    }
+    if (sectsSize == 3) {
+        if (isAboveLarger){
+            emitWorldPosTri(sects[0], sects[1], sects[2]);
+        }
+        else {
+            emitWorldPosTri(sects[2], sects[1], sects[0]);
+        }
+    }
+    if (sectsSize == 4) {
+        if (isAboveLarger) {
+            emitWorldPosTri(sects[0], sects[1], sects[2]);
+            emitWorldPosTri(sects[0], sects[2], sects[3]);
+        }
+        else {
+            emitWorldPosTri(sects[2], sects[1], sects[0]);
+            emitWorldPosTri(sects[3], sects[2], sects[0]);
+        }
+    }
+}
+void main()
+{
+    slice();
+}

@@ -3,11 +3,31 @@
 
 #include "../Shader.h"
 #include "../ViewProvider.h"
+#include "../../utils/ComputeShaderLoader.h"
 
 namespace TetraEngine {
     void Renderer4D::SetupBuffers() {
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
+        if (VAO == 0) {
+            glGenVertexArrays(1, &VAO);
+        }
+        if (VBO == 0) {
+            glGenBuffers(1, &VBO);
+        }
+        if (EBO == 0) {
+            glGenBuffers(1, &EBO);
+        }
+        if (vertBufferSSBO == 0) {
+            glGenBuffers(1, &vertBufferSSBO);
+        }
+        if (faceBufferSSBO == 0) {
+            glGenBuffers(1, &faceBufferSSBO);
+        }
+        if (edgeBufferSSBO == 0) {
+            glGenBuffers(1, &edgeBufferSSBO);
+        }
+    }
+
+    void Renderer4D::initBuffers() {
     }
 
     Renderer4D::Renderer4D(Mesh4D *vd, Shader *sh) : mesh(vd), shader(sh) {
@@ -16,7 +36,37 @@ namespace TetraEngine {
         SetupBuffers();
     }
 
+    void Renderer4D::ComputeEdges() {
+
+        if (edgeComputeShader == 0) {
+            edgeComputeShader = ComputeShaderLoader::loadCompute(shaderPath + "/tetrahedronEdges.comp");
+        }
+        initBuffers();
+        auto vData = mesh->GetVertices();
+        auto fData = mesh->GetIndices();
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, vertBufferSSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER,vData.size() * sizeof(Vertex4D),vData.data(),GL_STATIC_DRAW);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, vertBufferSSBO);
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, faceBufferSSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER,fData.size() * sizeof(uint),fData.data(),GL_STATIC_DRAW);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, faceBufferSSBO);
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, edgeBufferSSBO);
+        //per each tetra: 4 vertices, 6 edges (12 edge ends) -> 12/4 = 3
+        glBufferData(GL_SHADER_STORAGE_BUFFER,fData.size()*3 * sizeof(glm::vec4),nullptr,GL_DYNAMIC_READ);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, edgeBufferSSBO);
+
+        glUseProgram(edgeComputeShader);
+        const int groupSize = 256;
+        glDispatchCompute((fData.size()/4 + groupSize - 1) / groupSize, 1, 1);
+
+        glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+    }
     void Renderer4D::Render(ViewProvider *viewProvider, glm::mat4 transformMat) {
+        if (mesh == nullptr)
+            LOG_ERR_FROM("4D RENDERER", "No mesh was attached while rendering");
+
         auto proj = viewProvider->GetProjection();
         auto view = viewProvider->GetViewMatrix();
 
@@ -24,25 +74,31 @@ namespace TetraEngine {
         shader->SetMat4("projection", proj);
         shader->SetMat4("view", view);
         shader->SetMat4("transform", transformMat);
+        shader->SetFloat("sliceW", normalOffset);
 
-        if (VAO == 0 || VBO == 0) {
-            SetupBuffers();
-        }
-        auto sliced = Slicer::slice4D(mesh->GetTetrahedrons(), planeNormal, normalOffset);
+        SetupBuffers();
         glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, mesh->GetVertices().size() * sizeof(Vertex4D), mesh->GetVertices().data(), GL_DYNAMIC_DRAW);
 
-        if (!sliced.empty()) {
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            glBufferData(GL_ARRAY_BUFFER, sliced.size() * sizeof(glm::vec3), sliced.data(), GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->GetIndices().size() * sizeof(uint32_t), mesh->GetIndices().data(), GL_DYNAMIC_DRAW);
 
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(0));
-            glEnableVertexAttribArray(0);
 
-            glDrawArrays(GL_TRIANGLES, 0, sliced.size());
-            glBindVertexArray(0);
-        }
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex4D), (void*)nullptr);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex4D), (void*)(4 * sizeof(float)));
+        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex4D), (void*)(8 * sizeof(float)));
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+
+        glDrawElements(GL_LINES_ADJACENCY, mesh->GetIndices().size(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+
         if (renderWireframe) {
 
+            int tetraCount = mesh->GetIndices().size()/4;
+            ComputeEdges();
             wireframeShader->Use();
             wireframeShader->SetMat4("projection", proj);
             wireframeShader->SetMat4("view", view);
@@ -50,18 +106,20 @@ namespace TetraEngine {
             wireframeShader->SetFloat("minW", GetMinW());
             wireframeShader->SetFloat("maxW", GetMaxW());
 
-            auto wireframe = GetWireframe();
             static GLuint WireVAO, WireVBO;
-            glGenVertexArrays(1, &WireVAO);
-            glGenBuffers(1, &WireVBO);
+            if (WireVAO == 0) {
+                glGenVertexArrays(1, &WireVAO);
+            }
+            if (WireVBO == 0) {
+                glGenBuffers(1, &WireVBO);
+            }
 
             glBindVertexArray(WireVAO);
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            glBufferData(GL_ARRAY_BUFFER, wireframe.size() * sizeof(glm::vec4), wireframe.data(), GL_DYNAMIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, edgeBufferSSBO);
 
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(0));
-            glDrawArrays(GL_LINES, 0, wireframe.size());
+            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)nullptr);
+            glDrawArrays(GL_LINES, 0, tetraCount * 12);
             glBindVertexArray(0);
         }
     }
@@ -118,4 +176,4 @@ namespace TetraEngine {
     glm::vec4 Renderer4D::GetSectionPlanePostion() {
         return planeNormal * normalOffset;
     }
-} // TetraEngine
+}

@@ -50,8 +50,14 @@ namespace TetraEngine {
         glm::vec4 normal = Slicer::cross4D(a,b,c);
 
         uint start = AddVertices({
-            corner, corner+a, corner+b, corner+c,
-            corner+a+b, corner+a+c, corner+b+c, corner+a+b+c
+            corner,
+            corner+c,
+            corner+b,
+            corner+b+c,
+            corner+a,
+            corner+a+c,
+            corner+a+b,
+            corner+a+b+c,
         });
         for (int i=start; i<start+8; i++) {
             vertices[i].normal = normal;

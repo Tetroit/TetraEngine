@@ -1,8 +1,16 @@
-#version 460
+#version 460 core
 
-in vec3 color;
+in GS_OUT
+{
+    vec3 pos;
+    vec3 normal;
+    vec3 color;
+} fsIn;
+
 out vec4 Frag;
 
-void main() {
-    Frag = vec4(color, 1);
+void main()
+{
+    float diffuseFac = dot(normalize(fsIn.normal), normalize(vec3(1,1,1)));
+ Frag = vec4(diffuseFac * fsIn.color, 1.0);
 }

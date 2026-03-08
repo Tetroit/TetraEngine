@@ -164,8 +164,8 @@ Shader::Shader(const std::string &vertexPath, const std::string &geometryPath, c
     glGetShaderiv(geometry, GL_COMPILE_STATUS, &success);
     if (!success)
     {
-        glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+        glGetShaderInfoLog(geometry, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n" << infoLog << std::endl;
     };
 
     // shader Program

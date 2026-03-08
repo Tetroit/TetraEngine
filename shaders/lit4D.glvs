@@ -1,13 +1,25 @@
 #version 460
 
-layout (location = 0) in vec3 aPos;
+layout (location = 0) in vec4 aPos;
+layout (location = 1) in vec4 aNormal;
+layout (location = 2) in vec4 aColor;
 
 uniform mat4 transform;
 uniform mat4 view;
 uniform mat4 projection;
 
-out vec3 color;
+struct Vertex4D {
+    vec4 pos;
+    vec4 normal;
+    vec4 color;
+};
+out VS_OUT{
+    Vertex4D vert;
+} vsOut;
+
 void main() {
-    gl_Position = projection * view * transform * vec4(aPos, 1);
-    color = vec3(0.3, 0.8, 0.5);
+    vsOut.vert.pos = aPos;
+    vsOut.vert.color = aColor;
+    vsOut.vert.normal = aNormal;
+    gl_Position = projection * view * vsOut.vert.pos;
 }

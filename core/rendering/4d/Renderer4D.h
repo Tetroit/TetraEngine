@@ -12,12 +12,22 @@ namespace TetraEngine {
         Mesh4D* mesh;
         bool renderWireframe = true;
 
-        GLuint VAO, VBO;
+        GLuint VAO = 0, VBO = 0, EBO = 0;
+
+        GLuint vertBufferSSBO = 0;
+        GLuint faceBufferSSBO = 0;
+        GLuint edgeBufferSSBO = 0;
         void SetupBuffers();
+        GLuint edgeComputeShader = 0;
+
+        void initBuffers();
     public:
         Renderer4D(Mesh4D* vd, Shader* sh);
+
         Shader* shader;
         Shader* wireframeShader;
+
+        void ComputeEdges();
         void Render(ViewProvider* viewProvider, glm::mat4 transformMat = glm::mat4(1.0f));
         void SetSectionPlaneOffset(float newOffset);
         float GetSectionPlaneOffset();

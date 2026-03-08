@@ -18,11 +18,11 @@ namespace TetraEngine {
     };
     struct Vertex4D {
         glm::vec4 position;
-        glm::vec4 color;
         glm::vec4 normal;
+        glm::vec4 color;
         Vertex4D(
             glm::vec4 position,
-            glm::vec4 color = {0.3f, 0.1f, 0.7f, 1.0f},
+            glm::vec4 color = {0.3f, 1.0f, 0.7f, 1.0f},
             glm::vec4 normal = glm::vec4(0.0f)) : position(position), color(color), normal(normal) {}
     };
     class Mesh4D {

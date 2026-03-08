@@ -18,6 +18,7 @@ ForD::ForD() {
         shaderPath + "/geomTest.glfs");
     forDShader = std::make_unique<Shader>(
         shaderPath + "/lit4D.glvs",
+        shaderPath + "/lit4D.glgs",
         shaderPath + "/lit4D.glfs");
     forDWireShader = std::make_unique<Shader>(
         shaderPath + "/lit4D_wireframe.glvs",
@@ -38,14 +39,14 @@ ForD::ForD() {
 
     mesh4D->AddCuboid(
         {0.0, 0.0, 0.0, -1.0},
-        {0.0, 1.0, 0.0, 0.3},
-        {1.0, 0.0, 0.0, 0.7},
-        {0.0, 0.0, 1.0, 1.0});
+        {1.0, 0.0, 0.0, 0.3},
+        {0.3, 0.6, 0.0, 0.7},
+        {0.2, 0.1, 0.5, 1.0});
     tesseract = Mesh4D::MakeTesseract({-1,-1,-1,-1},
-        {2,0,0,1},
-        {-1,2,0,0.4},
-        {0,1,3,1.2},
-        {0,0,1,2});
+        {1,-0.5,0.5,1},
+        {0.5,1,0.5,0.4},
+        {-0.5,-0.5,1,1.2},
+        {1,-0.4,-0.2,2});
 
     renderer4D = std::make_unique<Renderer4D>(tesseract.get(), forDShader.get());
     // renderer4D->SetSectionPlanePosition(glm::normalize(glm::vec4(0.3,0.5,0.7,1)));
@@ -61,7 +62,7 @@ void ForD::Update() {
     Application::Update();
     if (enableAnimation) {
         timer += Time::deltaTime;
-        float fac = 2 * glm::sin(timer);
+        float fac = 1 + 2 * glm::sin(timer);
         renderer4D->SetSectionPlaneOffset(fac);
     }
 }

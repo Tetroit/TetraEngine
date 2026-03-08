@@ -1,0 +1,47 @@
+#version 430
+
+layout(local_size_x = 256) in;
+
+struct Vertex {
+    vec4 pos;
+    vec4 color;
+    vec4 normal;
+};
+
+layout(std430, binding = 0) buffer Vertices
+{
+    Vertex vdata[];
+};
+layout(std430, binding = 1) buffer Tetras
+{
+    //4 per tetra
+    uint fdata[];
+};
+layout(std430, binding = 2) buffer Edges
+{
+    //12 per tetra
+    vec4 edata[];
+};
+
+void addEdge(uint id, vec4 v1, vec4 v2)
+{
+    edata[id] = v1;
+    edata[id+1] = v2;
+}
+void main()
+{
+    uint id = gl_GlobalInvocationID.x;
+    vec4 v1 = vdata[fdata[id*4]].pos;
+    vec4 v2 = vdata[fdata[id*4+1]].pos;
+    vec4 v3 = vdata[fdata[id*4+2]].pos;
+    vec4 v4 = vdata[fdata[id*4+3]].pos;
+
+    uint base = id*12;
+    addEdge(base, v1, v2);
+    addEdge(base+2, v1, v3);
+    addEdge(base+4, v1, v4);
+    addEdge(base+6, v2, v3);
+    addEdge(base+8, v2, v4);
+    addEdge(base+10, v3, v4);
+
+}
