@@ -240,11 +240,12 @@ uint Shader::GetID() const {
 std::string Shader::GetVertexPath() const {
     return vertexPath;
 }
-
 std::string Shader::GetFragmentPath() const {
     return fragmentPath;
 }
-
+std::string Shader::GetGeometryPath() const {
+    return geometryPath;
+}
 std::string Shader::VertexAsString() const {
     std::ifstream file(vertexPath);
     if (!file.is_open())
@@ -258,6 +259,16 @@ std::string Shader::FragmentAsString() const {
     std::ifstream file(fragmentPath);
     if (!file.is_open())
         return "Error: could not open " + fragmentPath;
+
+    return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+}
+
+std::string Shader::GeometryAsString() const {
+
+    std::ifstream file(geometryPath);
+    if (!file.is_open())
+        return "Error: could not open " + geometryPath;
 
     return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 

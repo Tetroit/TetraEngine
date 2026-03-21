@@ -10,6 +10,7 @@
 
 namespace TetraEngine
 {
+	class Renderer4D;
 	class ViewportCamera;
 	class Skybox;
 	class GameObject;
@@ -59,6 +60,7 @@ namespace TetraEngine
 		void Render();
 		void RenderItems();
 		void RenderItem(GameObjectInfo& info, Transform& transform, MeshRenderer& renderer);
+		void RenderItem(GameObjectInfo& info, Transform& transform, Renderer4D& renderer);
 		void InjectRenderer(const std::string& name, std::function<void()> renderer);
 		void RemoveRenderer(const std::string& name);
 

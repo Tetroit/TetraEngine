@@ -19,7 +19,8 @@ public:
 
 	std::unique_ptr<Mesh4D> mesh4D;
 	std::shared_ptr<Mesh4D> tesseract;
-	std::unique_ptr<Renderer4D> renderer4D;
+
+	std::unique_ptr<Material> copper;
 	void Update() override;
 	void PauseToggle(const Event<InputEvent>& ev);
     ForD();

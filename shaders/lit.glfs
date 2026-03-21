@@ -81,7 +81,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 		colorD *= surface.diffuse;
 	}
 	if ((textureFlags & 2) != 0) colorS = texture(textureS, texCoord).xyz * colorS;
-	else colorS *= surface.specular.x;
+	else colorS *= surface.specular;
 	if ((textureFlags & 4) != 0) colorA += texture(textureA, texCoord).xyz;
 	
     colorA  *= attenuation;
@@ -114,7 +114,7 @@ void main()
 		colorD *= surface.diffuse;
 	}
 	if ((textureFlags & 2) != 0) colorS = texture(textureS, texCoord * textureS_SO.xy + textureS_SO.zw).xxx * colorS;
-	else colorS *= surface.specular.x;
+	else colorS *= surface.specular;
 	if ((textureFlags & 4) != 0) colorA += texture(textureA, texCoord * textureA_SO.xy + textureA_SO.zw).xyz;
 	
 	

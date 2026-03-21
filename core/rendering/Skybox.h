@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include "Cubemap.h"
+
 namespace TetraEngine {
 	class Cubemap;
 	class Texture2D;

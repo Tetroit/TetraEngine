@@ -4,6 +4,8 @@
 #include "../Shader.h"
 #include "../ViewProvider.h"
 #include "../../utils/ComputeShaderLoader.h"
+#include "../Material.h"
+#include "../Skybox.h"
 
 namespace TetraEngine {
     void Renderer4D::SetupBuffers() {
@@ -31,8 +33,9 @@ namespace TetraEngine {
     }
 
     Renderer4D::Renderer4D(Mesh4D *vd, Shader *sh) : mesh(vd), shader(sh) {
-        planeNormal = glm::vec4(0.0f, 0.0f, 0.0f, 1.0);
-        normalOffset = 0.0f;
+        rotationBivectors = {0,0,0,0,0,0};
+        translation4D = {0,0,0,0};
+        sliceW = 0.0f;
         SetupBuffers();
     }
 
@@ -69,12 +72,31 @@ namespace TetraEngine {
 
         auto proj = viewProvider->GetProjection();
         auto view = viewProvider->GetViewMatrix();
-
+        UpdateRotationMatrix();
         shader->Use();
         shader->SetMat4("projection", proj);
         shader->SetMat4("view", view);
         shader->SetMat4("transform", transformMat);
-        shader->SetFloat("sliceW", normalOffset);
+        shader->SetFloat("sliceW", sliceW);
+
+        shader->SetMat4("rotation4D", rotation4D);
+        shader->SetVec4("translation4D", translation4D);
+
+        if (material != nullptr) {
+            shader->SetVec3("surface.ambient", material->ambient);
+            shader->SetVec3("surface.diffuse", material->diffuse);
+            shader->SetVec3("surface.specular", material->specular);
+            shader->SetFloat("surface.shininess", material->shininess);
+            shader->SetVec3("color", material->ambient);
+        }
+        textureFlags =
+            ((Skybox::current != nullptr) << 3);
+
+        if (Skybox::current != nullptr)
+        {
+            shader->SetInt("skyTexture", 3);
+            Skybox::current->cubemap->Bind(3);
+        }
 
         SetupBuffers();
         glBindVertexArray(VAO);
@@ -106,6 +128,9 @@ namespace TetraEngine {
             wireframeShader->SetFloat("minW", GetMinW());
             wireframeShader->SetFloat("maxW", GetMaxW());
 
+            wireframeShader->SetMat4("rotation4D", rotation4D);
+            wireframeShader->SetVec4("translation4D", translation4D);
+
             static GLuint WireVAO, WireVBO;
             if (WireVAO == 0) {
                 glGenVertexArrays(1, &WireVAO);
@@ -124,17 +149,8 @@ namespace TetraEngine {
         }
     }
 
-    void Renderer4D::SetSectionPlaneOffset(float newOffset) {
-        normalOffset = newOffset;
-    }
-
-    float Renderer4D::GetSectionPlaneOffset() {
-        return normalOffset;
-    }
-
-    void Renderer4D::SetSectionPlanePosition(glm::vec4 newNormal) {
-        planeNormal = glm::normalize(newNormal);
-        normalOffset = glm::length(newNormal);
+    void Renderer4D::SetSliceW(float newSlice) {
+        sliceW = newSlice;
     }
 
     void Renderer4D::SetMesh(Mesh4D *mesh) {
@@ -160,6 +176,30 @@ namespace TetraEngine {
         return max;
     }
 
+    void Renderer4D::UpdateRotationMatrix() {
+        std::array<float, 6> sin{};
+        std::array<float, 6> cos{};
+        for (int i = 0; i < 6; i++) {
+            sin[i] = sinf(rotationBivectors[i]);
+            cos[i] = cosf(rotationBivectors[i]);
+        }
+        rotation4D = glm::mat4(1);
+        rotation4D = ConstructRotationOnPlane(0,1,sin[0],cos[0]) *
+             ConstructRotationOnPlane(0,2,sin[1],cos[1]) *
+             ConstructRotationOnPlane(0,3,sin[2],cos[2]) *
+             ConstructRotationOnPlane(1,2,sin[3],cos[3]) *
+             ConstructRotationOnPlane(1,3,sin[4],cos[4]) *
+             ConstructRotationOnPlane(2,3,sin[5],cos[5]);
+    }
+    glm::mat4 Renderer4D::ConstructRotationOnPlane(int axis1, int axis2, float sin, float cos) {
+        auto res = glm::mat4(1);
+        res[axis1][axis1] = cos;
+        res[axis2][axis2] = cos;
+        res[axis1][axis2] = -sin;
+        res[axis2][axis1] = sin;
+        return res;
+    }
+
     std::vector<glm::vec4> Renderer4D::GetWireframe() {
         std::vector<glm::vec4> wireframe;
         for (const auto& tetra: mesh->GetTetrahedrons()) {
@@ -171,9 +211,5 @@ namespace TetraEngine {
             }
         }
         return wireframe;
-    }
-
-    glm::vec4 Renderer4D::GetSectionPlanePostion() {
-        return planeNormal * normalOffset;
     }
 }

@@ -6,6 +6,7 @@
 #include "GameObjectInfoComponentDisplay.h"
 #include "MeshRendererComponentDisplay.h"
 #include "PointLightComponentDisplay.h"
+#include "Renderer4DComponentDisplay.h"
 
 namespace TetraEngine {
     class Transform;

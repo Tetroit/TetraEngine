@@ -9,6 +9,7 @@
 #include "../Core.h"
 #include "../rendering/PointLight.h"
 #include "../rendering/Texture2D.h"
+#include "../rendering/4d/Renderer4D.h"
 #include "../GameObject.h"
 
 using namespace TetraEngine;
@@ -185,6 +186,7 @@ void ImGuiManager::SetInspectors() {
 	componentDisplay->RegisterComponentDisplay<Transform, UI::TransformComponentDisplay>();
 	componentDisplay->RegisterComponentDisplay<MeshRenderer, UI::MeshRendererComponentDisplay>();
 	componentDisplay->RegisterComponentDisplay<PointLight, UI::PointLightComponentDisplay>();
+	componentDisplay->RegisterComponentDisplay<Renderer4D, UI::Renderer4DComponentDisplay>();
 }
 
 void ImGuiManager::ToggleMouseEvents(bool state) {

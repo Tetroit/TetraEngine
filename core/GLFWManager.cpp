@@ -22,6 +22,7 @@ void GLFWManager::SetFullscreen() {
 	glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
 	glfwSetWindowPos(window, 0, 0);
 	glfwSetWindowSize(window, width, height);
+	glfwSwapInterval(1);
 }
 
 void GLFWManager::SetWindowed() {

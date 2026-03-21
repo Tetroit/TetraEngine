@@ -1,7 +1,3 @@
-//
-// Created by pchyo on 15/10/2025.
-//
-
 #include "MeshRendererComponentDisplay.h"
 #include "../ecs/ECS.h"
 #include "../Core.h"

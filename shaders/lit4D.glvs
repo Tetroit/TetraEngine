@@ -8,6 +8,9 @@ uniform mat4 transform;
 uniform mat4 view;
 uniform mat4 projection;
 
+uniform mat4 rotation4D = mat4(1);
+uniform vec4 translation4D = vec4(0);
+
 struct Vertex4D {
     vec4 pos;
     vec4 normal;
@@ -18,8 +21,8 @@ out VS_OUT{
 } vsOut;
 
 void main() {
-    vsOut.vert.pos = aPos;
+    vsOut.vert.pos = rotation4D * aPos + translation4D;
     vsOut.vert.color = aColor;
-    vsOut.vert.normal = aNormal;
+    vsOut.vert.normal = rotation4D * aNormal;
     gl_Position = projection * view * vsOut.vert.pos;
 }

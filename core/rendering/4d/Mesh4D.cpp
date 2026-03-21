@@ -47,7 +47,7 @@ namespace TetraEngine {
         tetras.emplace_back(v011,v001,v010,v111);
         tetras.emplace_back(v111,v001,v010,v100);
 
-        glm::vec4 normal = Slicer::cross4D(a,b,c);
+        glm::vec4 normal = glm::normalize(Slicer::cross4D(a,b,c));
 
         uint start = AddVertices({
             corner,
@@ -74,12 +74,12 @@ namespace TetraEngine {
     std::shared_ptr<Mesh4D> Mesh4D::MakeTesseract(glm::vec4 pos, glm::vec4 a, glm::vec4 b, glm::vec4 c, glm::vec4 d) {
         auto mesh = std::make_shared<Mesh4D>();
         mesh->AddCuboid(pos, a, b, c);
-        mesh->AddCuboid(pos, b, c, d);
-        mesh->AddCuboid(pos, c, d, a);
-        mesh->AddCuboid(pos, d, a, b);
-        mesh->AddCuboid(pos + a, d, c, b);
+        mesh->AddCuboid(pos, d, c, b);
+        mesh->AddCuboid(pos, a, c, d);
+        mesh->AddCuboid(pos, a, d, b);
+        mesh->AddCuboid(pos + a, b, c, d);
         mesh->AddCuboid(pos + b, a, d, c);
-        mesh->AddCuboid(pos + c, b, a, d);
+        mesh->AddCuboid(pos + c, a, b, d);
         mesh->AddCuboid(pos + d, c, b, a);
 
         return mesh;

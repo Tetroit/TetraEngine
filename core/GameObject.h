@@ -6,6 +6,10 @@
 #include "rendering/MeshRenderer.h"
 
 namespace TetraEngine {
+    class Renderer4D;
+}
+
+namespace TetraEngine {
 
     class Scene;
     class RigidBody;
@@ -62,6 +66,8 @@ namespace TetraEngine {
 
     template<>
     void GameObject::OnComponentAdded<MeshRenderer>(ECS::Handle<MeshRenderer> handle);
+    template<>
+    void GameObject::OnComponentAdded<Renderer4D>(ECS::Handle<Renderer4D> handle);
 
     template<>
     void GameObject::OnComponentAdded<RigidBody>(ECS::Handle<RigidBody> handle);

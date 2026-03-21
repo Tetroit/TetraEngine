@@ -4,7 +4,6 @@
 #include "VertexData.h"
 #include "Shader.h"
 #include "ViewportCamera.h"
-#include "Cubemap.h"
 #include "Texture2D.h"
 
 using namespace TetraEngine;

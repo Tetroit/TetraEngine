@@ -37,8 +37,13 @@ namespace TetraEngine {
 
         std::string GetVertexPath() const;
         std::string GetFragmentPath() const;
+
+        std::string GetGeometryPath() const;
+
         std::string VertexAsString() const;
         std::string FragmentAsString() const;
+
+        std::string GeometryAsString() const;
 
         static void InitialiseShaders();
     };

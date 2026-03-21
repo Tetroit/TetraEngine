@@ -4,6 +4,7 @@
 
 #include "Core.h"
 #include "rendering/Scene.h"
+#include "rendering/4d/Renderer4D.h"
 
 namespace TetraEngine {
     GameObjectInfo::GameObjectInfo(std::string name, ECS::Entity entity): name(std::move(name)), scene(nullptr), isEnabled(true), entity(entity) {}
@@ -76,6 +77,19 @@ namespace TetraEngine {
 
     template<>
     void GameObject::OnComponentAdded<MeshRenderer>(ECS::Handle<MeshRenderer> handle) {
+        auto infoRef = GetInfo();
+        auto scene = infoRef->scene;
+        if (!handle.Valid()) {
+            LOG_ERR("Handle is invalid");
+            return;
+        }
+        if (scene == Scene::currentScene) {
+            scene->RegisterShader(Core::GetMainECS().GetComponent(handle)->shader);
+        }
+    }
+
+    template<>
+    void GameObject::OnComponentAdded<Renderer4D>(ECS::Handle<Renderer4D> handle) {
         auto infoRef = GetInfo();
         auto scene = infoRef->scene;
         if (!handle.Valid()) {

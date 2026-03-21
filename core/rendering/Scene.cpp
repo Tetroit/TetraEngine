@@ -12,6 +12,7 @@
 #include "Viewport.h"
 #include "../utils/Time.h"
 #include "../DestroyManager.h"
+#include "4d/Renderer4D.h"
 
 using namespace TetraEngine;
 
@@ -68,6 +69,10 @@ void Scene::RenderItems() {
 		[&](MeshRenderer& mr, Transform& tr, GameObjectInfo& info) {
 		RenderItem(info, tr, mr);
 	});
+	Core::GetMainECS().Foreach<Renderer4D, Transform, GameObjectInfo>(
+		[&](Renderer4D& mr, Transform& tr, GameObjectInfo& info) {
+		RenderItem(info, tr, mr);
+	});
 	if (!onRenderListeners.IsEmpty()){
 		onRenderListeners.Call();
 	}
@@ -78,6 +83,13 @@ void Scene::RenderItem(GameObjectInfo& info,  Transform& transform, MeshRenderer
 		if (transform.IsDirty())
 			transform.Recalculate();
 		renderer.Render(transform.GetGlobalMatrix());
+	}
+}
+void Scene::RenderItem(GameObjectInfo& info,  Transform& transform, Renderer4D& renderer) {
+	if (info.isEnabled && info.scene == this) {
+		if (transform.IsDirty())
+			transform.Recalculate();
+		renderer.Render(cameraContext, transform.GetGlobalMatrix());
 	}
 }
 
