@@ -30,7 +30,7 @@ namespace TetraEngine::UI {
         std::string entityDisplay = "Entity" + std::to_string(entity.ID);
         ImGui::Text("Entity: %d (%d)", entity.ID, entity.gen);
 
-        for (auto& [id, handle] : ecs.GetAllEntityComponents(entity) ) {
+        for (auto& [id, handle] : ecs->GetAllEntityComponents(entity) ) {
             handleLinks.insert_or_assign(id, handle);
         }
 

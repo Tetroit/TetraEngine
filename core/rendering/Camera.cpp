@@ -5,7 +5,7 @@
 namespace TetraEngine {
     void Camera::ComponentCreate(Camera &camera, ECS::Entity entity, ECS::Handle<Camera> handle) {
         TETRA_USE_MAIN_ECS
-        camera.transform = ecs.GetHandle<Transform>(entity);
+        camera.transform = ecs->GetHandle<Transform>(entity);
     }
 
     void Camera::Enable() {
@@ -27,7 +27,7 @@ namespace TetraEngine {
     glm::mat4 Camera::GetViewMatrix() const
     {
         TETRA_USE_MAIN_ECS
-        auto transformPtr = ecs.GetComponent(transform);
+        auto transformPtr = ecs->GetComponent(transform);
         return glm::lookAt(
             transformPtr->GetPosition(),
             transformPtr->GetPosition() + transformPtr->TransformDirectionToWorld(glm::vec3(0,0,1)),
@@ -66,7 +66,7 @@ namespace TetraEngine {
 
     glm::vec3 Camera::GetPosition() {
         TETRA_USE_MAIN_ECS
-        auto transformPtr = ecs.GetComponent(transform);
+        auto transformPtr = ecs->GetComponent(transform);
         return transformPtr->GetPosition();
     }
 } // TetraEngine

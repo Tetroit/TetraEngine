@@ -45,7 +45,7 @@ void Scene::Clear() {
     TETRA_USE_MAIN_ECS
     for (ECS::Entity& e : gameObjects) {
         RemoveObject(e);
-        ecs.RemoveEntity(e);
+        ecs->RemoveEntity(e);
     }
     gameObjects.clear();
 }
@@ -65,11 +65,11 @@ void Scene::Render() {
 }
 
 void Scene::RenderItems() {
-	Core::GetMainECS().Foreach<MeshRenderer, Transform, GameObjectInfo>(
+	Core::GetMainECS()->Foreach<MeshRenderer, Transform, GameObjectInfo>(
 		[&](MeshRenderer& mr, Transform& tr, GameObjectInfo& info) {
 		RenderItem(info, tr, mr);
 	});
-	Core::GetMainECS().Foreach<Renderer4D, Transform, GameObjectInfo>(
+	Core::GetMainECS()->Foreach<Renderer4D, Transform, GameObjectInfo>(
 		[&](Renderer4D& mr, Transform& tr, GameObjectInfo& info) {
 		RenderItem(info, tr, mr);
 	});
@@ -128,13 +128,13 @@ void Scene::SwitchToGameView() {
 		return;
 	}
 	cameraContext = gameCamera;
-	Core::mainViewport->SetCamera(cameraContext);
+	Core::GetViewport()->SetCamera(cameraContext);
 	ViewProvider::SetCurrent(cameraContext);
 }
 
 void Scene::SwitchToEditorView() {
 	cameraContext = viewportCamera.get();
-	Core::mainViewport->SetCamera(cameraContext);
+	Core::GetViewport()->SetCamera(cameraContext);
 	ViewProvider::SetCurrent(cameraContext);
 }
 
@@ -158,25 +158,25 @@ void Scene::AddObject(const ECS::Entity& go,
                       ECS::Handle<Transform> transformH) {
 
 
-	auto& ECS = Core::GetMainECS();
+	auto* ECS = Core::GetMainECS();
 
 	if (!infoH.Valid()) {
-		infoH = ECS.GetHandle<GameObjectInfo>(go);
+		infoH = ECS->GetHandle<GameObjectInfo>(go);
 	}
 	if (!infoH.Valid()) {
 		LOG_ERR("GameObject has no info component");
 		return;
 	}
 	if (!transformH.Valid()) {
-		transformH = ECS.GetHandle<Transform>(go);
+		transformH = ECS->GetHandle<Transform>(go);
 	}
 	if (!transformH.Valid()) {
 		LOG_ERR("GameObject has no transform component");
 		return;
 	}
 
-	auto transform = ECS.GetComponent(transformH);
-	auto info = ECS.GetComponent(infoH);
+	auto transform = ECS->GetComponent(transformH);
+	auto info = ECS->GetComponent(infoH);
 
 	info->scene = this;
 
@@ -187,14 +187,14 @@ void Scene::AddObject(const ECS::Entity& go,
 		rootObjects.push_back(transform->GetParentHandle());
 	}
 
-    if (ECS.HasStorage<MeshRenderer>()) {
-        if (auto comp = ECS.GetComponent<MeshRenderer>(go); comp != nullptr) {
+    if (ECS->HasStorage<MeshRenderer>()) {
+        if (auto comp = ECS->GetComponent<MeshRenderer>(go); comp != nullptr) {
             RegisterShader(comp->shader);
         }
     }
 
 	for (auto child: transform->GetChildren()) {
-		auto childInfo = ECS.GetRelatedComponent<GameObjectInfo, Transform>(child);
+		auto childInfo = ECS->GetRelatedComponent<GameObjectInfo, Transform>(child);
 		AddObject(childInfo->entity);
 	}
 }
@@ -204,25 +204,25 @@ void Scene::RemoveObject(const ECS::Entity &go,
 	ECS::Handle<Transform> transformH) {
 
 
-	auto& ECS = Core::GetMainECS();
+	auto* ECS = Core::GetMainECS();
 
 	if (!infoH.Valid()) {
-		infoH = ECS.GetHandle<GameObjectInfo>(go);
+		infoH = ECS->GetHandle<GameObjectInfo>(go);
 	}
 	if (!infoH.Valid()) {
 		LOG_ERR("GameObject has no info component");
 		return;
 	}
 	if (!transformH.Valid()) {
-		transformH = ECS.GetHandle<Transform>(go);
+		transformH = ECS->GetHandle<Transform>(go);
 	}
 	if (!transformH.Valid()) {
 		LOG_ERR("GameObject has no transform component");
 		return;
 	}
 
-	auto transform = ECS.GetComponent(transformH);
-	auto info = ECS.GetComponent(infoH);
+	auto transform = ECS->GetComponent(transformH);
+	auto info = ECS->GetComponent(infoH);
 
 	info->scene = nullptr;
 
@@ -232,12 +232,12 @@ void Scene::RemoveObject(const ECS::Entity &go,
 		rootObjects.erase(loc);
 	}
 
-	if (auto comp = ECS.GetComponent<MeshRenderer>(go); comp != nullptr) {
+	if (auto comp = ECS->GetComponent<MeshRenderer>(go); comp != nullptr) {
 		DeregisterShader(comp->shader);
 	}
 
 	for (auto child: transform->GetChildren()) {
-		auto childInfo = ECS.GetRelatedComponent<GameObjectInfo, Transform>(child);
+		auto childInfo = ECS->GetRelatedComponent<GameObjectInfo, Transform>(child);
 		RemoveObject(childInfo->entity);
 	}
 }

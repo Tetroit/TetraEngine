@@ -175,7 +175,7 @@ InputManager::~InputManager()
 
 InputManager* InputManager::GetMain()
 {
-	return Core::inputManager;
+	return Core::GetInputManager();
 }
 void InputManager::OnKeyDown(int key)
 {

@@ -7,6 +7,7 @@
 
 #include "Inspector.h"
 #include "Hierarchy.h"
+#include "ResourceView.h"
 
 namespace TetraEngine {
 	class Texture2D;
@@ -21,11 +22,13 @@ namespace TetraEngine {
 		bool showViewport = true;
 		bool showHierarchy = true;
 		bool showComponentDisplay = true;
+		bool showResources = true;
 		bool showStyles = false;
 		bool viewportHovered = false;
 
 		std::unique_ptr<UI::Hierarchy> hierarchy;
 		std::unique_ptr<UI::Inspector> componentDisplay;
+		std::unique_ptr<UI::ResourceView> resourceView;
 
 		static void HelpMarker(const char* desc);
 		static void DrawTexture2D(const Texture2D& texture, int width = -1, int height = -1);
@@ -36,6 +39,7 @@ namespace TetraEngine {
 		void ShowDockSpace();
 		void ShowHierarchy();
 		void ShowComponentDisplay();
+		void ShowResources();
 		void ShowViewport(Viewport* vp);
 		void SetInspectors();
 

@@ -3,6 +3,7 @@
 
 
 namespace TetraEngine {
+    class Texture2D;
     class Shader;
 }
 namespace TetraEngine::UI {

@@ -25,7 +25,7 @@ UI::GameObjectTreeEntry::~GameObjectTreeEntry() {
 
 void UI::Hierarchy::ParseInfo() {
     roots.clear();
-    Core::GetMainECS().Foreach<Transform, GameObjectInfo>([&](const Transform& tr, const GameObjectInfo& info) {
+    Core::GetMainECS()->Foreach<Transform, GameObjectInfo>([&](const Transform& tr, const GameObjectInfo& info) {
         if (tr.GetParent() == nullptr) {
             roots.push_back(info.entity);
             BuildTreeFrom(tr, info);
@@ -118,7 +118,7 @@ void UI::Hierarchy::Draw(const GameObjectTreeEntry &node) {
 
 void UI::Hierarchy::BindEvents() {
     TETRA_USE_MAIN_ECS
-    ecs.OnComponentDestroyed<Transform>().AddCallback(
+    ecs->OnComponentDestroyed<Transform>().AddCallback(
         [&](TETRA_COMPONENT_EVENT_LISTENER_PARAMS(Transform)) {
         OnDestroy(component, entity, handle);
     }, "Hierarchy");
@@ -133,8 +133,8 @@ UI::GameObjectTreeEntry* UI::Hierarchy::BuildTreeFrom(const Transform& tr, const
     auto[it, success] = nodes.try_emplace(info.entity, GameObjectTreeEntry(tr, info));
     auto& node = it->second;
     for (auto& child : tr.GetChildrenConst()) {
-        auto childInfo = ecs.GetRelatedComponent<GameObjectInfo, Transform>(child);
-        auto childTr = ecs.GetRelatedComponent<Transform>(child);
+        auto childInfo = ecs->GetRelatedComponent<GameObjectInfo, Transform>(child);
+        auto childTr = ecs->GetRelatedComponent<Transform>(child);
         if (!childTr || !childInfo) {
             continue;
         }

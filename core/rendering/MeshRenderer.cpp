@@ -9,6 +9,13 @@
 #include "Texture2D.h"
 #include "Cubemap.h"
 
+#define GL_CHECK() \
+{ \
+    GLenum err; \
+    while ((err = glGetError()) != GL_NO_ERROR) \
+    std::cout << "OpenGL error: " << err << "\n"; \
+}
+
 using namespace TetraEngine;
 
 MeshRenderer* MeshRenderer::defaultRenderer;
@@ -34,7 +41,6 @@ void MeshRenderer::Render(glm::mat4 transform) {
         mesh = VertexData::GetPrefab(0);
         shader = Shader::billboardShader;
     }
-    glm::mat4 view = ViewProvider::GetCurrent()->GetViewMatrix();
 
     if (Shader::currentShader != shader)
         shader->Use();
@@ -48,10 +54,29 @@ void MeshRenderer::Render(glm::mat4 transform) {
     }
     shader->SetInt("textureFlags", textureFlags);
 
-    auto projection = ViewProvider::GetCurrent()->GetProjection();
+    glm::mat4 projection = ViewProvider::GetCurrent()->GetProjection();
+    glm::mat4 view = ViewProvider::GetCurrent()->GetViewMatrix();
     shader->SetMat4("projection", projection);
     shader->SetMat4("view", view);
     shader->SetMat4("transform", transform);
+
+    // auto printMat = [](const glm::mat4& mat) {
+    //     for (int i=0; i<4; i++) {
+    //         for (int j=0; j<4; j++) {
+    //             std::cout << mat[j][i] << " ";
+    //         }
+    //         std::cout << std::endl;
+    //     }
+    //     std::cout << std::endl;
+    // };
+    // if (shader == Shader::billboardShader) {
+    //     std::cout << "proj"  << std::endl;
+    //     printMat(projection);
+    //     std::cout << "view"  << std::endl;
+    //     printMat(view);
+    //     std::cout << "tran"  << std::endl;
+    //     printMat(transform);
+    // }
 
     if (textureDiffuse)
     {
@@ -98,7 +123,7 @@ void MeshRenderer::setTexture(const std::string& path)
 
 void MeshRenderer::InitialiseRenderer() {
     defaultRenderer = new MeshRenderer(VertexData::GetPrefab(VD_RECTANGLE), Shader::billboardShader);
-    defaultRenderer->setTexture(assetPath + "/default.png");
+    defaultRenderer->setTexture((assetPath / "default.png").string());
     skyboxRenderer = new MeshRenderer(VertexData::GetPrefab(VD_RECTANGLE), Shader::skysphereShader);
-    skyboxRenderer->setTexture(assetPath + "/skybox.jpg");
+    skyboxRenderer->setTexture((assetPath / "skybox.jpg").string());
 }

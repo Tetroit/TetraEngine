@@ -5,7 +5,7 @@
 void TetraEngine::UI::GameObjectInfoComponentDisplay::Draw(ECS::TypeErasedHandle handle) {
     TETRA_USE_MAIN_ECS
     auto transformHandle = static_cast<ECS::Handle<GameObjectInfo>>(handle);
-    GameObjectInfo* info = ecs.GetComponent<GameObjectInfo>(transformHandle);
+    GameObjectInfo* info = ecs->GetComponent<GameObjectInfo>(transformHandle);
 
     if (ImGui::CollapsingHeader("Info")) {
 

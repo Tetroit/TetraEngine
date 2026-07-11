@@ -9,6 +9,7 @@
 
 #include "utils/Event.h"
 #include "utils/Time.h"
+#include "utils/Types.h"
 #include "rendering/Scene.h"
 #include "FreeType.h"
 #include "DestroyManager.h"
@@ -20,13 +21,14 @@
 #include "rendering/VertexData.h"
 #include "rendering/ViewportCamera.h"
 #include "rendering/Viewport.h"
+#include "resources/SharedContentRegistry.h"
 #include "utils/OBJParser.h"
 
 //#ifdef NDEBUG
-
-	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
-	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
-//#endif //NDEBUG
+// extern "C"{
+// 	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+// 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+// }
 
 using namespace TetraEngine;
 
@@ -35,42 +37,10 @@ float Core::lastMouseY;
 
 bool Core::cursorEnabled = false;
 
-Application* Core::application = nullptr;
-GLFWManager* Core::glfwManager = nullptr;
-ImGuiManager* Core::imguiManager = nullptr;
-InputManager* Core::inputManager = nullptr;
-Viewport* Core::mainViewport = nullptr;
-DestroyManager* Core::destroyManager = nullptr;
-Editor* Core::editor = nullptr;
-
-ECS::ECS & Core::GetMainECS() {
-	static ECS::ECS mainEcs;
-	return mainEcs;
-}
-
-InputManager* Core::GetInputManager() {
-	return inputManager;
-}
-
-Editor::Mode Core::GetEditorMode() {
-	return editor->GetMode();
-}
-
-bool Core::IsFocusedOnViewport() {
-	return editor->IsFocused();
-}
-
-EventDispatcher<InputEvent> * Core::GetGameDispatcher() {
-    return &inputManager->GetGameDispatcher();
-}
-EventDispatcher<InputEvent> * Core::GetEditorDispatcher() {
-	return &inputManager->GetEditorDispatcher();
-}
-
 void Core::processConsole() {
 
     std::string command;
-    while (!glfwWindowShouldClose(glfwManager->window))
+    while (!glfwWindowShouldClose(globalContext.glfwManager->window))
     {
         std::getline(std::cin, command);
         //ConsoleManager::ParseCommand(command);
@@ -79,48 +49,54 @@ void Core::processConsole() {
 
 void Core::processInput(GLFWwindow* window)
 {
-    if (glfwManager->WasPressedThisFrameKey(GLFW_KEY_M)) {
-    	if (!imguiManager->IsMaximized() && Scene::currentScene->gameCamera == nullptr) {
+    if (globalContext.glfwManager->WasPressedThisFrameKey(GLFW_KEY_M)) {
+    	if (!globalContext.imguiManager->IsMaximized() && Scene::currentScene->gameCamera == nullptr) {
     		LOG_ERR_FROM("Core::processInput()", "No game camera");
     	}
     	else {
     		switch (GetEditorMode()) {
     			case Editor::PLAY:
-    				editor->SwitchMode(Editor::EDIT);
+    				globalContext.editor->SwitchMode(Editor::EDIT);
     				break;
     			case Editor::EDIT:
-    				editor->SwitchMode(Editor::PLAY);
+    				globalContext.editor->SwitchMode(Editor::PLAY);
     				break;
     		}
     	}
     }
-	inputManager->Update();
+	globalContext.inputManager->Update();
 }
 
 void Core::close() {
-    glfwSetWindowShouldClose(glfwManager->window, true);
+    glfwSetWindowShouldClose(globalContext.glfwManager->window, true);
 }
 
 int Core::Initialize()
 {
 	std::srand(time(nullptr));
 
-	inputManager = new InputManager();
-	inputManager->GetGameDispatcher().Disable();
+	InitializeTypes();
+	globalContext.resources = new SharedContentRegistry();
+	globalContext.ecs = new ECS::ECS();
 
-    destroyManager = new DestroyManager();
+	globalContext.inputManager = new InputManager();
+	globalContext.inputManager->GetGameDispatcher().Disable();
 
-	glfwManager = new GLFWManager(1280, 720);
-	glfwManager->inputManager = inputManager;
-
-	//window
-
-	//ConsoleManager::Initialize(glfwManager->window);
+    globalContext.destroyManager = new DestroyManager();
 
 	//opengl
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+
+	//window
+	globalContext.glfwManager = new GLFWManager(1280, 720);
+	globalContext.glfwManager->inputManager = globalContext.inputManager;
+
+
+	//ConsoleManager::Initialize(glfwManager->window);
+
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -128,22 +104,38 @@ int Core::Initialize()
 		return -1;
 	}
 
-	std::cout << "Vendor: " << glGetString(GL_VENDOR) << '\n';
-	std::cout << "Renderer: " << glGetString(GL_RENDERER) << '\n';
-	std::cout << "Version: " << glGetString(GL_VERSION) << "\n\n";
+	std::cout << "OpenGL Vendor: " << glGetString(GL_VENDOR) << '\n';
+	std::cout << "OpenGL Renderer: " << glGetString(GL_RENDERER) << '\n';
+	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << '\n';
+	std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n\n";
+	std::cout << "Working directory: " <<std::filesystem::current_path() << "\n\n";
+
 
 	glEnable(GL_DEPTH_TEST);
 
 	//imgui
-	imguiManager = new ImGuiManager();
-	mainViewport = new Viewport(glfwManager->width, glfwManager->height,  nullptr);
+	globalContext.imguiManager = new ImGuiManager();
+	globalContext.mainViewport = new Viewport(
+		globalContext.glfwManager->width,
+		globalContext.glfwManager->height,
+		nullptr);
 
-	editor = new Editor(inputManager,imguiManager,glfwManager);
+	globalContext.editor = new Editor(
+		globalContext.inputManager,
+		globalContext.imguiManager,
+		globalContext.glfwManager);
 	//presets
 	InitializePresets();
 	BindEvents();
 
 	return 0;
+}
+
+void Core::InitializeTypes() {
+	globalContext.typeRegistry = new TypeRegistry();
+	globalContext.typeRegistry->Register<Texture2D>();
+	globalContext.typeRegistry->Register<Material>();
+	globalContext.typeRegistry->Register<Shader>();
 }
 
 void Core::InitializePresets()
@@ -161,12 +153,12 @@ void Core::InitializePresets()
 
 void Core::BindEvents() {
 	TETRA_USE_MAIN_ECS
-	auto& transformAddedEv = ecs.OnComponentCreated<Transform>();
+	auto& transformAddedEv = ecs->OnComponentCreated<Transform>();
 	transformAddedEv.AddCallback(Transform::ComponentCreate, "Transform");
-	auto& cameraAddedEv = ecs.OnComponentCreated<Camera>();
+	auto& cameraAddedEv = ecs->OnComponentCreated<Camera>();
 	cameraAddedEv.AddCallback(Camera::ComponentCreate, "Camera");
 
-	imguiManager->BindEvents();
+	globalContext.imguiManager->BindEvents();
 }
 
 
@@ -174,29 +166,29 @@ void Core::Update() {
 	Time::Update();
 
     glfwPollEvents();
-	processInput(glfwManager->window);
+	processInput(globalContext.glfwManager->window);
 
 	Scene::currentScene->Update();
-	application->Update();
+	globalContext.application->Update();
 
-	if (glfwGetWindowAttrib(glfwManager->window, GLFW_ICONIFIED) != 0)
+	if (glfwGetWindowAttrib(globalContext.glfwManager->window, GLFW_ICONIFIED) != 0)
 	{
 		ImGui_ImplGlfw_Sleep(10);
 	}
 
 	int display_w, display_h;
-	glfwGetFramebufferSize(glfwManager->window, &display_w, &display_h);
+	glfwGetFramebufferSize(globalContext.glfwManager->window, &display_w, &display_h);
 
 	//glViewport(0, 0, display_w, display_h);
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	imguiManager->StartRender();
+	globalContext.imguiManager->StartRender();
 
 #if TETRA_DEBUG_UI
-	imguiManager->RenderApp();
-	editor->Update();
-	mainViewport->Bind();
+	globalContext.imguiManager->RenderApp();
+	globalContext.editor->Update();
+	globalContext.mainViewport->Bind();
 #endif
 
 	Scene::currentScene->Render();
@@ -210,7 +202,7 @@ void Core::UpdateOverlay()
 
 	//overlay
 
-	glm::mat4 proj = glm::ortho(0.0f, (float)mainViewport->GetWidth(), 0.0f, (float)mainViewport->GetHeight());
+	glm::mat4 proj = glm::ortho(0.0f, (float)globalContext.mainViewport->GetWidth(), 0.0f, (float)globalContext.mainViewport->GetHeight());
 	Shader::textShader->Use();
 	Shader::textShader->SetMat4("projection", proj);
 
@@ -218,26 +210,26 @@ void Core::UpdateOverlay()
 
 #if TETRA_DEBUG_UI
 
-	mainViewport->Unbind(glfwManager->width, glfwManager->height);
+	globalContext.mainViewport->Unbind(globalContext.glfwManager->width, globalContext.glfwManager->height);
 #endif
 
-	imguiManager->EndRender();
+	globalContext.imguiManager->EndRender();
 
 }
 void Core::AfterUpdate()
 {
-	glfwSwapBuffers(glfwManager->window);
+	glfwSwapBuffers(globalContext.glfwManager->window);
 
-	application->LateUpdate();
-    destroyManager->Update();
-    glfwManager->Update();
+	globalContext.application->LateUpdate();
+    globalContext.destroyManager->Update();
+    globalContext.glfwManager->Update();
 }
 void Core::CleanUp() {
-	delete mainViewport;
-	delete application;
-	delete editor;
-	delete imguiManager;
-	delete glfwManager;
-	delete inputManager;
-    delete destroyManager;
+	delete globalContext.mainViewport;
+	delete globalContext.application;
+	delete globalContext.editor;
+	delete globalContext.imguiManager;
+	delete globalContext.glfwManager;
+	delete globalContext.inputManager;
+    delete globalContext.destroyManager;
 }

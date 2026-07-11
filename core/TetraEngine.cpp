@@ -6,7 +6,6 @@
 #ifndef TETRA_TEST
 
 #include "../Core.h"
-#include "../applications/ApplicationConfig.h"
 #ifndef TETRA_APPLICATION_NAME
 #error No application defined
 #endif
@@ -29,7 +28,7 @@ int main()
 
 	std::thread consoleThread(Core::processConsole);
 
-	while (!glfwWindowShouldClose(Core::glfwManager->window))
+	while (!glfwWindowShouldClose(Core::GetGLFWManager()->window))
 	{
 		//layers
 		Core::Update();

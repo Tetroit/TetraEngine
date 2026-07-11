@@ -81,17 +81,17 @@ namespace TetraEngine
 {
     template<class T>
     T* GameObject::GetComponent() const {
-        return Core::GetMainECS().GetComponent<T>(entity);
+        return Core::GetMainECS()->GetComponent<T>(entity);
     }
 
     template<class T>
     ECS::Handle<T> GameObject::GetComponentHandle() const {
-        return Core::GetMainECS().GetHandle<T>(entity);
+        return Core::GetMainECS()->GetHandle<T>(entity);
     }
 
     template<class T, typename... Args>
     ECS::Handle<T> GameObject::AddComponent(Args&&... args) {
-        auto handle = Core::GetMainECS().CreateComponent<T>(entity, std::forward<Args>(args)...);
+        auto handle = Core::GetMainECS()->CreateComponent<T>(entity, std::forward<Args>(args)...);
         OnComponentAdded<T>(handle);
         return handle;
     }

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_STANDARD 20)
-set(APP_NAME "ForD")
+set(APP_NAME "MyApplication")
 
 find_package(OpenGL)
 
@@ -9,6 +9,8 @@ add_subdirectory(deps/glfw)
 add_subdirectory(deps/glm)
 add_subdirectory(deps/assimp)
 add_subdirectory(deps/freetype)
+add_subdirectory(deps/nfd)
+add_subdirectory(deps/json)
 
 file(GLOB IMGUI_GLOB
         deps/imgui/imgui.cpp
@@ -50,27 +52,21 @@ file(GLOB_RECURSE APP_FILES_RECURSE
 )
 
 file (GLOB TETRA_ENGINE_GLOB
-        "core/applications/ApplicationConfig.h"
 
-        "core/rendering/*.h"
         "core/rendering/*.cpp"
-        "core/rendering/4D/*.h"
         "core/rendering/4D/*.cpp"
 
-        "core/utils/*.h"
         "core/utils/*.cpp"
 
-        "core/behaviours/*.h"
         "core/behaviours/*.cpp"
 
-        "core/ecs/*.h"
         "core/ecs/*.cpp"
 
-        "core/UI/*.h"
         "core/UI/*.cpp"
 
-        "core/physics/*.h"
         "core/physics/*.cpp"
+
+        "core/resources/*.cpp"
 
         core/pch/tetrapc.h
         core/pch/tetrapc.cpp
@@ -148,7 +144,7 @@ add_executable(UnitTest
         core/ecs/ECS.h
         core/ecs/Storage.h
 )
-target_link_libraries(UnitTest PRIVATE glfw glm assimp freetype imgui stb glad
+target_link_libraries(UnitTest PRIVATE glfw glm assimp freetype imgui stb glad json
         "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysX_static_64.lib"
         "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysXFoundation_static_64.lib"
         "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysXExtensions_static_64.lib"
@@ -157,6 +153,7 @@ target_link_libraries(UnitTest PRIVATE glfw glm assimp freetype imgui stb glad
 target_include_directories(UnitTest PRIVATE
         ${CMAKE_SOURCE_DIR}/deps/assimp/include
         ${CMAKE_SOURCE_DIR}/core/pch
+        ${CMAKE_SOURCE_DIR}/deps/nfd/src/include
         ${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/include
 )
 
@@ -171,7 +168,7 @@ add_executable(TetraEngine ${TETRA_ENGINE_GLOB} ${APP_FILES_NON_RECURSE} ${APP_F
         core/Editor.h
         core/utils/Brush.h)
 
-target_link_libraries(TetraEngine PRIVATE glfw glm assimp freetype imgui stb glad
+target_link_libraries(TetraEngine PRIVATE glfw glm assimp freetype imgui stb glad nfd
         "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysX_static_64.lib"
         "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysXFoundation_static_64.lib"
         "${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/bin/win.x86_64.vc143.md/debug/PhysXCommon_static_64.lib"
@@ -182,7 +179,9 @@ target_link_libraries(TetraEngine PRIVATE glfw glm assimp freetype imgui stb gla
 target_include_directories(TetraEngine PRIVATE
         ${CMAKE_SOURCE_DIR}/deps/assimp/include
         ${CMAKE_SOURCE_DIR}/core/pch
+        ${CMAKE_SOURCE_DIR}/deps/nfd/src/include
         ${CMAKE_SOURCE_DIR}/deps/PhysX_build/vs17cpu/include
+        ${CMAKE_SOURCE_DIR}/deps/json/include
 )
 target_compile_definitions(TetraEngine PRIVATE
         TETRA_APPLICATION_TYPE=${APP_NAME}

@@ -15,7 +15,7 @@ namespace TetraEngine {
 
             TETRA_USE_MAIN_ECS
             auto transformHandle = static_cast<ECS::Handle<PointLight>>(handle);
-            PointLight* light = ecs.GetComponent<PointLight>(transformHandle);
+            PointLight* light = ecs->GetComponent<PointLight>(transformHandle);
 
             if (ImGui::CollapsingHeader("PointLight")) {
 

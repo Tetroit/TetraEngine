@@ -1,7 +1,6 @@
 #pragma once
 #define TETRA_DEBUG_UI true
 
-
 #include "../Application.h"
 #include "../rendering/Scene.h"
 #include "../rendering/Shader.h"

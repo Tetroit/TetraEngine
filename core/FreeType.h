@@ -93,9 +93,9 @@ namespace TetraEngine {
 				characters.insert(std::pair<char, Character>(c, character));
 			}
 		}
-		static bool LoadFont(const std::string& path = fontPath + "/arial.ttf") {
+		static bool LoadFont(const std::filesystem::path& path = fontPath / "arial.ttf") {
 
-			if (FT_New_Face(ft, path.c_str(), 0, &defaultFace))
+			if (FT_New_Face(ft, path.string().c_str(), 0, &defaultFace))
 			{
 				std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 				return false;

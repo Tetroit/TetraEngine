@@ -97,7 +97,7 @@ GLFWManager::~GLFWManager()
 }
 GLFWManager* GLFWManager::get()
 {
-	return Core::glfwManager;
+	return Core::GetGLFWManager();
 }
 
 void GLFWManager::DisplayModes() {

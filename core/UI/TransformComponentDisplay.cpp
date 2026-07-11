@@ -10,7 +10,7 @@ namespace TetraEngine::UI {
     void TransformComponentDisplay::Draw(ECS::TypeErasedHandle handle) {
         TETRA_USE_MAIN_ECS
         auto transformHandle = static_cast<ECS::Handle<Transform>>(handle);
-        Transform* tr = ecs.GetComponent<Transform>(transformHandle);
+        Transform* tr = ecs->GetComponent<Transform>(transformHandle);
 
         if (ImGui::CollapsingHeader("Transform")) {
             ImGui::PushID("Transform");

@@ -5,6 +5,7 @@
 #include "Slicer.h"
 
 namespace TetraEngine {
+    class Material;
     class Shader;
     class ViewProvider;
 

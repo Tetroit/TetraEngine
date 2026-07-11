@@ -45,30 +45,31 @@ ImGuiManager::ImGuiManager()
 	io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	ImGui::StyleColorsDark();
-	auto font1S = io->Fonts->AddFontFromFileTTF((fontPath + "/arial.ttf").c_str(), 15.0f);
-	auto font2S = io->Fonts->AddFontFromFileTTF((fontPath + "/Aldrich.ttf").c_str(), 12.0f);
-	auto fontMonoS = io->Fonts->AddFontFromFileTTF((fontPath + "/DMMono.ttf").c_str(), 15.0f);
+	auto font1S = io->Fonts->AddFontFromFileTTF((fontPath / "arial.ttf").string().c_str(), 15.0f);
+	auto font2S = io->Fonts->AddFontFromFileTTF((fontPath / "Aldrich.ttf").string().c_str(), 12.0f);
+	auto fontMonoS = io->Fonts->AddFontFromFileTTF((fontPath / "DMMono.ttf").string().c_str(), 15.0f);
 
-	auto font1M = io->Fonts->AddFontFromFileTTF((fontPath + "/arial.ttf").c_str(), 20.0f);
-	auto font2M = io->Fonts->AddFontFromFileTTF((fontPath + "/Aldrich.ttf").c_str(), 16.0f);
-	auto fontMonoM = io->Fonts->AddFontFromFileTTF((fontPath + "/DMMono.ttf").c_str(), 20.0f);
+	auto font1M = io->Fonts->AddFontFromFileTTF((fontPath / "arial.ttf").string().c_str(), 20.0f);
+	auto font2M = io->Fonts->AddFontFromFileTTF((fontPath / "Aldrich.ttf").string().c_str(), 16.0f);
+	auto fontMonoM = io->Fonts->AddFontFromFileTTF((fontPath / "DMMono.ttf").string().c_str(), 20.0f);
 
-	auto font1L = io->Fonts->AddFontFromFileTTF((fontPath + "/arial.ttf").c_str(), 30.0f);
-	auto font2L = io->Fonts->AddFontFromFileTTF((fontPath + "/Aldrich.ttf").c_str(), 24.0f);
-	auto fontMonoL = io->Fonts->AddFontFromFileTTF((fontPath + "/DMMono.ttf").c_str(), 30.0f);
+	auto font1L = io->Fonts->AddFontFromFileTTF((fontPath / "arial.ttf").string().c_str(), 30.0f);
+	auto font2L = io->Fonts->AddFontFromFileTTF((fontPath / "Aldrich.ttf").string().c_str(), 24.0f);
+	auto fontMonoL = io->Fonts->AddFontFromFileTTF((fontPath / "DMMono.ttf").string().c_str(), 30.0f);
 
-	auto font1XL = io->Fonts->AddFontFromFileTTF((fontPath + "/arial.ttf").c_str(), 40.0f);
-	auto font2XL = io->Fonts->AddFontFromFileTTF((fontPath + "/Aldrich.ttf").c_str(), 32.0f);
-	auto fontMonoXL = io->Fonts->AddFontFromFileTTF((fontPath + "/DMMono.ttf").c_str(), 40.0f);
+	auto font1XL = io->Fonts->AddFontFromFileTTF((fontPath / "arial.ttf").string().c_str(), 40.0f);
+	auto font2XL = io->Fonts->AddFontFromFileTTF((fontPath / "Aldrich.ttf").string().c_str(), 32.0f);
+	auto fontMonoXL = io->Fonts->AddFontFromFileTTF((fontPath / "DMMono.ttf").string().c_str(), 40.0f);
 
 	io->FontDefault = fontMonoM;
 
 
-	ImGui_ImplGlfw_InitForOpenGL(Core::glfwManager->window, true);
+	ImGui_ImplGlfw_InitForOpenGL(Core::GetGLFWManager()->window, true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
 	hierarchy = std::make_unique<UI::Hierarchy>();
 	componentDisplay = std::make_unique<UI::Inspector>();
+	resourceView = std::make_unique<UI::ResourceView>(Core::GetResourceManager());
 
 	SetInspectors();
 
@@ -131,6 +132,9 @@ void ImGuiManager::ShowDockSpace()
 			if (ImGui::MenuItem("Hierarchy", NULL, false, enableDockSpace)) {
 				showHierarchy = true;
 			}
+			if (ImGui::MenuItem("Resources", NULL, false, enableDockSpace)) {
+				showResources = true;
+			}
 			ImGui::EndMenu();
 
 		}
@@ -163,6 +167,18 @@ void ImGuiManager::ShowComponentDisplay() {
 	}
 }
 
+void ImGuiManager::ShowResources() {
+	if (ImGui::Begin("Resource Manager", &showResources))
+	{
+		if (!resourceView) {
+			LOG_ERR("No resources");
+			return;
+		}
+		resourceView->Display();
+	}
+	ImGui::End();
+}
+
 
 void ImGuiManager::ShowViewport(Viewport* vp)
 {
@@ -175,7 +191,7 @@ void ImGuiManager::ShowViewport(Viewport* vp)
 		// if (!viewportHovered)
 		viewportHovered = ImGui::IsItemHovered();
         if (isMaximized) {
-            Core::application->DrawGUI(contentPos, contentSize);
+            Core::GetApplication()->DrawGUI(contentPos, contentSize);
         }
 	}
 	ImGui::End();
@@ -226,9 +242,10 @@ void ImGuiManager::RenderApp()
 {
 
 	if (enableDockSpace) ShowDockSpace();
-	if (showViewport) ShowViewport(Core::mainViewport);
+	if (showViewport) ShowViewport(Core::GetViewport());
 	if (showHierarchy) ShowHierarchy();
 	if (showComponentDisplay) ShowComponentDisplay();
+	if (showResources) ShowResources();
 
 	ImGui::ShowIDStackToolWindow();
 	if (showStyles) {

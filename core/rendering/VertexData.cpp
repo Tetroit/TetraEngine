@@ -21,6 +21,7 @@ using namespace TetraEngine;
 * 3.LoadFaces
 * 4.Setup
 */
+
 std::vector<std::shared_ptr<VertexData>> VertexData::collection = std::vector<std::shared_ptr<VertexData>>{};
 
 int VertexData::lastId = 0;
@@ -134,9 +135,6 @@ void VertexData::Setup() {
 
 void VertexData::Update() {
     Draw();
-
-    //transform = glm::rotate(transform, Time::deltaTime, glm::vec3(0.0f, 0.9f, 0.1f));
-    //transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 1.0f));
 }
 void VertexData::Draw()
 {
@@ -268,7 +266,7 @@ void VertexData::InitialisePrefabs() {
     vertices.clear();
     index.clear();
 
-    OBJParser::OBJRead(meshPath + "/suzanne.obj");
+    OBJParser::OBJRead(meshPath / "suzanne.obj");
 }
 std::shared_ptr<VertexData> VertexData::GetPrefab(int id) {
     return collection[id];

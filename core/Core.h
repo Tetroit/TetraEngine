@@ -9,10 +9,11 @@
 #include "InputManager.h"
 #include "UI/ImGuiManager.h"
 #include "GLFWManager.h"
-#include "ecs/ECS.h"
+#include "GlobalContext.h"
+#include "resources/SharedContentRegistry.h"
 
 
-#define TETRA_USE_MAIN_ECS auto& ecs = TetraEngine::Core::GetMainECS();
+#define TETRA_USE_MAIN_ECS auto* ecs = TetraEngine::Core::GetMainECS();
 #define TETRA_USE_MAIN_PHYSICS_INSTANCE auto* physicsInstance = TetraEngine::Core::GetPhysicsInstance();
 #define TETRA_USE_MAIN_PHYSICS auto* physics = TetraEngine::Core::GetPhysics();
 #define TETRA_USE_MAIN_PHYSICS_SCENE auto* physicsScene = TetraEngine::Core::GetPhysicsScene();
@@ -20,10 +21,15 @@
 #define TETRA_USE_EDITOR_INPUT auto* input = TetraEngine::Core::GetEditorDispatcher();
 
 namespace TetraEngine {
-	class Editor;
 }
 
 namespace TetraEngine {
+
+	class TypeRegistry;
+	class Editor;
+	namespace ECS {
+		class ECS;
+	}
 
 	class Core
 	{
@@ -37,24 +43,18 @@ namespace TetraEngine {
 
 		static float lastMouseX, lastMouseY;
 		static bool cursorEnabled;
-
-		static Application* application;
-		static GLFWManager* glfwManager;
-		static ImGuiManager* imguiManager;
-		static InputManager* inputManager;
-		static Viewport* mainViewport;
-	    static DestroyManager* destroyManager;
-		static Editor* editor;
+		static inline GlobalContext globalContext;
 
 		template <typename T>
 		static void CreateApplication() {
 			if (std::is_base_of<Application, T>::value)
-				application = new T();
+				globalContext.application = new T();
 			else
 				throw std::invalid_argument("input is not an application type");
 		}
 
 		static int Initialize();
+		static void InitializeTypes();
 		static void InitializePresets();
 		static void BindEvents();
 		static void Update();
@@ -62,13 +62,20 @@ namespace TetraEngine {
 		static void CleanUp();
 		static void AfterUpdate();
 		static void CleanUpPresets();
-		static ECS::ECS& GetMainECS();
-		static InputManager* GetInputManager();
-		static Editor::Mode GetEditorMode();
-		static bool IsFocusedOnViewport();
 
-		static EventDispatcher<InputEvent>* GetGameDispatcher();
-		static EventDispatcher<InputEvent>* GetEditorDispatcher();
+		static ECS::ECS* GetMainECS(){return globalContext.ecs;}
+		static InputManager* GetInputManager() {return globalContext.inputManager;}
+		static Editor::Mode GetEditorMode() {return globalContext.editor->GetMode();}
+		static bool IsFocusedOnViewport() {return globalContext.editor->IsFocused();}
+		static SharedContentRegistry* GetResourceManager() {return globalContext.resources;}
+		static Viewport* GetViewport() {return globalContext.mainViewport;}
+		static TypeRegistry* GetTypeRegistry() {return globalContext.typeRegistry;}
+		static GLFWManager * GetGLFWManager() {return globalContext.glfwManager;}
+		static DestroyManager* GetDestroyManager(){return globalContext.destroyManager;}
+		static Application* GetApplication(){return globalContext.application;}
+
+		static EventDispatcher<InputEvent>* GetGameDispatcher(){return &globalContext.inputManager->GetGameDispatcher();};
+		static EventDispatcher<InputEvent>* GetEditorDispatcher(){return &globalContext.inputManager->GetEditorDispatcher();}
 		//console
 		static void processConsole();
 		//input

@@ -42,7 +42,7 @@ namespace TetraEngine {
     void Renderer4D::ComputeEdges() {
 
         if (edgeComputeShader == 0) {
-            edgeComputeShader = ComputeShaderLoader::loadCompute(shaderPath + "/tetrahedronEdges.comp");
+            edgeComputeShader = ComputeShaderLoader::loadCompute((shaderPath / "tetrahedronEdges.comp").string());
         }
         initBuffers();
         auto vData = mesh->GetVertices();

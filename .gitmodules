@@ -14,3 +14,9 @@
 [submodule "deps/freetype"]
 	path = deps/freetype
 	url = https://github.com/freetype/freetype
+[submodule "deps/nfd"]
+	path = deps/nfd
+	url = https://github.com/btzy/nativefiledialog-extended
+[submodule "deps/json"]
+	path = deps/json
+	url = https://github.com/nlohmann/json

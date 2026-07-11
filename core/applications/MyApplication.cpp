@@ -11,20 +11,20 @@ using namespace TetraEngine;
 
 MyApplication::MyApplication()
 {
-	myScene.skybox = new Skybox(Skybox::BOX, assetPath + "/skybox");
+	myScene.skybox = new Skybox(Skybox::BOX, (assetPath / "skybox").string());
 	Skybox::current = myScene.skybox;
-	litShader = new Shader(shaderPath + "/lit.glvs", shaderPath + "/lit.glfs");
+	litShader = new Shader(shaderPath / "lit.glvs", shaderPath / "lit.glfs");
 	litShader->Use();
 
 	shipObject = new GameObject("Ship");
-	int shipID = OBJParser::OBJRead(meshPath + "/ship.obj");
+	int shipID = OBJParser::OBJRead(meshPath / "ship.obj");
 	std::shared_ptr<VertexData> ship = VertexData::GetPrefab(shipID);
 	shipRenderer = shipObject->AddComponent<MeshRenderer>(ship, litShader);
-	auto shipRendererPtr = Core::GetMainECS().GetComponent(shipRenderer);
+	auto shipRendererPtr = Core::GetMainECS()->GetComponent(shipRenderer);
 
-	ambientTex.Load(assetPath + "/ship/ambient.png", true);
-	diffuseTex.Load(assetPath + "/ship/diffuse.png", true);
-	specularTex.Load(assetPath + "/ship/specular.png", true);
+	ambientTex.Load(assetPath / "ship/ambient.png", true);
+	diffuseTex.Load(assetPath / "ship/diffuse.png", true);
+	specularTex.Load(assetPath / "ship/specular.png", true);
 
 	shipRendererPtr->setTexture(&diffuseTex, 1);
 	shipRendererPtr->setTexture(&specularTex, 2);
@@ -53,15 +53,15 @@ MyApplication::MyApplication()
 	auto mr2 = cube2->AddComponent<MeshRenderer>(VertexData::GetPrefab(VD_CUBE), litShader);
 	auto mr3 = cube3->AddComponent<MeshRenderer>(VertexData::GetPrefab(VD_CUBE), litShader);
 
-	Core::GetMainECS().GetComponent(mr3)->material = new Material(glm::vec3(0.1,0,0.1),glm::vec3(0.5,0,0.5),glm::vec3(0.3,0,0.3));
-	Core::GetMainECS().GetComponent(mr2)->material = new Material(glm::vec3(0,0.1,0.1),glm::vec3(0,0.5,0.5),glm::vec3(0,0.3,0.3));
-	Core::GetMainECS().GetComponent(mr1)->material = new Material(glm::vec3(0,0,0.1),glm::vec3(0,0,0.5),glm::vec3(0,0,0.3));
+	Core::GetMainECS()->GetComponent(mr3)->material = new Material(glm::vec3(0.1,0,0.1),glm::vec3(0.5,0,0.5),glm::vec3(0.3,0,0.3));
+	Core::GetMainECS()->GetComponent(mr2)->material = new Material(glm::vec3(0,0.1,0.1),glm::vec3(0,0.5,0.5),glm::vec3(0,0.3,0.3));
+	Core::GetMainECS()->GetComponent(mr1)->material = new Material(glm::vec3(0,0,0.1),glm::vec3(0,0,0.5),glm::vec3(0,0,0.3));
 
-	auto tr1ptr = Core::GetMainECS().GetComponent(tr1);
+	auto tr1ptr = Core::GetMainECS()->GetComponent(tr1);
 	tr1ptr->LocalTranslate(glm::vec3(5, 0, 0));
-	auto tr2ptr = Core::GetMainECS().GetComponent(tr2);
+	auto tr2ptr = Core::GetMainECS()->GetComponent(tr2);
 	tr2ptr->LocalTranslate(glm::vec3(0, 5, 0));
-	auto tr3ptr = Core::GetMainECS().GetComponent(tr3);
+	auto tr3ptr = Core::GetMainECS()->GetComponent(tr3);
 	tr3ptr->LocalTranslate(glm::vec3(0, 0, 5));
 	//
 	// Scene::currentScene->AddObject(*cube1);
@@ -71,23 +71,26 @@ MyApplication::MyApplication()
 	light = new GameObject("Light 1");
 	glm::vec3 lightCol = glm::vec3(1, 0, 1);
 	auto lightBbHandle = light->AddComponent<MeshRenderer>(VertexData::GetPrefab(VD_RECTANGLE), Shader::billboardShader);
-	auto lightBbPtr = Core::GetMainECS().GetComponent(lightBbHandle);
+	auto lightBbPtr = Core::GetMainECS()->GetComponent(lightBbHandle);
 	lightBbPtr->material = new Material(lightCol, glm::vec3(0), glm::vec3(0));
 
 	light->GetTransform()->GlobalTranslate(glm::vec3(0,0,-5));
+	// light->GetTransform()->LocalScale(0.1f);
 	auto plHandle = light->AddComponent<PointLight>(lightCol * 0.1f, lightCol * 0.7f, lightCol * 0.6f, glm::vec3(1.0f, 0.1f, 0.01f));
 	Scene::currentScene->AddObject(*light);
 
 	light2 = new GameObject("Light 2");
 	glm::vec3 light2Col = glm::vec3(0, 1, 0);
 	auto light2BbHandle = light2->AddComponent<MeshRenderer>(VertexData::GetPrefab(VD_RECTANGLE), Shader::billboardShader);
-	auto light2BbPtr = Core::GetMainECS().GetComponent(light2BbHandle);
+	auto light2BbPtr = Core::GetMainECS()->GetComponent(light2BbHandle);
 	light2BbPtr->material = new Material(light2Col, glm::vec3(0), glm::vec3(0));
 
 	light2->GetTransform()->GlobalTranslate(glm::vec3(0,0,5));
+	// light2->GetTransform()->LocalScale(0.1f);
 	auto plHandle2 = light2->AddComponent<PointLight>(light2Col * 0.1f, light2Col * 0.7f, light2Col * 0.6f, glm::vec3(1.0f, 0.1f, 0.01f));
 	Scene::currentScene->AddObject(*light2);
 
+	auto texture1H = Core::GetResourceManager()->Load<Texture2D>(std::filesystem::path("assets/container.png"));
 	// light1->diffuse = glm::vec3(0.1f, 1, 0.7f);
 	// light1->specular = light1->diffuse * 0.3f;
 	// light1->ambient = light1->diffuse * 0.0f;

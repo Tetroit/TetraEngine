@@ -28,7 +28,6 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "../config.h"
-#include "../utils/Types.h"
 
 #define LOG(x) std::cout << "SYSTEM::" << x << '\n'
 #define LOG_ERR(x) std::cerr << "ERROR::" << x << '\n'
@@ -51,3 +50,4 @@ constexpr void log_test(const bool expr, const std::string& testName) {
 }
 
 using uint = uint32_t;
+using asset_type_id = size_t;

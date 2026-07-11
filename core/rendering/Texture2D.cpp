@@ -17,6 +17,29 @@ Texture2D::Texture2D() {
 	glGenTextures(1, &texture);
 }
 
+Texture2D::Texture2D(Texture2D &&other) noexcept {
+	texture = other.texture;
+	path = other.path;
+	width = other.width;
+	height = other.height;
+	channels = other.channels;
+	data = std::move(other.data);
+	other.texture = 0;
+}
+
+Texture2D & Texture2D::operator=(Texture2D &&other) noexcept {
+	if (this != &other) {
+		texture = other.texture;
+		path = other.path;
+		width = other.width;
+		height = other.height;
+		channels = other.channels;
+		data = std::move(other.data);
+		other.texture = 0;
+	}
+	return *this;
+}
+
 Texture2D::Texture2D(int width, int height, int channels) : width(width), height(height), channels(channels)
 {
 	glGenTextures(1, &texture);
@@ -40,30 +63,7 @@ Texture2D::Texture2D(const std::string &name, bool flip_vertically) {
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	int channelMode = 0;
-	stbi_set_flip_vertically_on_load(flip_vertically);
-	data = stbi_load(name.c_str(), &width, &height, &channels, 0);
-	if (data)
-	{
-		if (channels == 1) channelMode = GL_RED;
-		if (channels == 2) channelMode = GL_RG;
-		if (channels == 3) channelMode = GL_RGB;
-		if (channels == 4) channelMode = GL_RGBA;
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, channelMode, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture " << name << std::endl;
-	}
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, channelMode, GL_UNSIGNED_BYTE, NULL);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	Load(name, flip_vertically);
 }
 
 Texture2D::~Texture2D() {
@@ -76,21 +76,23 @@ void Texture2D::Load(const std::string& name, bool flip_vertically) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	stbi_set_flip_vertically_on_load(flip_vertically);
-	data = stbi_load(name.c_str(), &width, &height, &channels, 0);
-	if (data)
-	{
-		int channelMode = 0;
-		if (channels == 1) channelMode = GL_RED;
-		if (channels == 2) channelMode = GL_RG;
-		if (channels == 3) channelMode = GL_RGB;
-		if (channels == 4) channelMode = GL_RGBA;
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, channelMode, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
+	auto raw = stbi_load(name.c_str(), &width, &height, &channels, 0);
+	if (!raw)
 	{
 		std::cout << "Failed to load texture " << name << std::endl;
+		return;
 	}
+
+	int channelMode = 0;
+	if (channels == 1) channelMode = GL_RED;
+	if (channels == 2) channelMode = GL_RG;
+	if (channels == 3) channelMode = GL_RGB;
+	if (channels == 4) channelMode = GL_RGBA;
+
+	data = std::vector<byte>(raw, raw + width * height * channels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, channelMode, GL_UNSIGNED_BYTE, data.data());
+	glGenerateMipmap(GL_TEXTURE_2D);
+	stbi_image_free(raw);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

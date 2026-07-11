@@ -22,7 +22,7 @@ namespace TetraEngine::UI{
     void MeshRendererComponentDisplay::Draw(ECS::TypeErasedHandle handle) {
         TETRA_USE_MAIN_ECS
         auto transformHandle = static_cast<ECS::Handle<MeshRenderer>>(handle);
-        MeshRenderer* renderer = ecs.GetComponent<MeshRenderer>(transformHandle);
+        MeshRenderer* renderer = ecs->GetComponent<MeshRenderer>(transformHandle);
 
         if (ImGui::CollapsingHeader("Renderer")) {
 

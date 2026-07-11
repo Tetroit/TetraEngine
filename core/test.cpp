@@ -16,7 +16,7 @@
 #include FT_FREETYPE_H
 
 #include "ecs/ComponentManager.h"
-#include "registry/SharedContentRegistry.h"
+#include "resources/SharedContentRegistry.h"
 #include "rendering/Material.h"
 
 using namespace TetraEngine;

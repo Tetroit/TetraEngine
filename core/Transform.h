@@ -68,6 +68,7 @@ namespace TetraEngine {
         void LocalTranslate(glm::vec3 pos);
         void LocalRotate(glm::quat rot);
         void LocalScale(glm::vec3 sc);
+        void LocalScale(float sc);
 
         void GlobalTranslate(glm::vec3 pos);
         void GlobalRotate(glm::quat rot);

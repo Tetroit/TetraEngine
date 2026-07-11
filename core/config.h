@@ -1,10 +1,11 @@
 #pragma once
+#include <filesystem>
 #include <string>
 
 namespace TetraEngine {
-	const std::string assetPath("./assets");
-	const std::string fontPath(assetPath + "/fonts");
-	const std::string meshPath(assetPath + "/meshes");
-	const std::string texturePath(assetPath + "/textures");
-	const std::string shaderPath("./shaders");
+	const std::filesystem::path assetPath("./assets");
+	const std::filesystem::path fontPath(assetPath / "fonts");
+	const std::filesystem::path meshPath(assetPath / "meshes");
+	const std::filesystem::path texturePath(assetPath / "textures");
+	const std::filesystem::path shaderPath("./shaders");
 }

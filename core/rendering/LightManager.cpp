@@ -36,7 +36,7 @@ void LightManager::dispatchPointLights(Shader* shader)
 
 void LightManager::CollectLightData() {
 	pointLights.clear();
-	Core::GetMainECS().Foreach<PointLight, Transform, GameObjectInfo>(
+	Core::GetMainECS()->Foreach<PointLight, Transform, GameObjectInfo>(
 	    [&](PointLight& pl, Transform& t, GameObjectInfo& info) {
 		AddPointLight(pl, t, info);
 	});

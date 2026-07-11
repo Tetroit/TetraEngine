@@ -10,20 +10,20 @@ namespace TetraEngine {
     GameObjectInfo::GameObjectInfo(std::string name, ECS::Entity entity): name(std::move(name)), scene(nullptr), isEnabled(true), entity(entity) {}
 
     GameObject::GameObject() {
-        entity = Core::GetMainECS().CreateEntity();
-        transform = Core::GetMainECS().CreateComponent<Transform>(entity);
+        entity = Core::GetMainECS()->CreateEntity();
+        transform = Core::GetMainECS()->CreateComponent<Transform>(entity);
 
-        info = Core::GetMainECS().CreateComponent<GameObjectInfo>(entity, "New Object", entity);
+        info = Core::GetMainECS()->CreateComponent<GameObjectInfo>(entity, "New Object", entity);
     }
 
     GameObject::GameObject(const std::string& name) {
-        entity = Core::GetMainECS().CreateEntity();
-        transform = Core::GetMainECS().CreateComponent<Transform>(entity);
-        info = Core::GetMainECS().CreateComponent<GameObjectInfo>(entity, name, entity);
+        entity = Core::GetMainECS()->CreateEntity();
+        transform = Core::GetMainECS()->CreateComponent<Transform>(entity);
+        info = Core::GetMainECS()->CreateComponent<GameObjectInfo>(entity, name, entity);
     }
 
     GameObject::~GameObject() {
-        Core::GetMainECS().RemoveEntity(entity);
+        Core::GetMainECS()->RemoveEntity(entity);
     }
 
     Action<GameObject*>* GameObject::GetDestroyAction() {
@@ -31,7 +31,7 @@ namespace TetraEngine {
     }
 
     Transform* GameObject::GetTransform() const {
-        return Core::GetMainECS().GetComponent<Transform>(transform);
+        return Core::GetMainECS()->GetComponent<Transform>(transform);
     }
 
     ECS::Handle<Transform> GameObject::GetTransformHandle() const {
@@ -39,7 +39,7 @@ namespace TetraEngine {
     }
 
     GameObjectInfo* GameObject::GetInfo() const {
-        return Core::GetMainECS().GetComponent(info);
+        return Core::GetMainECS()->GetComponent(info);
     }
 
     ECS::Handle<GameObjectInfo> GameObject::GetInfoHandle() const {
@@ -71,7 +71,7 @@ namespace TetraEngine {
     }
 
     void GameObject::Destroy() {
-        Core::destroyManager->Push(this);
+        Core::GetDestroyManager()->Push(this);
         onDestroy.Call(this);
     }
 
@@ -84,7 +84,7 @@ namespace TetraEngine {
             return;
         }
         if (scene == Scene::currentScene) {
-            scene->RegisterShader(Core::GetMainECS().GetComponent(handle)->shader);
+            scene->RegisterShader(Core::GetMainECS()->GetComponent(handle)->shader);
         }
     }
 
@@ -97,7 +97,7 @@ namespace TetraEngine {
             return;
         }
         if (scene == Scene::currentScene) {
-            scene->RegisterShader(Core::GetMainECS().GetComponent(handle)->shader);
+            scene->RegisterShader(Core::GetMainECS()->GetComponent(handle)->shader);
         }
     }
 } // TetraEngine

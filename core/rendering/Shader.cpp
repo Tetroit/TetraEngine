@@ -102,7 +102,7 @@ Shader::Shader(const std::string &vertexPath, const std::string &geometryPath, c
 
     std::string geometryCode;
     std::ifstream gShaderFile;
-    fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     try
     {
         //vertex shader
@@ -275,8 +275,8 @@ std::string Shader::GeometryAsString() const {
 }
 
 void Shader::InitialiseShaders() {
-    billboardShader = new Shader(shaderPath + "/billboard.glvs", shaderPath + "/billboard.glfs");
-    skyboxShader = new Shader(shaderPath + "/skybox.glvs", shaderPath + "/skybox.glfs");
-    skysphereShader = new Shader(shaderPath + "/skysphere.glvs", shaderPath + "/skysphere.glfs");
-    textShader = new Shader(shaderPath + "/text.glvs", shaderPath + "/text.glfs");
+    billboardShader = new Shader(shaderPath / "billboard.glvs", shaderPath / "billboard.glfs");
+    skyboxShader = new Shader(shaderPath / "skybox.glvs", shaderPath / "skybox.glfs");
+    skysphereShader = new Shader(shaderPath / "skysphere.glvs", shaderPath / "skysphere.glfs");
+    textShader = new Shader(shaderPath / "text.glvs", shaderPath / "text.glfs");
 }

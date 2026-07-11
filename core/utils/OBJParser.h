@@ -12,6 +12,9 @@ namespace TetraEngine {
 
 	public:
 		static int OBJRead(const std::string& path);
+		static int OBJRead(const std::filesystem::path& path) {
+			return OBJRead(path.string());
+		}
 	};
 }
 

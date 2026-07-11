@@ -20,8 +20,26 @@ namespace TetraEngine {
         uint ID;
         bool isUpdatedThisFrame = false;
 
-        Shader(const std::string& vertexPath, const std::string& fragmentPath);
-        Shader(const std::string& vertexPath, const std::string& geometryPath, const std::string& fragmentPath);
+        Shader(
+            const std::string& vertexPath,
+            const std::string& fragmentPath);
+        Shader(
+            const std::filesystem::path& vertexPath,
+            const std::filesystem::path& fragmentPath) : Shader(
+                vertexPath.string(),
+                fragmentPath.string()){}
+        Shader(
+            const std::string& vertexPath,
+            const std::string& geometryPath,
+            const std::string& fragmentPath);
+        Shader(
+            const std::filesystem::path& vertexPath,
+            const std::filesystem::path& geometryPath,
+            const std::filesystem::path& fragmentPath) : Shader(
+                vertexPath.string(),
+                geometryPath.string(),
+                fragmentPath.string()){}
+
         void Use();
         void SetBool(const std::string& name, bool value) const;
         void SetInt(const std::string& name, int value) const;
