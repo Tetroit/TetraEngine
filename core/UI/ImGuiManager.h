@@ -5,13 +5,14 @@
 #include "../utils/Event.h"
 #include "../InputManager.h"
 
-#include "Inspector.h"
-#include "Hierarchy.h"
-#include "ResourceView.h"
-
 namespace TetraEngine {
 	class Texture2D;
 	class Viewport;
+	namespace UI {
+		class Inspector;
+		class Hierarchy;
+		class ResourceView;
+	}
 	class ImGuiManager
 	{
 	    bool isMaximized = false;

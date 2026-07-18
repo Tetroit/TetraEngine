@@ -15,16 +15,16 @@ namespace TetraEngine {
     }
     struct GlobalContext {
 
-        Application* application;
-        GLFWManager* glfwManager;
-        ImGuiManager* imguiManager;
-        InputManager* inputManager;
-        Viewport* mainViewport;
-        DestroyManager* destroyManager;
-        Editor* editor;
-        TypeRegistry* typeRegistry;
-        SharedContentRegistry* resources;
-        ECS::ECS* ecs;
+        Application* application = nullptr;
+        GLFWManager* glfwManager = nullptr;
+        ImGuiManager* imguiManager = nullptr;
+        InputManager* inputManager = nullptr;
+        Viewport* mainViewport = nullptr;
+        DestroyManager* destroyManager = nullptr;
+        Editor* editor = nullptr;
+        TypeRegistry* typeRegistry = nullptr;
+        SharedContentRegistry* resources = nullptr;
+        ECS::ECS* ecs = nullptr;
 
         float lastMouseX;
         float lastMouseY;

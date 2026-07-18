@@ -3,14 +3,9 @@
 #include "tetrapc.h"
 
 #include "Application.h"
-#include "ConsoleManager.h"
-#include "DestroyManager.h"
 #include "Editor.h"
-#include "InputManager.h"
-#include "UI/ImGuiManager.h"
 #include "GLFWManager.h"
 #include "GlobalContext.h"
-#include "resources/SharedContentRegistry.h"
 
 
 #define TETRA_USE_MAIN_ECS auto* ecs = TetraEngine::Core::GetMainECS();
@@ -26,6 +21,10 @@ namespace TetraEngine {
 namespace TetraEngine {
 
 	class TypeRegistry;
+	class SharedContentRegistry;
+	class UIManager;
+	class InputManager;
+	class DebugManager;
 	class Editor;
 	namespace ECS {
 		class ECS;

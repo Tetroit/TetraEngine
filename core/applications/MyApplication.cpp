@@ -1,5 +1,6 @@
 #include "tetrapc.h"
 #include "MyApplication.h"
+#include "../resources/SharedContentRegistry.h"
 #include "../Core.h"
 #include "../GameObject.h"
 #include "../rendering/Skybox.h"

@@ -1,5 +1,4 @@
 #include "tetrapc.h"
-
 #include "Test.h"
 
 #include <glad/glad.h>

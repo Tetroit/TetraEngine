@@ -4,7 +4,6 @@
 #include "ecs/ECS.h"
 #include "utils/Action.h"
 
-
 namespace TetraEngine {
     class Transform {
 

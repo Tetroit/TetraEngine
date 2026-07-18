@@ -6,6 +6,8 @@
 
 #include "../utils/Utils.h"
 
+using namespace TetraEngine;
+
 void SharedContentRegistry::LoadAllAssets() {
     for (const auto& entry : std::filesystem::recursive_directory_iterator(assetPath)) {
         if (entry.is_regular_file()) {
@@ -16,22 +18,21 @@ void SharedContentRegistry::LoadAllAssets() {
 }
 
 void SharedContentRegistry::LoadFile(const std::filesystem::path &path) {
+    if (path.extension() == ".meta") return;
     std::filesystem::path metaPath;
     metaPath += ".meta";
-    bool hasMeta = std::filesystem::exists(metaPath);
-    asset_type_id type;
-    GUID id;
+    auto loaded = MetadataLoader::LoadMetadata(metaPath);
+    if (!loaded.has_value()) {
+        if (path.extension() == ".jpg" || path.extension() == ".jpeg" || path.extension() == ".png") {
+            Load<Texture2D>(path.string());
+        }
+    }
+    else {
+        if (loaded->type == TypeInfo<Texture2D>::id) {
+            auto ptr = Load<Texture2D>(path);
+            ptr.GetMetadataRef().path = path.string();
+        }
+    }
     std::ifstream stream(metaPath.string(), std::ifstream::binary);
-    if (!stream.is_open()) {
-        return;
-    }
-    nlohmann::json json;
-    stream >> json;
-    id = Utils::GuidFromString(json["guid"]);
-    type = json["type"];
-    if (type == TypeInfo<Texture2D>::id) {
-        auto ptr = Load<Texture2D>(path);
-        ptr.GetMetadataRef().path = path.string();
-    }
     std::cout << "File was loaded at " << path << std::endl;
 }

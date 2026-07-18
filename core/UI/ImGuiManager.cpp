@@ -4,6 +4,9 @@
 #include <backends/imgui_impl_opengl3.h>
 
 #include "ImGuiManager.h"
+#include "Inspector.h"
+#include "Hierarchy.h"
+#include "ResourceView.h"
 
 #include "../rendering/Viewport.h"
 #include "../Core.h"
@@ -72,9 +75,6 @@ ImGuiManager::ImGuiManager()
 	resourceView = std::make_unique<UI::ResourceView>(Core::GetResourceManager());
 
 	SetInspectors();
-
-    // TETRA_USE_MAIN_INPUT
-    // input->AddListener<ImGuiManager>(InputInfo(GLFW_PRESS, TETRA_INPUT_KEY_MODE), &ImGuiManager::EditorInputEvents, *this);
 }
 
 void ImGuiManager::BindEvents() {

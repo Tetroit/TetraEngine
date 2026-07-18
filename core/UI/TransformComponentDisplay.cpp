@@ -4,6 +4,7 @@
 #include "Inspector.h"
 #include "../ecs/ECS.h"
 #include "../Core.h"
+#include "../Transform.h"
 
 namespace TetraEngine::UI {
 

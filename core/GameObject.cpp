@@ -3,6 +3,7 @@
 #include "GameObject.h"
 
 #include "Core.h"
+#include "DestroyManager.h"
 #include "rendering/Scene.h"
 #include "rendering/4d/Renderer4D.h"
 

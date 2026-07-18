@@ -1,5 +1,6 @@
 #pragma once
 #include "tetrapc.h"
+#include "../utils/UUID.h"
 
 namespace TetraEngine
 {
@@ -17,8 +18,8 @@ namespace TetraEngine
 		friend class ComponentManager;
 
 		void AssignID();
-		static GUID GenerateID();
-		GUID id;
+		static UUID GenerateID();
+		UUID id;
 		uint typeID;
 		uint owner;
 		ComponentManager* manager;
@@ -36,7 +37,7 @@ namespace TetraEngine
 		std::string name = "New Component";
 
 		void Rename(std::string newName);
-		[[nodiscard]] GUID GetGUID() const;
+		[[nodiscard]] UUID GetGUID() const;
 
 		template<typename T>
 		Component<T>& as()

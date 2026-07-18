@@ -14,8 +14,6 @@
 #include <queue>
 #include <ranges>
 
-#include <Windows.h>
-
 #include <stb_image.h>
 
 #include <glad/glad.h>

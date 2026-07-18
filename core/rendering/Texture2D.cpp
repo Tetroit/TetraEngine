@@ -89,7 +89,7 @@ void Texture2D::Load(const std::string& name, bool flip_vertically) {
 	if (channels == 3) channelMode = GL_RGB;
 	if (channels == 4) channelMode = GL_RGBA;
 
-	data = std::vector<byte>(raw, raw + width * height * channels);
+	data = std::vector<uint8_t>(raw, raw + width * height * channels);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, channelMode, GL_UNSIGNED_BYTE, data.data());
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(raw);

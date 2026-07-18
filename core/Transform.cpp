@@ -17,6 +17,7 @@
 
 #include "rendering/Scene.h"
 
+using namespace TetraEngine;
 
 void Transform::ComponentCreate(Transform &transform, ECS::Entity entity, ECS::Handle<Transform> handle) {
     transform.self = handle;

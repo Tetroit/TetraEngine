@@ -6,19 +6,36 @@
 
 #include "../rendering/Texture2D.h"
 #include "../rendering/Material.h"
-#include "../utils/Utils.h"
 #include "../utils/Types.h"
-#include "nlohmann/adl_serializer.hpp"
+#include "../utils/UUID.h"
 #include "nlohmann/json.hpp"
-
-using namespace TetraEngine;
 
 namespace TetraEngine {
 
 	struct ResourceMetadata {
-		GUID guid;
+		UUID guid;
 		std::optional<std::string> path;
 		asset_type_id type;
+	};
+	struct MetadataLoader {
+		static std::optional<ResourceMetadata> LoadMetadata(std::filesystem::path path) {
+			if (std::filesystem::exists(path)) {
+				std::ifstream fileStream(path);
+				nlohmann::json jsonFile;
+				fileStream >> jsonFile;
+
+				ResourceMetadata meta;
+				meta.path = path.string().substr(0, path.string().find_last_of('.'));
+				if (jsonFile.contains("guid")) {
+					meta.guid = UUID(jsonFile["guid"].get<std::string>());
+				}
+				if (jsonFile.contains("type")) {
+					meta.type = jsonFile["type"];
+				}
+				return meta;
+			}
+			return std::nullopt;
+		}
 	};
 
 	class ISharedContentStorage {
@@ -26,7 +43,8 @@ namespace TetraEngine {
 		virtual ~ISharedContentStorage() = default;
 		virtual void* GetItem(uint id) = 0;
 		virtual uint GetGen(uint id) = 0;
-		virtual GUID GetGuid(uint id) = 0;
+		virtual UUID GetUuid(uint id) = 0;
+		virtual asset_type_id GetType() = 0;
 		virtual std::string GetPath(uint id) = 0;
 		virtual void SetPath(uint id, std::string path) = 0;
 		virtual bool HasPath(uint id) = 0;
@@ -35,44 +53,66 @@ namespace TetraEngine {
 		virtual void HandleError(std::string message) = 0;
 	};
 
-	class ResourceHandleBase {
-	protected:
-		asset_type_id type = 0;
-		ISharedContentStorage* storage;
-		ResourceHandleBase(ISharedContentStorage* storage, asset_type_id type) :
-		storage(storage),
-		type(type) {}
-	public:
-		asset_type_id getType() {return type; }
-
-	};
-
 	template <typename T>
 	class SharedContentStorage;
 
 	template <typename T>
-	class ResourceHandle : public ResourceHandleBase {
+	class ResourceHandle {
+		friend class ResourceHandleTypeErased;
 		friend class SharedContentRegistry;
-		uint gen = -1;
 		uint id = -1;
+		uint gen = -1;
+		ISharedContentStorage* storage = nullptr;
+
 	public:
 		static ResourceHandle<T> Invalid() {
-			return ResourceHandle<T>(nullptr, asset_type_id());
+			return ResourceHandle<T>(-1, asset_type_id());
 		}
-		bool isValid() {
-			return storage != nullptr;
-		}
+		bool isValid();
+
 		uint GetID() { return id; };
-		GUID GetGUID() { return storage->GetGuid(id); };
+		UUID GetUUID() {return storage->GetUuid(id);}
 		uint GetGen(){ return gen; }
+		asset_type_id GetType() { return storage->GetType(); }
 		ResourceMetadata GetMetadata() { return storage->GetMetadata(id); }
 		ResourceMetadata& GetMetadataRef(){ return storage->GetMetadataRef(id); }
-		ResourceHandle(SharedContentStorage<T>* storage, uint id, uint gen) :
-		ResourceHandleBase(storage, TypeInfo<T>::id),
-		gen(gen),
-		id(id) {}
+		ResourceHandle(SharedContentStorage<T>* storage, uint id, uint gen) : id(id), gen(gen), storage(storage) {}
 		T* operator->();
 	};
+
+	class ResourceHandleTypeErased {
+		friend class SharedContentRegistry;
+	protected:
+		asset_type_id type = 0;
+		uint id = -1;
+		uint gen = -1;
+		ISharedContentStorage* storage;
+		template<typename T>
+		ResourceHandleTypeErased(ResourceHandle<T> src) : storage(src.storage), id(src.id), gen(src.gen), type(src.GetType()) {}
+		ResourceHandleTypeErased(ISharedContentStorage* storage, asset_type_id type, uint id, uint gen) :
+		storage(storage),
+		type(type),
+		id(id),
+		gen(gen){}
+	public:
+		asset_type_id GetType() { return type; }
+		uint GetId() { return id; }
+		uint GetGen() { return gen; }
+		template<typename T>
+		std::optional<ResourceHandle<T>> TryCast() {
+			if (type == TypeInfo<T>::id) {
+				return ResourceHandle<T>(storage, id, gen);
+			}
+			return std::nullopt;
+		}
+		template<typename T>
+		ResourceHandle<T> Cast() {
+			return ResourceHandle<T>(storage, id, gen);
+		}
+	};
+
+	template <typename T>
+	class SharedContentStorage;
 
 
 	template <typename T>
@@ -86,13 +126,12 @@ namespace TetraEngine {
 		template <typename... Args>
 		ResourceHandle<T> CreateItem(Args&&... args) {
 			size_t id = 0;
-			GUID newGuid;
-			CoCreateGuid(&newGuid);
+			UUID newGuid;
 			if (!freeIDs.empty()) {
 				id = freeIDs.back();
 				freeIDs.pop_back();
 				resources[id].emplace(std::forward<Args>(args)...);
-				metadata[id].guid = GetGuid(id);
+				metadata[id].guid = GetUuid(id);
 				metadata[id].path = "";
 			}
 			else {
@@ -106,30 +145,38 @@ namespace TetraEngine {
 		}
 		template <typename... Args>
 		ResourceHandle<T> CreateItemAt(const std::filesystem::path& path, Args&&... args) {
-
 			std::filesystem::path metaPath = path.string() + ".meta";
 			size_t id = 0;
-			GUID newGuid;
-			if (std::filesystem::exists(metaPath)) {
+			UUID newGuid;
+
+			if (!freeIDs.empty()) {
+				id = freeIDs.back();
+				freeIDs.pop_back();
+				resources[id].emplace(std::forward<Args>(args)...);
 			}
 			else {
-				CoCreateGuid(&newGuid);
-				if (!freeIDs.empty()) {
-					id = freeIDs.back();
-					freeIDs.pop_back();
-					resources[id].emplace(std::forward<Args>(args)...);
-					metadata[id].guid = newGuid;
-					metadata[id].path = path.string();
-					metadata[id].type = TypeInfo<T>::id;
+				id = resources.size();
+				generations.push_back(0);
+				resources.emplace_back(std::forward<Args>(args)...);
+				metadata.emplace_back();
+			}
+			bool hasMetadata = std::filesystem::exists(metaPath);
+			if (hasMetadata) {
+				auto loadedMeta = MetadataLoader::LoadMetadata(metaPath);
+				if (loadedMeta.has_value()) {
+					newGuid = loadedMeta.value().guid;
 				}
 				else {
-					id = resources.size();
-					generations.push_back(0);
-					resources.emplace_back(std::forward<Args>(args)...);
-					metadata.emplace_back(newGuid, path.string(), TypeInfo<T>::id);
+					std::cerr << "Couldn't retrieve metadata from " << metaPath << std::endl;
 				}
-				SaveMetadata(id);
 			}
+			else {
+				newGuid = UUID::Next();
+			}
+			metadata[id].guid = newGuid;
+			metadata[id].path = path.string();
+			metadata[id].type = TypeInfo<T>::id;
+			if (!hasMetadata) SaveMetadata(id);
 			return ResourceHandle<T>(this, (uint)id, generations.at(id));
 		}
 		std::function<void(std::string)> errorCallback;
@@ -148,8 +195,11 @@ namespace TetraEngine {
 		uint GetGen(uint id) override {
 			return generations[id];
 		}
-		GUID GetGuid(uint id) override {
+		UUID GetUuid(uint id) override {
 			return metadata[id].guid;
+		}
+		asset_type_id GetType() override {
+			return TypeInfo<T>::id;
 		}
 		std::string GetPath(uint id) override {
 			auto& ptr = metadata[id].path;
@@ -184,9 +234,9 @@ namespace TetraEngine {
 			auto& meta = metadata[id];
 			nlohmann::json jsonFile;
 			jsonFile["type"] = TypeInfo<T>::id;
-			jsonFile["guid"] = Utils::GuidToString(meta.guid);
+			jsonFile["guid"] = (meta.guid.ToString());
 			std::filesystem::path path(meta.path.value());
-			path.append(".meta");
+			path += ".meta";
 			if (!std::filesystem::exists(path.parent_path()))
 				std::filesystem::create_directories(path.parent_path());
 			std::ofstream fileStream(path);
@@ -196,22 +246,6 @@ namespace TetraEngine {
 			}
 			fileStream << jsonFile.dump(4);
 		};
-		std::optional<ResourceMetadata> LoadMetadata(std::filesystem::path path) {
-			if (std::filesystem::exists(path)) {
-				std::ifstream fileStream(path);
-				nlohmann::json jsonFile;
-				fileStream >> jsonFile;
-
-				ResourceMetadata meta;
-				if (jsonFile.contains("guid")) {
-					meta.path = path.string().substr(0, path.string().find_last_of('.'));
-				}
-				if (jsonFile.contains("type")) {
-					meta.type = jsonFile["type"];
-				}
-			}
-			return std::nullopt;
-		}
 		void HandleError(std::string message) override {
 			if (errorCallback)
 				errorCallback(message);
@@ -230,13 +264,12 @@ namespace TetraEngine {
 		}
 	};
 
-
-
 	class SharedContentRegistry
 	{
 		template <typename T>
 		friend class ResourceHandle;
 		std::unordered_map<asset_type_id, std::unique_ptr<ISharedContentStorage>> registry;
+		std::unordered_map<UUID, ResourceHandleTypeErased, UUIDHasher> uuidMap;
 		std::pair<void*, uint> GetItemDirect(asset_type_id type, uint id) {
 			auto& storage = registry[type];
 			void* data = storage->GetItem(id);
@@ -244,7 +277,7 @@ namespace TetraEngine {
 			return { data, gen };
 		}
 		template <typename T>
-		std::unordered_map<asset_type_id, std::unique_ptr<ISharedContentStorage>>::iterator AddStorage() {
+		ISharedContentStorage& AddStorage() {
 			auto [it, success] = registry.try_emplace(TypeInfo<T>::id, std::make_unique<SharedContentStorage<T>>());
 			if (!success) {
 				HandleError( std::format("Failed to create storage of type {}", TypeInfo<T>::id));
@@ -254,8 +287,15 @@ namespace TetraEngine {
 			casted->errorCallback = [this](std::string message) {
 				HandleError(message);
 			};
-			return it;
+			return *casted;
 		}
+		template <typename T>
+		SharedContentStorage<T>& GetStorage() {
+			auto it = registry.find(TypeInfo<T>::id);
+			if (it == registry.end()) return AddStorage<T>();
+			return *static_cast<SharedContentStorage<T>*>(it->second.get());
+		}
+
 	public:
 
 		SharedContentRegistry() = default;
@@ -285,12 +325,17 @@ namespace TetraEngine {
 		requires std::constructible_from<T, Args...>
 		ResourceHandle<T> CreateItemAt (const std::filesystem::path& filename, Args&&... args) {
 			auto storageIt = registry.find(TypeInfo<T>::id);
+			ISharedContentStorage* storagePtr = nullptr;
 			if (storageIt == registry.end()) {
-				storageIt = AddStorage<T>();
+				storagePtr = &AddStorage<T>();
 			}
-			auto storagePtr = storageIt->second.get();
+			else {
+				storagePtr = storageIt->second.get();
+			}
 			auto casted = static_cast<SharedContentStorage<T>*>(storagePtr);
-			return casted->CreateItemAt(filename, std::forward<Args>(args)...);
+			auto handle = casted->CreateItemAt(filename, std::forward<Args>(args)...);
+			uuidMap.emplace(handle.GetUUID(), ResourceHandleTypeErased(handle));
+			return handle;
 		}
 		template <typename T>
 		void* Get(ResourceHandle<T> handle) {
@@ -336,6 +381,12 @@ namespace TetraEngine {
 	};
 
 	//------DEFINITIONS--------
+
+	template<typename T>
+	bool ResourceHandle<T>::isValid() {
+		if (storage == nullptr) return false;
+		return storage->GetGen(id) == gen;
+	}
 
 	template<typename T>
 	T* ResourceHandle<T>::operator->() {

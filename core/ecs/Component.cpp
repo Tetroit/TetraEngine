@@ -6,11 +6,9 @@
 
 using namespace TetraEngine;
 
-GUID ComponentBase::GenerateID()
+UUID ComponentBase::GenerateID()
 {
-	GUID guid;
-	CoCreateGuid(&guid);
-	return guid;
+	return UUID::Next();
 }
 ComponentBase::ComponentBase(ComponentManager* manager, uint typeID, const std::string& name) : manager(manager),
 	typeID(typeID), owner(0), id(GenerateID()) {
@@ -21,6 +19,6 @@ void ComponentBase::Rename(std::string newName)
 	name = std::move(newName);
 }
 
-GUID ComponentBase::GetGUID() const {
+UUID ComponentBase::GetGUID() const {
 	return id;
 }

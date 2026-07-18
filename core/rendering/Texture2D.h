@@ -11,7 +11,7 @@ namespace TetraEngine {
 		int width;
 		int height;
 		int channels;
-		std::vector<byte> data;
+		std::vector<uint8_t> data;
 
 		Texture2D();
 		Texture2D(const Texture2D&) = delete;
